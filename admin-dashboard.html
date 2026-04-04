@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - 7 Kebiasaan Anak Indonesia Hebat</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="apps-script-api.js"></script>
+    <script src="app.js"></script>
+    <style>
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .filter-bar .form-group {
+            margin-bottom: 0;
+            min-width: 150px;
+        }
+        .filter-bar .form-group input, 
+        .filter-bar .form-group select {
+            margin-top: 5px;
+        }
+        .btn-filter {
+            padding: 12px 24px;
+            height: 46px;
+        }
+        .skor-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+        }
+        .skor-bagus { background: #10b981; }
+        .skor-cukup { background: #f59e0b; }
+        .skor-kurang { background: #ef4444; }
+    </style>
+</head>
+<body>
+<div id="loadingOverlay" class="loading-overlay hidden"><div class="spinner"></div></div>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo"><span>👑</span><span>Admin Panel</span></div>
+        <button onclick="logout()" class="btn-sm btn-danger">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab active" data-tab="users">👥 Manajemen User</button>
+        <button class="tab" data-tab="habits">📋 Semua Log</button>
+        <button class="tab" data-tab="scores">📊 Rekap Skor</button>
+        <button class="tab" data-tab="rapor">📄 Generate Rapor</button>
+    </div>
+    
+    <!-- TAB USERS -->
+    <div id="tabUsers" class="tab-content">
+        <div class="card">
+            <div class="flex-between">
+                <h2>Daftar User (Firestore)</h2>
+                <div class="btn-group">
+                    <button id="downloadTemplateBtn" class="btn btn-secondary">📥 Download Template</button>
+                    <button id="exportUsersBtn" class="btn btn-primary">📤 Export Excel</button>
+                    <button id="uploadExcelBtn" class="btn btn-outline">📎 Upload Excel</button>
+                    <button id="addUserBtn" class="btn btn-primary">➕ Tambah Manual</button>
+                </div>
+            </div>
+            <input type="file" id="uploadExcelFile" accept=".xlsx,.xls,.csv" style="display:none">
+            <div id="userTableContainer" class="table-wrapper"></div>
+        </div>
+    </div>
+    
+    <!-- TAB HABITS -->
+    <div id="tabHabits" class="tab-content hidden">
+    <div class="card">
+        <div class="flex-between">
+            <h2>Semua Log Kebiasaan (Google Sheets)</h2>
+            <div class="btn-group">
+                <button id="refreshHabitsBtn" class="btn btn-secondary">🔄 Refresh</button>
+                <button id="importDataBtn" class="btn btn-primary">📥 Import Data (Excel/CSV)</button>
+            </div>
+        </div>
+        <input type="file" id="importDataFile" accept=".xlsx,.xls,.csv" style="display:none">
+        <div id="habitsTableContainer" class="table-wrapper"></div>
+    </div>
+</div>
+    
+    <!-- TAB SCORES - REKAP SKOR DENGAN FILTER -->
+    <div id="tabScores" class="tab-content hidden">
+        <div class="card">
+            <h2>Rekapitulasi Skor</h2>
+            
+            <!-- FILTER BAR -->
+            <div class="filter-bar">
+                <div class="form-group">
+                    <label>Filter Kelas</label>
+                    <select id="filterKelas">
+                        <option value="">Semua Kelas</option>
+                        <option value="1A">1A</option><option value="1B">1B</option>
+                        <option value="2A">2A</option><option value="2B">2B</option>
+                        <option value="3A">3A</option><option value="3B">3B</option>
+                        <option value="4A">4A</option><option value="4B">4B</option>
+                        <option value="5A">5A</option><option value="5B">5B</option>
+                        <option value="6A">6A</option><option value="6B">6B</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cari Nama</label>
+                    <input type="text" id="filterNama" placeholder="Ketik nama siswa...">
+                </div>
+                <button id="applyFilterBtn" class="btn btn-primary btn-filter">🔍 Terapkan Filter</button>
+                <button id="resetFilterBtn" class="btn btn-outline btn-filter">🔄 Reset</button>
+                <button id="exportScoresBtn" class="btn btn-secondary btn-filter">📥 Export Excel</button>
+            </div>
+            
+            <!-- TABEL REKAP SKOR -->
+            <div id="scoresTableContainer" class="table-wrapper">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>Kelas</th>
+                                <th>Total Skor</th>
+                                <th>Hari Aktif</th>
+                                <th>Rata-rata</th>
+                                <th>Kategori</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoresTableBody">
+                            <tr class="empty-row"><td colspan="7">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- TAB RAPOR -->
+    <div id="tabRapor" class="tab-content hidden">
+        <div class="card">
+            <h2>Generate Rapor PDF</h2>
+            <div class="form-group">
+                <label for="raporSelect">Pilih Siswa</label>
+                <select id="raporSelect"></select>
+            </div>
+            <button id="generateRaporBtn" class="btn btn-primary btn-block">📥 Cetak Rapor PDF</button>
+            <div id="raporPreview" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const isAdminLoggedIn = localStorage.getItem('isAdmin');
+    if (!isAdminLoggedIn) window.location.href = 'login.html';
+    
+    let allScoresData = [];
+    
+    // ==================== MANAJEMEN USER ====================
+    async function renderUsers() {
+        try {
+            const snapshot = await db.collection(USERS_COLLECTION).orderBy('nama').get();
+            let html = `<div class="table-wrapper"><table class="data-table"><thead><tr>
+                <th>No</th><th>ID User</th><th>Nama Lengkap</th><th>Kelas</th><th>Aksi</th>
+            </tr></thead><tbody>`;
+            let no = 1;
+            snapshot.forEach(doc => {
+                const user = doc.data();
+                html += `<tr>
+                    <td>${no++}</td>
+                    <td><small>${doc.id.substring(0, 8)}...</small></td>
+                    <td><strong>${escapeHtml(user.nama)}</strong></td>
+                    <td>${escapeHtml(user.kelas || '-')}</td>
+                    <td><button class="btn-delete" onclick="deleteUser('${doc.id}')">Hapus</button></td>
+                </tr>`;
+            });
+            if (no === 1) html += '<tr class="empty-row"><td colspan="5">Belum ada user</td></tr>';
+            html += `</tbody></table></div>`;
+            document.getElementById('userTableContainer').innerHTML = html;
+        } catch(e) { console.error(e); }
+    }
+    
+    window.deleteUser = async (id) => {
+        if (confirm('Hapus user ini?')) {
+            showLoading(true);
+            try {
+                await db.collection(USERS_COLLECTION).doc(id).delete();
+                showToast('User dihapus', 'success');
+                await renderUsers();
+                await renderRaporSelect();
+            } catch(e) { showToast('Error: ' + e.message, 'error'); }
+            showLoading(false);
+        }
+    };
+    
+    async function addUser() {
+        const nama = prompt('Masukkan nama lengkap:');
+        if (!nama) return;
+        const kelas = prompt('Masukkan kelas (contoh: 5A):');
+        showLoading(true);
+        try {
+            await db.collection(USERS_COLLECTION).add({ nama: nama.trim(), kelas: kelas || '' });
+            showToast('User ditambahkan', 'success');
+            await renderUsers();
+            await renderRaporSelect();
+        } catch(e) { showToast('Error: ' + e.message, 'error'); }
+        showLoading(false);
+    }
+    
+    function downloadTemplate() {
+        const wsData = [['Nama Lengkap', 'Kelas'], ['Budi Santoso', '5A'], ['Siti Aminah', '5B']];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Template_User');
+        XLSX.writeFile(wb, 'template_user_7kebiasaan.xlsx');
+        showToast('Template downloaded', 'success');
+    }
+    
+    async function exportUsers() {
+        showLoading(true);
+        try {
+            const snapshot = await db.collection(USERS_COLLECTION).orderBy('nama').get();
+            const data = [['ID User', 'Nama Lengkap', 'Kelas']];
+            snapshot.forEach(doc => {
+                const user = doc.data();
+                data.push([doc.id, user.nama, user.kelas || '']);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Users');
+            XLSX.writeFile(wb, `users_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            showToast('Export berhasil', 'success');
+        } catch(e) { showToast('Error: ' + e.message, 'error'); }
+        showLoading(false);
+    }
+    
+    function uploadExcel() { document.getElementById('uploadExcelFile').click(); }
+    
+    async function processExcel(file) {
+        showLoading(true);
+        try {
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data);
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet);
+            let successCount = 0;
+            for (const row of rows) {
+                let nama = row['Nama Lengkap'] || row['Nama'] || row['nama'];
+                let kelas = row['Kelas'] || row['kelas'] || '';
+                if (nama && nama !== 'Budi Santoso') {
+                    await db.collection(USERS_COLLECTION).add({ nama: nama.trim(), kelas: kelas });
+                    successCount++;
+                }
+            }
+            showToast(`${successCount} user berhasil diimport`, 'success');
+            await renderUsers();
+            await renderRaporSelect();
+        } catch(e) { showToast('Error: ' + e.message, 'error'); }
+        showLoading(false);
+    }
+    
+    // ==================== SEMUA LOG ====================
+    async function loadAllHabits() {
+        showLoading(true);
+        const result = await getHabitsFromSheet();
+        showLoading(false);
+        
+        if (!result || !result.success) {
+            document.getElementById('habitsTableContainer').innerHTML = '<div class="table-wrapper"><table class="data-table"><tr class="empty-row"><td>Gagal memuat data</tr></table></div>';
+            return;
+        }
+        
+        const habits = result.habits;
+        if (!habits || habits.length === 0) {
+            document.getElementById('habitsTableContainer').innerHTML = '<div class="table-wrapper"><table class="data-table"><tr class="empty-row"><td>Belum ada data kebiasaan</tr></table></div>';
+            return;
+        }
+        
+        let html = `<div class="table-wrapper"><table class="data-table"><thead><tr>
+            <th>Tanggal</th><th>Nama</th><th>Kelas</th><th>Bangun</th><th>Ibadah</th><th>Quran</th>
+            <th>Olahraga</th><th>Belajar</th><th>Makan</th><th>Bantu Ortu</th><th>Tidur</th><th>Skor</th>
+        </tr></thead><tbody>`;
+        
+        habits.slice().reverse().slice(0, 100).forEach(h => {
+            html += `<tr>
+                <td>${h.Tanggal_Kegiatan || '-'}</td>
+                <td>${escapeHtml(h.Nama || '-')}</td>
+                <td>${escapeHtml(h.Kelas || '-')}</td>
+                <td>${h.Bangun_Pagi_Jam || '-'} (${h.Bangun_Pagi_Skor || 0})</td>
+                <td>${h.Ibadah_List || '-'} (${h.Ibadah_Skor || 0})</td>
+                <td>${h.Quran_Surat && h.Quran_Surat !== '-' ? h.Quran_Surat + ' (' + h.Quran_Ayat + ')' : '-'} (${h.Quran_Skor || 0})</td>
+                <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Waktu + ' - ' + h.Olahraga_Aktivitas : '-'} (${h.Olahraga_Skor || 0})</td>
+                <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Waktu + ' - ' + h.Belajar_Materi : '-'} (${h.Belajar_Skor || 0})</td>
+                <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? h.Makan_Pagi + ' | ' + h.Makan_Siang + ' | ' + h.Makan_Malam : '-'} (${h.Makan_Skor || 0})</td>
+                <td>${h.Bantu_Ortu || '-'} (${h.Bantu_Ortu_Skor || 0})</td>
+                <td>${h.Tidur_Jam || '-'} (${h.Tidur_Skor || 0})</td>
+                <td><strong>${h.TOTAL_SKOR || 0}</strong></td>
+            </tr>`;
+        });
+        html += `</tbody></table></div>`;
+        document.getElementById('habitsTableContainer').innerHTML = html;
+    }
+    
+  // ==================== REKAP SKOR DENGAN PERHITUNGAN YANG BENAR ====================
+async function loadScoresData() {
+    showLoading(true);
+    const result = await getScoresFromSheet();
+    showLoading(false);
+    
+    if (!result || !result.success) {
+        document.getElementById('scoresTableBody').innerHTML = '<tr class="empty-row"><td colspan="7">Gagal memuat数据</tr>';
+        return;
+    }
+    
+    // Konversi ke array untuk filtering
+    allScoresData = Object.entries(result.scores).map(([nama, data]) => ({
+        nama: nama,
+        kelas: data.kelas || '-',
+        totalSkor: data.total || 0,      // SUM dari TOTAL_SKOR
+        hariAktif: data.count || 0,       // COUNT jumlah hari
+        rataRata: data.rata || 0          // totalSkor / hariAktif
+    }));
+    
+    // Urutkan berdasarkan nama
+    allScoresData.sort((a, b) => a.nama.localeCompare(b.nama));
+    applyScoreFilter();
+}
+
+function applyScoreFilter() {
+    const filterKelas = document.getElementById('filterKelas').value;
+    const filterNama = document.getElementById('filterNama').value.toLowerCase().trim();
+    
+    let filteredData = [...allScoresData];
+    
+    if (filterKelas) {
+        filteredData = filteredData.filter(item => item.kelas === filterKelas);
+    }
+    
+    if (filterNama) {
+        filteredData = filteredData.filter(item => item.nama.toLowerCase().includes(filterNama));
+    }
+    
+    renderScoresTable(filteredData);
+}
+
+function renderScoresTable(data) {
+    const tbody = document.getElementById('scoresTableBody');
+    
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Tidak ada data yang sesuai filter</tr>';
+        return;
+    }
+    
+    let html = '';
+    data.forEach((item, index) => {
+        // Skor badge berdasarkan TOTAL SKOR
+        let skorClass = 'skor-kurang';
+        if (item.totalSkor >= 30) skorClass = 'skor-bagus';
+        else if (item.totalSkor >= 15) skorClass = 'skor-cukup';
+        
+        // Kategori berdasarkan RATA-RATA
+        let kategori = '';
+        if (item.rataRata >= 15) kategori = '🌟 Sangat Baik';
+        else if (item.rataRata >= 10) kategori = '👍 Baik';
+        else if (item.rataRata >= 5) kategori = '⚠️ Cukup';
+        else kategori = '❌ Perlu Ditingkatkan';
+        
+        html += `
+            <tr>
+                <td class="text-center">${index + 1}</td>
+                <td><strong>${escapeHtml(item.nama)}</strong></td>
+                <td class="text-center">${escapeHtml(item.kelas)}</td>
+                <td class="text-center"><span class="skor-badge ${skorClass}">${item.totalSkor}</span></td>
+                <td class="text-center">${item.hariAktif}</td>
+                <td class="text-center">${item.rataRata.toFixed(1)}</td>
+                <td class="text-center">${kategori}</td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+}
+
+function resetScoreFilter() {
+    document.getElementById('filterKelas').value = '';
+    document.getElementById('filterNama').value = '';
+    applyScoreFilter();
+}
+
+function exportScoresToExcel() {
+    const filterKelas = document.getElementById('filterKelas').value;
+    const filterNama = document.getElementById('filterNama').value.toLowerCase().trim();
+    
+    let dataToExport = [...allScoresData];
+    if (filterKelas) dataToExport = dataToExport.filter(item => item.kelas === filterKelas);
+    if (filterNama) dataToExport = dataToExport.filter(item => item.nama.toLowerCase().includes(filterNama));
+    
+    const wsData = [['No', 'Nama', 'Kelas', 'Total Skor', 'Hari Aktif', 'Rata-rata']];
+    dataToExport.forEach((item, idx) => {
+        wsData.push([idx + 1, item.nama, item.kelas, item.totalSkor, item.hariAktif, item.rataRata.toFixed(1)]);
+    });
+    
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Rekap_Skor');
+    XLSX.writeFile(wb, `rekap_skor_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    showToast('Export berhasil', 'success');
+}
+
+// ==================== RAPOR PDF DENGAN PERHITUNGAN YANG BENAR ====================
+async function generateRapor() {
+    const nama = document.getElementById('raporSelect').value;
+    if (!nama) {
+        showToast('Pilih siswa terlebih dahulu!', 'error');
+        return;
+    }
+    
+    showLoading(true);
+    const result = await getScoresFromSheet();
+    showLoading(false);
+    
+    const data = result.scores?.[nama] || { total: 0, count: 0, kelas: '-' };
+    const today = new Date().toLocaleDateString('id-ID');
+    
+    // Hitung kategori berdasarkan rata-rata
+    let kategori = '';
+    let saran = '';
+    if (data.rata >= 15) {
+        kategori = '🌟 SANGAT BAIK';
+        saran = 'Pertahankan dan tingkatkan terus kebiasaan baikmu!';
+    } else if (data.rata >= 10) {
+        kategori = '👍 BAIK';
+        saran = 'Terus semangat membangun kebiasaan positif!';
+    } else if (data.rata >= 5) {
+        kategori = '⚠️ CUKUP';
+        saran = 'Perlu lebih konsisten dalam menerapkan kebiasaan.';
+    } else {
+        kategori = '❌ PERLU DITINGKATKAN';
+        saran = 'Mulai biasakan diri dengan 7 kebiasaan ini.';
+    }
+    
+    const html = `
+        <div style="padding:30px;background:white;border-radius:20px;text-align:center;max-width:800px;margin:0 auto;font-family:'Segoe UI',sans-serif;">
+            <div style="border-bottom: 3px solid #f59e0b; padding-bottom: 20px; margin-bottom: 20px;">
+                <div style="font-size: 48px;">🇮🇩✨</div>
+                <h1 style="color: #1e293b;">RAPOR 7 KEBASAAN</h1>
+                <h2 style="color: #f59e0b;">Anak Indonesia Hebat</h2>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h3>${escapeHtml(nama)}</h3>
+                <p>Kelas: ${escapeHtml(data.kelas)}</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; margin: 20px 0;">
+                <div style="background: #fef3c7; padding: 15px; border-radius: 16px;">
+                    <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${data.total}</div>
+                    <div>Total Skor</div>
+                    <small>(SUM dari semua kebiasaan)</small>
+                </div>
+                <div style="background: #dbeafe; padding: 15px; border-radius: 16px;">
+                    <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">${data.count}</div>
+                    <div>Hari Aktif</div>
+                    <small>(Total hari mengisi)</small>
+                </div>
+                <div style="background: #dcfce7; padding: 15px; border-radius: 16px;">
+                    <div style="font-size: 28px; font-weight: bold; color: #10b981;">${(data.rata || 0).toFixed(1)}</div>
+                    <div>Rata-rata Skor</div>
+                    <small>(Total Skor ÷ Hari Aktif)</small>
+                </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 20px; padding: 30px; margin-top: 20px;">
+                <div style="font-size: 48px;">🏅</div>
+                <h2 style="color: #1e293b;">KARTU PENGHARGAAN</h2>
+                <p>Diberikan kepada:</p>
+                <h3 style="color: #f59e0b;">${escapeHtml(nama)}</h3>
+                <p><strong>${kategori}</strong></p>
+                <p>${saran}</p>
+                <hr style="margin: 15px 0;">
+                <p><strong>Total Skor: ${data.total} poin</strong></p>
+                <p>${today}</p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('raporPreview').innerHTML = html;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(html);
+    printWindow.print();
+    showToast('Rapor sedang diproses', 'success');
+}
+    
+    // ==================== RAPOR ====================
+    async function renderRaporSelect() {
+        try {
+            const snapshot = await db.collection(USERS_COLLECTION).orderBy('nama').get();
+            const select = document.getElementById('raporSelect');
+            select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+            snapshot.forEach(doc => {
+                const user = doc.data();
+                select.innerHTML += `<option value="${escapeHtml(user.nama)}">${escapeHtml(user.nama)} (${escapeHtml(user.kelas || '-')})</option>`;
+            });
+        } catch(e) {}
+    }
+    
+    async function generateRapor() {
+        const nama = document.getElementById('raporSelect').value;
+        if (!nama) {
+            showToast('Pilih siswa terlebih dahulu!', 'error');
+            return;
+        }
+        
+        showLoading(true);
+        const result = await getScoresFromSheet();
+        showLoading(false);
+        
+        const data = result.scores?.[nama] || { total: 0, count: 0, kelas: '-' };
+        const today = new Date().toLocaleDateString('id-ID');
+        
+        let kategori = '';
+        if (data.total >= 20) kategori = '🌟 Luar Biasa!';
+        else if (data.total >= 10) kategori = '👍 Baik';
+        else kategori = '⚠️ Perlu Ditingkatkan';
+        
+        const html = `
+            <div style="padding:30px;background:white;border-radius:20px;text-align:center;max-width:800px;margin:0 auto;">
+                <div style="border-bottom: 3px solid #f59e0b; padding-bottom: 20px; margin-bottom: 20px;">
+                    <div style="font-size: 48px;">🇮🇩✨</div>
+                    <h1 style="color: #1e293b;">RAPOR 7 KEBASAAN</h1>
+                    <h2 style="color: #f59e0b;">Anak Indonesia Hebat</h2>
+                </div>
+                <div style="margin: 20px 0;">
+                    <h3>${escapeHtml(nama)}</h3>
+                    <p>Kelas: ${escapeHtml(data.kelas)}</p>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; margin: 20px 0;">
+                    <div style="background: #fef3c7; padding: 15px; border-radius: 16px;">
+                        <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${data.total}</div>
+                        <div>Total Skor</div>
+                    </div>
+                    <div style="background: #dbeafe; padding: 15px; border-radius: 16px;">
+                        <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">${data.count}</div>
+                        <div>Hari Aktif</div>
+                    </div>
+                    <div style="background: #dcfce7; padding: 15px; border-radius: 16px;">
+                        <div style="font-size: 28px; font-weight: bold; color: #10b981;">${(data.rata || 0).toFixed(1)}</div>
+                        <div>Rata-rata Skor</div>
+                    </div>
+                </div>
+                <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 20px; padding: 30px; margin-top: 20px;">
+                    <div style="font-size: 48px;">🏅</div>
+                    <h2 style="color: #1e293b;">KARTU PENGHARGAAN</h2>
+                    <p>Diberikan kepada:</p>
+                    <h3 style="color: #f59e0b;">${escapeHtml(nama)}</h3>
+                    <p>${kategori}</p>
+                    <hr style="margin: 15px 0;">
+                    <p><strong>Total Skor: ${data.total} poin</strong></p>
+                    <p>${today}</p>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('raporPreview').innerHTML = html;
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(html);
+        printWindow.print();
+        showToast('Rapor sedang diproses', 'success');
+    }
+// ==================== IMPORT DATA MASSAL ====================
+function importData() {
+    document.getElementById('importDataFile').click();
+}
+
+async function processImportData(file) {
+    showLoading(true);
+    
+    try {
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+        
+        console.log('📊 Data yang akan diimport:', rows.length, 'baris');
+        
+        // Konversi ke format yang diharapkan
+        const records = rows.map(row => {
+            // Mapping kolom yang fleksibel
+            return {
+                ID_USER: row.ID_USER || row.id_user || row.ID_USER || '',
+                Nama: row.Nama || row.nama || row.NAMA || '',
+                Kelas: row.Kelas || row.kelas || row.KELAS || '',
+                Tanggal_Kegiatan: row.Tanggal_Kegiatan || row.tanggal || row.TANGGAL || '',
+                TOTAL_SKOR: row.TOTAL_SKOR || row.total_skor || row.SKOR || 0,
+                Bangun_Pagi_Jam: row.Bangun_Pagi_Jam || row.bangun_pagi || '',
+                Ibadah_List: row.Ibadah_List || row.ibadah || '',
+                Quran_Surat: row.Quran_Surat || row.quran_surat || '',
+                Quran_Ayat: row.Quran_Ayat || row.quran_ayat || '',
+                Olahraga_Aktivitas: row.Olahraga_Aktivitas || row.olahraga || '',
+                Belajar_Materi: row.Belajar_Materi || row.belajar || '',
+                Makan_Pagi: row.Makan_Pagi || row.makan_pagi || '',
+                Makan_Siang: row.Makan_Siang || row.makan_siang || '',
+                Makan_Malam: row.Makan_Malam || row.makan_malam || '',
+                Bantu_Ortu: row.Bantu_Ortu || row.bantu_ortu || '',
+                Tidur_Jam: row.Tidur_Jam || row.tidur || ''
+            };
+        });
+        
+        // Kirim ke Apps Script
+        let successCount = 0;
+        for (const record of records) {
+            const formData = {
+                ID_USER: record.ID_USER,
+                Timestamp: new Date().toISOString(),
+                Tanggal_Kegiatan: record.Tanggal_Kegiatan,
+                Nama: record.Nama,
+                Kelas: record.Kelas,
+                Bangun_Pagi_Jam: record.Bangun_Pagi_Jam || '-',
+                Bangun_Pagi_Skor: 0,
+                Ibadah_List: record.Ibadah_List || '-',
+                Ibadah_Jumlah: 0,
+                Ibadah_Skor: 0,
+                Quran_Surat: record.Quran_Surat || '-',
+                Quran_Ayat: record.Quran_Ayat || '-',
+                Quran_Skor: 0,
+                Olahraga_Waktu: '-',
+                Olahraga_Aktivitas: record.Olahraga_Aktivitas || '-',
+                Olahraga_Skor: 0,
+                Belajar_Waktu: '-',
+                Belajar_Materi: record.Belajar_Materi || '-',
+                Belajar_Skor: 0,
+                Makan_Pagi: record.Makan_Pagi || '-',
+                Makan_Siang: record.Makan_Siang || '-',
+                Makan_Malam: record.Makan_Malam || '-',
+                Makan_Skor: 0,
+                Bantu_Ortu: record.Bantu_Ortu || '-',
+                Bantu_Ortu_Skor: 0,
+                Tidur_Jam: record.Tidur_Jam || '-',
+                Tidur_Skor: 0,
+                TOTAL_SKOR: parseInt(record.TOTAL_SKOR) || 0
+            };
+            
+            const result = await submitHabitToSheet(formData);
+            if (result.success) successCount++;
+            
+            // Delay 100ms antar request
+            await new Promise(r => setTimeout(r, 100));
+        }
+        
+        showToast(`✅ Import selesai! ${successCount} dari ${records.length} data berhasil diimport`, 'success');
+        
+        // Refresh data
+        loadAllHabits();
+        loadScoresData();
+        
+    } catch (error) {
+        console.error('Import error:', error);
+        showToast('❌ Gagal import data: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Event listener untuk import
+document.getElementById('importDataBtn')?.addEventListener('click', importData);
+document.getElementById('importDataFile')?.addEventListener('change', (e) => {
+    if (e.target.files[0]) processImportData(e.target.files[0]);
+});
+    
+    // ==================== TAB SWITCHING ====================
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const target = tab.getAttribute('data-tab');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`tab${target.charAt(0).toUpperCase() + target.slice(1)}`).classList.remove('hidden');
+            
+            if (target === 'habits') loadAllHabits();
+            if (target === 'scores') loadScoresData();
+            if (target === 'rapor') renderRaporSelect();
+        });
+    });
+    
+    // ==================== EVENT LISTENERS ====================
+    document.getElementById('addUserBtn')?.addEventListener('click', addUser);
+    document.getElementById('downloadTemplateBtn')?.addEventListener('click', downloadTemplate);
+    document.getElementById('exportUsersBtn')?.addEventListener('click', exportUsers);
+    document.getElementById('uploadExcelBtn')?.addEventListener('click', uploadExcel);
+    document.getElementById('refreshHabitsBtn')?.addEventListener('click', loadAllHabits);
+    document.getElementById('generateRaporBtn')?.addEventListener('click', generateRapor);
+    document.getElementById('uploadExcelFile')?.addEventListener('change', (e) => {
+        if (e.target.files[0]) processExcel(e.target.files[0]);
+    });
+    document.getElementById('applyFilterBtn')?.addEventListener('click', applyScoreFilter);
+    document.getElementById('resetFilterBtn')?.addEventListener('click', resetScoreFilter);
+    document.getElementById('exportScoresBtn')?.addEventListener('click', exportScoresToExcel);
+    
+    // ==================== INITIAL LOAD ====================
+    renderUsers();
+    loadAllHabits();
+    loadScoresData();
+    renderRaporSelect();
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - 7 Kebiasaan Anak Indonesia Hebat</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</head>
+<body>
+<div id="loadingOverlay" class="loading-overlay hidden"><div class="spinner"></div></div>
+
+<div class="container">
+    <div class="card login-card">
+        <div class="logo-icon">🇮🇩✨</div>
+        <h1>Login</h1>
+        
+        <div class="login-tabs">
+            <button class="tab-btn active" data-tab="user">User Login</button>
+            <button class="tab-btn" data-tab="admin">Admin Login</button>
+        </div>
+        
+        <div id="userLoginForm">
+            <div class="form-group">
+                <label for="userNama">Nama Lengkap</label>
+                <input type="text" id="userNama" placeholder="Contoh: Budi Santoso">
+            </div>
+            <button id="btnUserLogin" class="btn btn-primary btn-block">Masuk</button>
+        </div>
+        
+        <div id="adminLoginForm" class="hidden">
+            <div class="form-group">
+                <label for="adminUsername">Username</label>
+                <input type="text" id="adminUsername" placeholder="admin">
+            </div>
+            <div class="form-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" placeholder="admin123">
+            </div>
+            <button id="btnAdminLogin" class="btn btn-outline btn-block">Login Admin</button>
+        </div>
+        
+        <button onclick="window.location.href='index.html'" class="btn btn-sm btn-outline" style="margin-top: 15px;">Kembali</button>
+    </div>
+</div>
+
+<script>
+    // Login User
+    document.getElementById('btnUserLogin').addEventListener('click', async () => {
+        const nama = document.getElementById('userNama').value.trim();
+        if (!nama) {
+            alert('Masukkan nama!');
+            return;
+        }
+        
+        showLoading(true);
+        try {
+            const snapshot = await db.collection(USERS_COLLECTION).where('nama', '==', nama).limit(1).get();
+            if (!snapshot.empty) {
+                const doc = snapshot.docs[0];
+                const userData = { id: doc.id, nama: doc.data().nama, kelas: doc.data().kelas || '' };
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+                window.location.href = 'user-dashboard.html';
+            } else {
+                alert('Nama tidak terdaftar! Hubungi admin.');
+            }
+        } catch(e) { 
+            alert('Error: ' + e.message); 
+        } finally { 
+            showLoading(false); 
+        }
+    });
+    
+    // Login Admin
+    document.getElementById('btnAdminLogin').addEventListener('click', () => {
+        const username = document.getElementById('adminUsername').value.trim();
+        const password = document.getElementById('adminPassword').value.trim();
+        
+        if (username === 'admin' && password === 'admin123') {
+            localStorage.setItem('isAdmin', 'true');
+            window.location.href = 'admin-dashboard.html';
+        } else {
+            alert('Username atau password salah!');
+        }
+    });
+    
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const tab = btn.getAttribute('data-tab');
+            document.getElementById('userLoginForm').classList.toggle('hidden', tab !== 'user');
+            document.getElementById('adminLoginForm').classList.toggle('hidden', tab !== 'admin');
+        });
+    });
+    
+    // Seed initial users
+    async function seedInitialUsers() {
+        try {
+            const snapshot = await db.collection(USERS_COLLECTION).get();
+            if (snapshot.empty) {
+                const users = [
+                    { nama: "Budi Santoso", kelas: "5A" },
+                    { nama: "Siti Aminah", kelas: "5B" },
+                    { nama: "Ahmad Fauzi", kelas: "6A" }
+                ];
+                for (const u of users) await db.collection(USERS_COLLECTION).add(u);
+                console.log('Users seeded');
+            }
+        } catch(e) {}
+    }
+    seedInitialUsers();
+</script>
+</body>
+</html>
