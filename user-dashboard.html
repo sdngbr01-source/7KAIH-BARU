@@ -68,6 +68,54 @@
         }
         .text-center { text-align: center; }
         .empty-row td { text-align: center; padding: 40px; color: #94a3b8; }
+        .btn-delete-sm {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .btn-delete-sm:hover {
+            background: #dc2626;
+        }
+	.btn-sm {
+    padding: 5px 12px;
+    font-size: 12px;
+}
+.btn-primary {
+    background: #f59e0b;
+    color: white;
+    border: none;
+}
+.btn-outline {
+    background: transparent;
+    border: 1px solid #f59e0b;
+    color: #f59e0b;
+}
+.btn-outline:hover {
+    background: #f59e0b;
+    color: white;
+}
+.btn-pagination {
+    padding: 6px 12px;
+    border: 1px solid #f59e0b;
+    background: white;
+    color: #f59e0b;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+.btn-pagination:hover {
+    background: #fef3c7;
+}
+.btn-pagination.active {
+    background: #f59e0b;
+    color: white;
+    border-color: #f59e0b;
+}
     </style>
 </head>
 <body>
@@ -98,7 +146,7 @@
             <small>Pilih tanggal kegiatan (contoh: 31 Maret 2026)</small>
         </div>
         <form id="habitForm">
-            <div class="habit-card"><h3>1. Bangun Pagi<p>AM = Pagi</p></h3><input type="time" id="bangunPagi" style="width: 200px;"><small>Kosongkan jika tidak diisi</small></div>
+            <div class="habit-card"><h3>1. Bangun Pagi<p>AM = Pagi <i>//  Contoh : 04:00 AM</i></p></h3><input type="time" id="bangunPagi" style="width: 200px;"><small>Kosongkan jika tidak diisi</small></div>
             <div class="habit-card">
                 <h3>2. Ibadah & Doa</h3>
                 <div id="ibadahChecklist" class="checkbox-grid"></div>
@@ -112,41 +160,46 @@
             <div class="habit-card"><h3>4. Gemar Belajar</h3><input type="text" id="belajarWaktu" placeholder="Waktu"><input type="text" id="belajarMateri" placeholder="Materi" style="margin-top:10px"></div>
             <div class="habit-card"><h3>5. Makan Sehat</h3><input type="text" id="makanPagi" placeholder="Sarapan"><input type="text" id="makanSiang" placeholder="Makan Siang" style="margin-top:10px"><input type="text" id="makanMalam" placeholder="Makan Malam" style="margin-top:10px"></div>
             <div class="habit-card"><h3>6. Bantu Orang Tua</h3><input type="text" id="bantuOrtu" placeholder="Apa yang dilakukan"></div>
-            <div class="habit-card"><h3>7. Tidur Cepat<p>PM = Malam</p></h3><input type="time" id="tidurCepat" style="width: 200px;"></div>
+            <div class="habit-card"><h3>7. Tidur Cepat<p>PM = Malam //<i>Contoh : 09.30 PM</i></p></h3><input type="time" id="tidurCepat" style="width: 200px;"></div>
             <button type="submit" class="btn btn-primary btn-block">Simpan Kebiasaan</button>
         </form>
     </div>
     
     <!-- RIWAYAT PENGISIAN - TABEL RAPI -->
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3>📋 Riwayat Pengisian Kebiasaan</h3>
-            <button id="refreshHistoryBtn" class="btn btn-sm btn-secondary">Refresh</button>
+    <!-- RIWAYAT PENGISIAN - TABEL RAPI -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3>📋 Riwayat Pengisian Kebiasaan</h3>
+        <div>
+            <button id="refreshHistoryBtn" class="btn btn-sm btn-secondary">🔄 Refresh</button>
         </div>
-        <div id="historyContainer">
-            <div class="table-wrapper">
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Tanggal</th>
-                            <th>Bangun Pagi</th>
-                            <th>Ibadah</th>
-                            <th>Quran</th>
-                            <th>Olahraga</th>
-                            <th>Belajar</th>
-                            <th>Makan</th>
-                            <th>Bantu Ortu</th>
-                            <th>Tidur</th>
-                            <th>Skor</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody">
-                        <tr class="empty-row"><td colspan="11">Loading...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+    </div>
+    <div id="historyContainer">
+        <div class="table-wrapper">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Tanggal</th>
+                        <th>Bangun Pagi</th>
+                        <th>Ibadah</th>
+                        <th>Quran</th>
+                        <th>Olahraga</th>
+                        <th>Belajar</th>
+                        <th>Makan</th>
+                        <th>Bantu Ortu</th>
+                        <th>Tidur</th>
+                        <th>Skor</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <tr class="empty-row"><td colspan="12">Loading...<\/tr>
+                </tbody>
+            </table>
         </div>
+        <!-- PAGINATION -->
+        <div id="paginationControls" style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap;"></div>
     </div>
 </div>
 
@@ -183,9 +236,7 @@
        
     function formatTanggalOnly(dateStr) {
         if (!dateStr) return '-';
-        // Jika sudah dalam format "31 Maret 2026"
         if (dateStr.match(/\d{1,2}\s\w+\s\d{4}/)) return dateStr;
-        // Jika dalam format YYYY-MM-DD
         const d = new Date(dateStr);
         if (!isNaN(d.getTime())) {
             return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -198,57 +249,9 @@
         if (skor >= 10) return 'skor-cukup';
         return 'skor-kurang';
     }
-    
-    function renderHistoryTable(habits) {
-        const userHabits = habits.filter(h => h.Nama === userData.nama);
-        const tbody = document.getElementById('historyTableBody');
-        
-        if (!userHabits || userHabits.length === 0) {
-            tbody.innerHTML = '<tr class="empty-row"><td colspan="11">Belum ada riwayat pengisian</td></tr>';
-            return;
-        }
-        
-        // Urutkan dari yang terbaru (tanggal terbaru di atas)
-        const sorted = [...userHabits].reverse();
-        let html = '';
-        
-        sorted.forEach((h, index) => {
-            const skorClass = getSkorClass(h.TOTAL_SKOR || 0);
-            
-            // Format data
-            const bangun = `${h.Bangun_Pagi_Jam || '-'} <span style="font-size:11px; color:#666;">(${h.Bangun_Pagi_Skor || 0})</span>`;
-            const ibadah = `${h.Ibadah_List && h.Ibadah_List !== '-' ? h.Ibadah_List.substring(0, 30) + (h.Ibadah_List.length > 30 ? '...' : '') : '-'} <span style="font-size:11px; color:#666;">(${h.Ibadah_Skor || 0})</span>`;
-            const quran = `${(h.Quran_Surat && h.Quran_Surat !== '-') ? h.Quran_Surat + ' (' + (h.Quran_Ayat || '-') + ')' : '-'} <span style="font-size:11px; color:#666;">(${h.Quran_Skor || 0})</span>`;
-            const olahraga = `${(h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-') ? (h.Olahraga_Waktu ? h.Olahraga_Waktu + ' - ' : '') + h.Olahraga_Aktivitas : '-'} <span style="font-size:11px; color:#666;">(${h.Olahraga_Skor || 0})</span>`;
-            const belajar = `${(h.Belajar_Materi && h.Belajar_Materi !== '-') ? (h.Belajar_Waktu ? h.Belajar_Waktu + ' - ' : '') + h.Belajar_Materi : '-'} <span style="font-size:11px; color:#666;">(${h.Belajar_Skor || 0})</span>`;
-            const makan = `${(h.Makan_Pagi && h.Makan_Pagi !== '-') ? h.Makan_Pagi + ' | ' + (h.Makan_Siang || '-') + ' | ' + (h.Makan_Malam || '-') : '-'} <span style="font-size:11px; color:#666;">(${h.Makan_Skor || 0})</span>`;
-            const bantuOrtu = `${h.Bantu_Ortu || '-'} <span style="font-size:11px; color:#666;">(${h.Bantu_Ortu_Skor || 0})</span>`;
-            const tidur = `${h.Tidur_Jam || '-'} <span style="font-size:11px; color:#666;">(${h.Tidur_Skor || 0})</span>`;
-            
-            html += `
-                <tr>
-                    <td class="text-center">${index + 1}</td>
-                    <td>${formatTanggalOnly(h.Tanggal_Kegiatan)}</td>
-                    <td>${bangun}</td>
-                    <td>${ibadah}</td>
-                    <td>${quran}</td>
-                    <td>${olahraga}</td>
-                    <td>${belajar}</td>
-                    <td>${makan}</td>
-                    <td>${bantuOrtu}</td>
-                    <td>${tidur}</td>
-                    <td class="text-center"><span class="skor-badge ${skorClass}">${h.TOTAL_SKOR || 0}</span></td>
-                </tr>
-            `;
-        });
-        
-        tbody.innerHTML = html;
-    }
-    
-    function updateStats(habits) {
+// ==================== FUNGSI UPDATE STATS ====================
+function updateStats(habits) {
     const userHabits = habits.filter(h => h.Nama === userData.nama);
-    
-    console.log('📊 Data habits user:', userHabits);
     
     // Total Skor = SUM dari kolom TOTAL_SKOR
     let totalSkor = 0;
@@ -256,7 +259,6 @@
         let skor = parseInt(h.TOTAL_SKOR);
         if (isNaN(skor)) skor = 0;
         totalSkor += skor;
-        console.log(`  - ${h.Tanggal_Kegiatan}: ${h.TOTAL_SKOR} -> ${skor}`);
     });
     
     // Hari Aktif = jumlah baris data
@@ -276,25 +278,287 @@
         skorTerakhir = parseInt(sorted[0].TOTAL_SKOR) || 0;
     }
     
-    console.log('📊 Hasil perhitungan:', { totalSkor, hariAktif, rataSkor, skorTerakhir });
-    
     document.getElementById('totalSkor').innerText = totalSkor;
     document.getElementById('totalHari').innerText = hariAktif;
     document.getElementById('rataSkor').innerText = rataSkor;
     document.getElementById('skorTerakhir').innerText = skorTerakhir;
+} 
+
+    // Variabel untuk pagination
+let currentPage = 1;
+let itemsPerPage = 20;
+let allUserHabits = [];
+
+function renderHistoryTable(habits) {
+    const userHabits = habits.filter(h => h.Nama === userData.nama);
+    const tbody = document.getElementById('historyTableBody');
+    
+    if (!userHabits || userHabits.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="12">Belum ada riwayat pengisian<\/tr>';
+        document.getElementById('paginationControls').innerHTML = '';
+        return;
+    }
+    
+    // Urutkan dari tanggal terbaru
+    const sorted = [...userHabits].sort((a, b) => {
+        const dateA = new Date(a.Tanggal_Kegiatan);
+        const dateB = new Date(b.Tanggal_Kegiatan);
+        return dateB - dateA;
+    });
+    
+    // Pagination
+    const totalPages = Math.ceil(sorted.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentData = sorted.slice(startIndex, endIndex);
+    
+    if (currentData.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="12">Tidak ada data<\/tr>';
+        return;
+    }
+    
+    let html = '';
+    const startNumber = startIndex + 1;
+    
+    currentData.forEach((h, idx) => {
+        const skorClass = getSkorClass(h.TOTAL_SKOR || 0);
+        const habitId = h.ID || h.id || idx;
+        const nomor = startNumber + idx;
+        
+        // Format masing-masing kolom dengan rapi
+        const bangun = `${h.Bangun_Pagi_Jam || '-'} <span style="font-size:11px; color:#666;">(${h.Bangun_Pagi_Skor || 0})</span>`;
+        
+        // Ibadah: tampilkan jumlah centang dan list singkat
+        let ibadahText = h.Ibadah_List || '-';
+        if (ibadahText !== '-' && ibadahText.length > 20) {
+            ibadahText = ibadahText.substring(0, 20) + '...';
+        }
+        const ibadah = `${ibadahText} <span style="font-size:11px; color:#666;">(${h.Ibadah_Skor || 0})</span>`;
+        
+        // Quran
+        let quranText = '-';
+        if (h.Quran_Surat && h.Quran_Surat !== '-') {
+            quranText = `${h.Quran_Surat} (${h.Quran_Ayat || '-'})`;
+        }
+        const quran = `${quranText} <span style="font-size:11px; color:#666;">(${h.Quran_Skor || 0})</span>`;
+        
+        // Olahraga
+        let olahragaText = '-';
+        if (h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-') {
+            olahragaText = `${h.Olahraga_Waktu ? h.Olahraga_Waktu + ' - ' : ''}${h.Olahraga_Aktivitas}`;
+        }
+        const olahraga = `${olahragaText} <span style="font-size:11px; color:#666;">(${h.Olahraga_Skor || 0})</span>`;
+        
+        // Belajar
+        let belajarText = '-';
+        if (h.Belajar_Materi && h.Belajar_Materi !== '-') {
+            belajarText = `${h.Belajar_Waktu ? h.Belajar_Waktu + ' - ' : ''}${h.Belajar_Materi}`;
+        }
+        const belajar = `${belajarText} <span style="font-size:11px; color:#666;">(${h.Belajar_Skor || 0})</span>`;
+        
+        // Makan
+        let makanText = '-';
+        if (h.Makan_Pagi && h.Makan_Pagi !== '-') {
+            makanText = `${h.Makan_Pagi} | ${h.Makan_Siang || '-'} | ${h.Makan_Malam || '-'}`;
+        }
+        const makan = `${makanText} <span style="font-size:11px; color:#666;">(${h.Makan_Skor || 0})</span>`;
+        
+        // Bantu Ortu
+        const bantuOrtu = `${h.Bantu_Ortu || '-'} <span style="font-size:11px; color:#666;">(${h.Bantu_Ortu_Skor || 0})</span>`;
+        
+        // Tidur
+        const tidur = `${h.Tidur_Jam || '-'} <span style="font-size:11px; color:#666;">(${h.Tidur_Skor || 0})</span>`;
+        
+        html += `
+            <tr>
+                <td class="text-center">${nomor}</td>
+                <td class="text-center">${formatTanggalOnly(h.Tanggal_Kegiatan)}</td>
+                <td class="text-center">${bangun}</td>
+                <td class="text-center">${ibadah}</td>
+                <td class="text-center">${quran}</td>
+                <td class="text-center">${olahraga}</td>
+                <td class="text-center">${belajar}</td>
+                <td class="text-center">${makan}</td>
+                <td class="text-center">${bantuOrtu}</td>
+                <td class="text-center">${tidur}</td>
+                <td class="text-center"><span class="skor-badge ${skorClass}">${h.TOTAL_SKOR || 0}</span></td>
+                <td class="text-center">
+                    <button class="btn-delete-sm" onclick="deleteHabit('${habitId}', '${h.Tanggal_Kegiatan}')">🗑️ Hapus</button>
+                </td>
+            </table>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+    
+    // Buat pagination
+    renderPaginationControls(totalPages);
+}
+
+function renderPaginationControls(totalPages) {
+    const container = document.getElementById('paginationControls');
+    if (!container) return;
+    
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    let html = '<div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">';
+    
+    // Previous
+    if (currentPage > 1) {
+        html += `<button onclick="goToPage(${currentPage - 1})" class="btn-pagination">◀ Prev</button>`;
+    }
+    
+    // Nomor halaman
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === currentPage) {
+            html += `<button class="btn-pagination active">${i}</button>`;
+        } else {
+            html += `<button onclick="goToPage(${i})" class="btn-pagination">${i}</button>`;
+        }
+    }
+    
+    // Next
+    if (currentPage < totalPages) {
+        html += `<button onclick="goToPage(${currentPage + 1})" class="btn-pagination">Next ▶</button>`;
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function goToPage(page) {
+    currentPage = page;
+    // Panggil ulang render dengan data yang sudah ada
+    if (allUserHabitsCache && allUserHabitsCache.length > 0) {
+        renderHistoryTableWithData(allUserHabitsCache);
+    } else {
+        loadData();
+    }
+}
+
+// Cache untuk data habits
+let allUserHabitsCache = [];
+
+function renderHistoryTableWithData(habits) {
+    const userHabits = habits.filter(h => h.Nama === userData.nama);
+    const tbody = document.getElementById('historyTableBody');
+    
+    if (!userHabits || userHabits.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="12">Belum ada riwayat pengisian<\/tr>';
+        document.getElementById('paginationControls').innerHTML = '';
+        return;
+    }
+    
+    const sorted = [...userHabits].sort((a, b) => {
+        const dateA = new Date(a.Tanggal_Kegiatan);
+        const dateB = new Date(b.Tanggal_Kegiatan);
+        return dateB - dateA;
+    });
+    
+    const totalPages = Math.ceil(sorted.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentData = sorted.slice(startIndex, endIndex);
+    
+    if (currentData.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="12">Tidak ada数据<\/tr>';
+        return;
+    }
+    
+    let html = '';
+    const startNumber = startIndex + 1;
+    
+    currentData.forEach((h, idx) => {
+        const skorClass = getSkorClass(h.TOTAL_SKOR || 0);
+        const habitId = h.ID || h.id || idx;
+        const nomor = startNumber + idx;
+        
+        html += `
+            <tr>
+                <td class="text-center">${nomor}</td>
+                <td class="text-center">${formatTanggalOnly(h.Tanggal_Kegiatan)}</td>
+                <td class="text-center">${h.Bangun_Pagi_Jam || '-'} (${h.Bangun_Pagi_Skor || 0})</td>
+                <td class="text-center">${h.Ibadah_List && h.Ibadah_List !== '-' ? (h.Ibadah_List.length > 20 ? h.Ibadah_List.substring(0, 20) + '...' : h.Ibadah_List) : '-'} (${h.Ibadah_Skor || 0})</td>
+                <td class="text-center">${(h.Quran_Surat && h.Quran_Surat !== '-') ? h.Quran_Surat + ' (' + (h.Quran_Ayat || '-') + ')' : '-'} (${h.Quran_Skor || 0})</td>
+                <td class="text-center">${(h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-') ? (h.Olahraga_Waktu ? h.Olahraga_Waktu + ' - ' : '') + h.Olahraga_Aktivitas : '-'} (${h.Olahraga_Skor || 0})</td>
+                <td class="text-center">${(h.Belajar_Materi && h.Belajar_Materi !== '-') ? (h.Belajar_Waktu ? h.Belajar_Waktu + ' - ' : '') + h.Belajar_Materi : '-'} (${h.Belajar_Skor || 0})</td>
+                <td class="text-center">${(h.Makan_Pagi && h.Makan_Pagi !== '-') ? h.Makan_Pagi + ' | ' + (h.Makan_Siang || '-') + ' | ' + (h.Makan_Malam || '-') : '-'} (${h.Makan_Skor || 0})</td>
+                <td class="text-center">${h.Bantu_Ortu || '-'} (${h.Bantu_Ortu_Skor || 0})</td>
+                <td class="text-center">${h.Tidur_Jam || '-'} (${h.Tidur_Skor || 0})</td>
+                <td class="text-center"><span class="skor-badge ${skorClass}">${h.TOTAL_SKOR || 0}</span></td>
+                <td class="text-center">
+                    <button class="btn-delete-sm" onclick="deleteHabit('${habitId}', '${h.Tanggal_Kegiatan}')">🗑️ Hapus</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+    renderPaginationControls(totalPages);
+}
+
+// Update loadData
+async function loadData() {
+    showLoading(true);
+    const result = await getHabitsFromSheet();
+    showLoading(false);
+    
+    if (result.success) {
+        allUserHabitsCache = result.habits;
+        currentPage = 1;
+        renderHistoryTableWithData(allUserHabitsCache);
+        updateStats(allUserHabitsCache);
+    } else {
+        console.error('Failed to load data:', result);
+        document.getElementById('historyTableBody').innerHTML = '<tr class="empty-row"><td colspan="12">Gagal memuat数据<\/tr>';
+    }
 }
     
-    async function loadData() {
-        showLoading(true);
+    // ==================== TAMBAHAN FUNGSI 1: CEK DUPLIKASI ====================
+    async function cekDuplikasiTanggal(tanggal) {
         const result = await getHabitsFromSheet();
-        showLoading(false);
+        if (!result.success) return false;
         
-        if (result.success) {
-            renderHistoryTable(result.habits);
-            updateStats(result.habits);
-        } else {
-            console.error('Failed to load data:', result);
-            document.getElementById('historyTableBody').innerHTML = '<tr class="empty-row"><td colspan="11">Gagal memuat data</td></tr>';
+        const userHabits = result.habits.filter(h => h.Nama === userData.nama);
+        const tanggalFormatted = new Date(tanggal).toLocaleDateString('id-ID', {
+            day: 'numeric', month: 'long', year: 'numeric'
+        });
+        
+        const sudahAda = userHabits.some(h => h.Tanggal_Kegiatan === tanggalFormatted);
+        return sudahAda;
+    }
+    
+    // ==================== TAMBAHAN FUNGSI 2: HAPUS DATA ====================
+    async function deleteHabit(habitId, tanggal) {
+        if (!confirm(`Hapus data kebiasaan tanggal ${tanggal}?`)) return false;
+        
+        showLoading(true);
+        
+        const formData = new URLSearchParams();
+        formData.append('action', 'delete_habit');
+        formData.append('id', habitId);
+        formData.append('nama', userData.nama);
+        formData.append('tanggal', tanggal);
+        
+        try {
+            await fetch(SPREADSHEET_API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData
+            });
+            
+            await loadData();
+            showToast('✅ Data berhasil dihapus', 'success');
+            return true;
+        } catch (error) {
+            console.error('Error deleting:', error);
+            showToast('❌ Gagal menghapus data', 'error');
+            return false;
+        } finally {
+            showLoading(false);
         }
     }
     
@@ -307,7 +571,13 @@
             return;
         }
         
-        // Format tanggal hanya DD Month YYYY (tanpa waktu)
+        // CEK DUPLIKASI
+        const isDuplicate = await cekDuplikasiTanggal(tanggalKegiatan);
+        if (isDuplicate) {
+            showToast('⚠️ Tanggal ini sudah pernah diisi! Silakan pilih tanggal lain.', 'error');
+            return;
+        }
+        
         const tanggalFormatted = new Date(tanggalKegiatan).toLocaleDateString('id-ID', {
             day: 'numeric', month: 'long', year: 'numeric'
         });
@@ -345,7 +615,6 @@
             TOTAL_SKOR: 0
         };
         
-        // Hitung skor
         const skor = hitungSkor({
             bangunWaktu: formData.Bangun_Pagi_Jam,
             ibadahList: ibadahList,
