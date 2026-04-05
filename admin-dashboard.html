@@ -41,6 +41,7 @@
         .skor-bagus { background: #10b981; }
         .skor-cukup { background: #f59e0b; }
         .skor-kurang { background: #ef4444; }
+        .text-center { text-align: center; }
     </style>
 </head>
 <body>
@@ -80,25 +81,19 @@
     
     <!-- TAB HABITS -->
     <div id="tabHabits" class="tab-content hidden">
-    <div class="card">
-        <div class="flex-between">
-            <h2>Semua Log Kebiasaan (Google Sheets)</h2>
-            <div class="btn-group">
+        <div class="card">
+            <div class="flex-between">
+                <h2>Semua Log Kebiasaan (Google Sheets)</h2>
                 <button id="refreshHabitsBtn" class="btn btn-secondary">🔄 Refresh</button>
-                <button id="importDataBtn" class="btn btn-primary">📥 Import Data (Excel/CSV)</button>
             </div>
+            <div id="habitsTableContainer" class="table-wrapper"></div>
         </div>
-        <input type="file" id="importDataFile" accept=".xlsx,.xls,.csv" style="display:none">
-        <div id="habitsTableContainer" class="table-wrapper"></div>
     </div>
-</div>
     
-    <!-- TAB SCORES - REKAP SKOR DENGAN FILTER -->
+    <!-- TAB SCORES -->
     <div id="tabScores" class="tab-content hidden">
         <div class="card">
             <h2>Rekapitulasi Skor</h2>
-            
-            <!-- FILTER BAR -->
             <div class="filter-bar">
                 <div class="form-group">
                     <label>Filter Kelas</label>
@@ -116,46 +111,125 @@
                     <label>Cari Nama</label>
                     <input type="text" id="filterNama" placeholder="Ketik nama siswa...">
                 </div>
-                <button id="applyFilterBtn" class="btn btn-primary btn-filter">🔍 Terapkan Filter</button>
+                <button id="applyFilterBtn" class="btn btn-primary btn-filter">🔍 Terapkan</button>
                 <button id="resetFilterBtn" class="btn btn-outline btn-filter">🔄 Reset</button>
                 <button id="exportScoresBtn" class="btn btn-secondary btn-filter">📥 Export Excel</button>
             </div>
-            
-            <!-- TABEL REKAP SKOR -->
             <div id="scoresTableContainer" class="table-wrapper">
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama</th>
-                                <th>Kelas</th>
-                                <th>Total Skor</th>
-                                <th>Hari Aktif</th>
-                                <th>Rata-rata</th>
-                                <th>Kategori</th>
-                            </tr>
-                        </thead>
-                        <tbody id="scoresTableBody">
-                            <tr class="empty-row"><td colspan="7">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <table class="data-table">
+                    <thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Total Skor</th><th>Hari Aktif</th><th>Rata-rata</th><th>Kategori</th></tr></thead>
+                    <tbody id="scoresTableBody"><tr class="empty-row"><td colspan="7">Loading...<\/tr><\/tbody>
+                </table>
             </div>
         </div>
     </div>
     
     <!-- TAB RAPOR -->
-    <div id="tabRapor" class="tab-content hidden">
-        <div class="card">
-            <h2>Generate Rapor PDF</h2>
-            <div class="form-group">
-                <label for="raporSelect">Pilih Siswa</label>
-                <select id="raporSelect"></select>
-            </div>
-            <button id="generateRaporBtn" class="btn btn-primary btn-block">📥 Cetak Rapor PDF</button>
-            <div id="raporPreview" style="margin-top: 20px;"></div>
+<div id="tabRapor" class="tab-content hidden">
+    <div class="card">
+        <h2>📄 Generate Rapor & Kartu Penghargaan</h2>
+        
+        <!-- SETTING KOP SEKOLAH -->
+        <!-- SETTING KOP SEKOLAH -->
+<div style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 20px;">
+    <h3 style="color: #1e293b; margin-bottom: 15px;">🏫 Pengaturan Kop Sekolah</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        <div class="form-group">
+            <label>Nama Sekolah (bisa lebih dari 1 baris)</label>
+            <textarea id="sekolahNama" rows="3" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #ccc;">SD NEGERI 7 KEBISAAN HEBAT</textarea>
         </div>
+        <div class="form-group">
+            <label>Alamat Sekolah</label>
+            <textarea id="sekolahAlamat" rows="2" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #ccc;">Jl. Kebiasaan Baik No. 7, Kecamatan Hebat, Kota Indonesia</textarea>
+        </div>
+        <div class="form-group">
+            <label>Motto Sekolah</label>
+            <input type="text" id="sekolahMotto" value="Membangun Generasi Emas Indonesia 2045" placeholder="Motto Sekolah">
+        </div>
+        <div class="form-group">
+            <label>Website/Email</label>
+            <input type="text" id="sekolahKontak" value="https://sdn-gambirono-01-web.vercel.app | info@7kebiasaan.hebat" placeholder="Website/Email">
+        </div>
+    </div>
+</div>
+        
+        <!-- SETTING KEPALA SEKOLAH -->
+        <div style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 20px;">
+            <h3 style="color: #1e293b; margin-bottom: 15px;">👨‍🏫 Pengaturan Kepala Sekolah</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div class="form-group">
+                    <label>Nama Kepala Sekolah</label>
+                    <input type="text" id="kepsekNama" value="Dr. H. Ahmad Budiman, M.Pd" placeholder="Nama Kepala Sekolah">
+                </div>
+                <div class="form-group">
+                    <label>NIP Kepala Sekolah</label>
+                    <input type="text" id="kepsekNIP" value="19691231 202603 1 001" placeholder="NIP Kepala Sekolah">
+                </div>
+            </div>
+        </div>
+        
+        <!-- SETTING TARGET HARI -->
+        <div style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 20px;">
+            <h3 style="color: #1e293b; margin-bottom: 15px;">🎯 Pengaturan Target Capaian</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div class="form-group">
+                    <label>Target Hari per Semester</label>
+                    <input type="number" id="targetHariSetting" value="150" min="1" max="200" step="1">
+                    <small>Jumlah target hari aktif dalam satu semester</small>
+                </div>
+                <div class="form-group">
+                    <label>Target Hari per Bulan</label>
+                    <input type="number" id="targetHariBulanSetting" value="30" min="1" max="60" step="1">
+                    <small>Jumlah target hari aktif dalam satu bulan</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PENGATURAN RAPOR -->
+<div style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 20px;">
+    <h3 style="color: #1e293b; margin-bottom: 15px;">📋 Pengaturan Rapor</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        <div class="form-group">
+            <label for="filterKelasRapor">Filter Kelas</label>
+            <select id="filterKelasRapor">
+                <option value="">Semua Kelas</option>
+                <option value="1A">1A</option><option value="1B">1B</option>
+                <option value="2A">2A</option><option value="2B">2B</option>
+                <option value="3A">3A</option><option value="3B">3B</option>
+                <option value="4A">4A</option><option value="4B">4B</option>
+                <option value="5A">5A</option><option value="5B">5B</option>
+                <option value="6A">6A</option><option value="6B">6B</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="raporSelect">Pilih Siswa</label>
+            <select id="raporSelect"></select>
+        </div>
+        <div class="form-group">
+            <label for="periodeRapor">Periode Laporan</label>
+            <select id="periodeRapor">
+                <option value="semua">📅 Semua Waktu</option>
+                <option value="bulan_ini">📆 Bulan Ini</option>
+                <option value="30_hari">📊 30 Hari Terakhir</option>
+                <option value="ganjil">📖 Semester Ganjil</option>
+                <option value="genap">📖 Semester Genap</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="warnaTema">Warna Tema</label>
+            <select id="warnaTema">
+                <option value="orange">🍊 Oranye</option>
+                <option value="hijau">💚 Hijau</option>
+                <option value="biru">💙 Biru</option>
+                <option value="ungu">💜 Ungu</option>
+                <option value="merah">❤️ Merah</option>
+            </select>
+        </div>
+    </div>
+</div>
+        
+        <button id="generateRaporBtn" class="btn btn-primary btn-block">📥 Cetak Rapor Premium PDF</button>
+        <div id="raporPreview" style="margin-top: 20px;"></div>
     </div>
 </div>
 
@@ -165,23 +239,42 @@
     
     let allScoresData = [];
     
+    function showLoading(show) {
+        const el = document.getElementById('loadingOverlay');
+        if (el) el.classList.toggle('hidden', !show);
+    }
+    
+    function showToast(msg, type = 'success') {
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.style.background = type === 'error' ? '#ef4444' : '#10b981';
+        t.innerHTML = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '-';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function logout() {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('isAdmin');
+        window.location.href = 'index.html';
+    }
+    
     // ==================== MANAJEMEN USER ====================
     async function renderUsers() {
         try {
             const snapshot = await db.collection(USERS_COLLECTION).orderBy('nama').get();
-            let html = `<div class="table-wrapper"><table class="data-table"><thead><tr>
-                <th>No</th><th>ID User</th><th>Nama Lengkap</th><th>Kelas</th><th>Aksi</th>
-            </tr></thead><tbody>`;
+            let html = `<div class="table-wrapper"><table class="data-table"><thead></tr><th>No</th><th>ID User</th><th>Nama</th><th>Kelas</th><th>Aksi</th></tr></thead><tbody>`;
             let no = 1;
             snapshot.forEach(doc => {
                 const user = doc.data();
-                html += `<tr>
-                    <td>${no++}</td>
-                    <td><small>${doc.id.substring(0, 8)}...</small></td>
-                    <td><strong>${escapeHtml(user.nama)}</strong></td>
-                    <td>${escapeHtml(user.kelas || '-')}</td>
-                    <td><button class="btn-delete" onclick="deleteUser('${doc.id}')">Hapus</button></td>
-                </tr>`;
+                html += `<tr><td>${no++}</td><td><small>${doc.id.substring(0,8)}...</small></td><td><strong>${escapeHtml(user.nama)}</strong></td><td>${escapeHtml(user.kelas || '-')}</td><td><button class="btn-delete" onclick="deleteUser('${doc.id}')">Hapus</button></td></tr>`;
             });
             if (no === 1) html += '<tr class="empty-row"><td colspan="5">Belum ada user</td></tr>';
             html += `</tbody></table></div>`;
@@ -194,7 +287,7 @@
             showLoading(true);
             try {
                 await db.collection(USERS_COLLECTION).doc(id).delete();
-                showToast('User dihapus', 'success');
+                showToast('User dihapus');
                 await renderUsers();
                 await renderRaporSelect();
             } catch(e) { showToast('Error: ' + e.message, 'error'); }
@@ -205,11 +298,11 @@
     async function addUser() {
         const nama = prompt('Masukkan nama lengkap:');
         if (!nama) return;
-        const kelas = prompt('Masukkan kelas (contoh: 5A):');
+        const kelas = prompt('Masukkan kelas:');
         showLoading(true);
         try {
             await db.collection(USERS_COLLECTION).add({ nama: nama.trim(), kelas: kelas || '' });
-            showToast('User ditambahkan', 'success');
+            showToast('User ditambahkan');
             await renderUsers();
             await renderRaporSelect();
         } catch(e) { showToast('Error: ' + e.message, 'error'); }
@@ -222,14 +315,14 @@
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Template_User');
         XLSX.writeFile(wb, 'template_user_7kebiasaan.xlsx');
-        showToast('Template downloaded', 'success');
+        showToast('Template downloaded');
     }
     
     async function exportUsers() {
         showLoading(true);
         try {
             const snapshot = await db.collection(USERS_COLLECTION).orderBy('nama').get();
-            const data = [['ID User', 'Nama Lengkap', 'Kelas']];
+            const data = [['ID User', 'Nama', 'Kelas']];
             snapshot.forEach(doc => {
                 const user = doc.data();
                 data.push([doc.id, user.nama, user.kelas || '']);
@@ -237,8 +330,8 @@
             const ws = XLSX.utils.aoa_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Users');
-            XLSX.writeFile(wb, `users_${new Date().toISOString().slice(0, 10)}.xlsx`);
-            showToast('Export berhasil', 'success');
+            XLSX.writeFile(wb, `users_${new Date().toISOString().slice(0,10)}.xlsx`);
+            showToast('Export berhasil');
         } catch(e) { showToast('Error: ' + e.message, 'error'); }
         showLoading(false);
     }
@@ -261,7 +354,7 @@
                     successCount++;
                 }
             }
-            showToast(`${successCount} user berhasil diimport`, 'success');
+            showToast(`${successCount} user berhasil diimport`);
             await renderUsers();
             await renderRaporSelect();
         } catch(e) { showToast('Error: ' + e.message, 'error'); }
@@ -273,408 +366,389 @@
         showLoading(true);
         const result = await getHabitsFromSheet();
         showLoading(false);
-        
-        if (!result || !result.success) {
-            document.getElementById('habitsTableContainer').innerHTML = '<div class="table-wrapper"><table class="data-table"><tr class="empty-row"><td>Gagal memuat data</tr></table></div>';
-            return;
+        if (!result || !result.success) return;
+        const habits = result.habits || [];
+        if (habits.length === 0) { 
+            document.getElementById('habitsTableContainer').innerHTML = '<div class="table-wrapper"><table class="data-table"><tr class="empty-row"><td colspan="12">Belum ada data</td></tr></table></div>'; 
+            return; 
         }
         
-        const habits = result.habits;
-        if (!habits || habits.length === 0) {
-            document.getElementById('habitsTableContainer').innerHTML = '<div class="table-wrapper"><table class="data-table"><tr class="empty-row"><td>Belum ada data kebiasaan</tr></table></div>';
-            return;
-        }
-        
-        let html = `<div class="table-wrapper"><table class="data-table"><thead><tr>
-            <th>Tanggal</th><th>Nama</th><th>Kelas</th><th>Bangun</th><th>Ibadah</th><th>Quran</th>
-            <th>Olahraga</th><th>Belajar</th><th>Makan</th><th>Bantu Ortu</th><th>Tidur</th><th>Skor</th>
-        </tr></thead><tbody>`;
-        
-        habits.slice().reverse().slice(0, 100).forEach(h => {
-            html += `<tr>
-                <td>${h.Tanggal_Kegiatan || '-'}</td>
-                <td>${escapeHtml(h.Nama || '-')}</td>
-                <td>${escapeHtml(h.Kelas || '-')}</td>
-                <td>${h.Bangun_Pagi_Jam || '-'} (${h.Bangun_Pagi_Skor || 0})</td>
-                <td>${h.Ibadah_List || '-'} (${h.Ibadah_Skor || 0})</td>
-                <td>${h.Quran_Surat && h.Quran_Surat !== '-' ? h.Quran_Surat + ' (' + h.Quran_Ayat + ')' : '-'} (${h.Quran_Skor || 0})</td>
-                <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Waktu + ' - ' + h.Olahraga_Aktivitas : '-'} (${h.Olahraga_Skor || 0})</td>
-                <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Waktu + ' - ' + h.Belajar_Materi : '-'} (${h.Belajar_Skor || 0})</td>
-                <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? h.Makan_Pagi + ' | ' + h.Makan_Siang + ' | ' + h.Makan_Malam : '-'} (${h.Makan_Skor || 0})</td>
-                <td>${h.Bantu_Ortu || '-'} (${h.Bantu_Ortu_Skor || 0})</td>
-                <td>${h.Tidur_Jam || '-'} (${h.Tidur_Skor || 0})</td>
-                <td><strong>${h.TOTAL_SKOR || 0}</strong></td>
-            </tr>`;
+        let html = `<div class="table-wrapper"><table class="data-table"><thead><tr><th>Tanggal</th><th>Nama</th><th>Kelas</th><th>Bangun</th><th>Ibadah</th><th>Quran</th><th>Olahraga</th><th>Belajar</th><th>Makan</th><th>Bantu Ortu</th><th>Tidur</th><th>Skor</th></tr></thead><tbody>`;
+        habits.slice().reverse().slice(0,100).forEach(h => {
+            html += `<tr><td>${h.Tanggal_Kegiatan || '-'}</td><td>${escapeHtml(h.Nama || '-')}</td><td>${escapeHtml(h.Kelas || '-')}</td>
+            <td>${h.Bangun_Pagi_Jam || '-'} (${h.Bangun_Pagi_Skor || 0})</td><td>${h.Ibadah_List || '-'} (${h.Ibadah_Skor || 0})</td>
+            <td>${h.Quran_Surat && h.Quran_Surat !== '-' ? h.Quran_Surat + ' (' + h.Quran_Ayat + ')' : '-'} (${h.Quran_Skor || 0})</td>
+            <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Waktu + ' - ' + h.Olahraga_Aktivitas : '-'} (${h.Olahraga_Skor || 0})</td>
+            <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Waktu + ' - ' + h.Belajar_Materi : '-'} (${h.Belajar_Skor || 0})</td>
+            <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? h.Makan_Pagi + ' | ' + h.Makan_Siang + ' | ' + h.Makan_Malam : '-'} (${h.Makan_Skor || 0})</td>
+            <td>${h.Bantu_Ortu || '-'} (${h.Bantu_Ortu_Skor || 0})</td>
+            <td>${h.Tidur_Jam || '-'} (${h.Tidur_Skor || 0})</td>
+            <td><strong>${h.TOTAL_SKOR || 0}</strong></td></tr>`;
         });
         html += `</tbody></table></div>`;
         document.getElementById('habitsTableContainer').innerHTML = html;
     }
     
-  // ==================== REKAP SKOR DENGAN PERHITUNGAN YANG BENAR ====================
-async function loadScoresData() {
-    showLoading(true);
-    const result = await getScoresFromSheet();
-    showLoading(false);
-    
-    if (!result || !result.success) {
-        document.getElementById('scoresTableBody').innerHTML = '<tr class="empty-row"><td colspan="7">Gagal memuat数据</tr>';
-        return;
-    }
-    
-    // Konversi ke array untuk filtering
-    allScoresData = Object.entries(result.scores).map(([nama, data]) => ({
-        nama: nama,
-        kelas: data.kelas || '-',
-        totalSkor: data.total || 0,      // SUM dari TOTAL_SKOR
-        hariAktif: data.count || 0,       // COUNT jumlah hari
-        rataRata: data.rata || 0          // totalSkor / hariAktif
-    }));
-    
-    // Urutkan berdasarkan nama
-    allScoresData.sort((a, b) => a.nama.localeCompare(b.nama));
-    applyScoreFilter();
-}
-
-function applyScoreFilter() {
-    const filterKelas = document.getElementById('filterKelas').value;
-    const filterNama = document.getElementById('filterNama').value.toLowerCase().trim();
-    
-    let filteredData = [...allScoresData];
-    
-    if (filterKelas) {
-        filteredData = filteredData.filter(item => item.kelas === filterKelas);
-    }
-    
-    if (filterNama) {
-        filteredData = filteredData.filter(item => item.nama.toLowerCase().includes(filterNama));
-    }
-    
-    renderScoresTable(filteredData);
-}
-
-function renderScoresTable(data) {
-    const tbody = document.getElementById('scoresTableBody');
-    
-    if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Tidak ada data yang sesuai filter</tr>';
-        return;
-    }
-    
-    let html = '';
-    data.forEach((item, index) => {
-        // Skor badge berdasarkan TOTAL SKOR
-        let skorClass = 'skor-kurang';
-        if (item.totalSkor >= 30) skorClass = 'skor-bagus';
-        else if (item.totalSkor >= 15) skorClass = 'skor-cukup';
+    // ==================== REKAP SKOR ====================
+    async function loadScoresData() {
+        showLoading(true);
+        const result = await getScoresFromSheet();
+        showLoading(false);
+        if (!result || !result.success) return;
         
-        // Kategori berdasarkan RATA-RATA
-        let kategori = '';
-        if (item.rataRata >= 15) kategori = '🌟 Sangat Baik';
-        else if (item.rataRata >= 10) kategori = '👍 Baik';
-        else if (item.rataRata >= 5) kategori = '⚠️ Cukup';
-        else kategori = '❌ Perlu Ditingkatkan';
+        allScoresData = Object.entries(result.scores).map(([nama, data]) => ({
+            nama: nama, kelas: data.kelas || '-', totalSkor: data.total || 0, hariAktif: data.count || 0, rataRata: data.rata || 0
+        }));
+        allScoresData.sort((a, b) => a.nama.localeCompare(b.nama));
+        applyScoreFilter();
+    }
+    
+    function applyScoreFilter() {
+        const filterKelas = document.getElementById('filterKelas').value;
+        const filterNama = document.getElementById('filterNama').value.toLowerCase().trim();
+        let filteredData = [...allScoresData];
+        if (filterKelas) filteredData = filteredData.filter(item => item.kelas === filterKelas);
+        if (filterNama) filteredData = filteredData.filter(item => item.nama.toLowerCase().includes(filterNama));
+        renderScoresTable(filteredData);
+    }
+    
+    function renderScoresTable(data) {
+        const tbody = document.getElementById('scoresTableBody');
+        if (!data || data.length === 0) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Tidak ada data</td></tr>'; return; }
         
-        html += `
-            <tr>
-                <td class="text-center">${index + 1}</td>
-                <td><strong>${escapeHtml(item.nama)}</strong></td>
-                <td class="text-center">${escapeHtml(item.kelas)}</td>
-                <td class="text-center"><span class="skor-badge ${skorClass}">${item.totalSkor}</span></td>
-                <td class="text-center">${item.hariAktif}</td>
-                <td class="text-center">${item.rataRata.toFixed(1)}</td>
-                <td class="text-center">${kategori}</td>
-            </tr>
-        `;
-    });
+        let html = '';
+        data.forEach((item, index) => {
+            let skorClass = 'skor-kurang';
+            if (item.totalSkor >= 30) skorClass = 'skor-bagus';
+            else if (item.totalSkor >= 15) skorClass = 'skor-cukup';
+            let kategori = '';
+            if (item.rataRata >= 15) kategori = '🌟 Sangat Baik';
+            else if (item.rataRata >= 10) kategori = '👍 Baik';
+            else if (item.rataRata >= 5) kategori = '⚠️ Cukup';
+            else kategori = '❌ Perlu Ditingkatkan';
+            html += `<tr><td class="text-center">${index+1}</td><td><strong>${escapeHtml(item.nama)}</strong></td><td class="text-center">${escapeHtml(item.kelas)}</td>
+            <td class="text-center"><span class="skor-badge ${skorClass}">${item.totalSkor}</span></td><td class="text-center">${item.hariAktif}</td>
+            <td class="text-center">${item.rataRata.toFixed(1)}</td><td class="text-center">${kategori}</td></tr>`;
+        });
+        tbody.innerHTML = html;
+    }
     
-    tbody.innerHTML = html;
+    function resetScoreFilter() {
+        document.getElementById('filterKelas').value = '';
+        document.getElementById('filterNama').value = '';
+        applyScoreFilter();
+    }
+    
+    function exportScoresToExcel() {
+        const filterKelas = document.getElementById('filterKelas').value;
+        const filterNama = document.getElementById('filterNama').value.toLowerCase().trim();
+        let dataToExport = [...allScoresData];
+        if (filterKelas) dataToExport = dataToExport.filter(item => item.kelas === filterKelas);
+        if (filterNama) dataToExport = dataToExport.filter(item => item.nama.toLowerCase().includes(filterNama));
+        const wsData = [['No', 'Nama', 'Kelas', 'Total Skor', 'Hari Aktif', 'Rata-rata']];
+        dataToExport.forEach((item, idx) => { wsData.push([idx+1, item.nama, item.kelas, item.totalSkor, item.hariAktif, item.rataRata.toFixed(1)]); });
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Rekap_Skor');
+        XLSX.writeFile(wb, `rekap_skor_${new Date().toISOString().slice(0,10)}.xlsx`);
+        showToast('Export berhasil');
+    }
+    
+ // ==================== RAPOR ====================
+async function renderRaporSelect() {
+    try {
+        const snapshot = await db.collection(USERS_COLLECTION).orderBy('nama').get();
+        const select = document.getElementById('raporSelect');
+        const filterKelas = document.getElementById('filterKelasRapor')?.value || '';
+        
+        select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+        
+        snapshot.forEach(doc => {
+            const user = doc.data();
+            // Filter berdasarkan kelas jika ada
+            if (filterKelas === '' || user.kelas === filterKelas) {
+                select.innerHTML += `<option value="${escapeHtml(user.nama)}">${escapeHtml(user.nama)} (${escapeHtml(user.kelas || '-')})</option>`;
+            }
+        });
+    } catch(e) {}
 }
 
-function resetScoreFilter() {
-    document.getElementById('filterKelas').value = '';
-    document.getElementById('filterNama').value = '';
-    applyScoreFilter();
-}
-
-function exportScoresToExcel() {
-    const filterKelas = document.getElementById('filterKelas').value;
-    const filterNama = document.getElementById('filterNama').value.toLowerCase().trim();
+// Event listener untuk filter kelas
+document.getElementById('filterKelasRapor')?.addEventListener('change', renderRaporSelect);
     
-    let dataToExport = [...allScoresData];
-    if (filterKelas) dataToExport = dataToExport.filter(item => item.kelas === filterKelas);
-    if (filterNama) dataToExport = dataToExport.filter(item => item.nama.toLowerCase().includes(filterNama));
-    
-    const wsData = [['No', 'Nama', 'Kelas', 'Total Skor', 'Hari Aktif', 'Rata-rata']];
-    dataToExport.forEach((item, idx) => {
-        wsData.push([idx + 1, item.nama, item.kelas, item.totalSkor, item.hariAktif, item.rataRata.toFixed(1)]);
-    });
-    
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Rekap_Skor');
-    XLSX.writeFile(wb, `rekap_skor_${new Date().toISOString().slice(0, 10)}.xlsx`);
-    showToast('Export berhasil', 'success');
-}
-
-// ==================== RAPOR PDF DENGAN PERHITUNGAN YANG BENAR ====================
+   // GENERATE RAPOR
 async function generateRapor() {
+    // Preload logo terlebih dahulu
+    const preloadLogo = (src) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = src;
+        });
+    };
+    
+    // Load kedua logo
+    await preloadLogo('logokiri.jpg');
+    await preloadLogo('logokanan.jpg');
+    
     const nama = document.getElementById('raporSelect').value;
-    if (!nama) {
-        showToast('Pilih siswa terlebih dahulu!', 'error');
-        return;
-    }
+    const periode = document.getElementById('periodeRapor').value;
+    const warnaTema = document.getElementById('warnaTema').value;
+    
+    // Ambil setting kop sekolah
+    const sekolahNama = document.getElementById('sekolahNama')?.value || 'SD NEGERI 7 KEBISAAN HEBAT';
+    const sekolahAlamat = document.getElementById('sekolahAlamat')?.value || 'Jl. Kebiasaan Baik No. 7, Indonesia';
+    const sekolahMotto = document.getElementById('sekolahMotto')?.value || 'Membangun Generasi Emas Indonesia 2045';
+    const sekolahKontak = document.getElementById('sekolahKontak')?.value || 'www.7kebiasaan.hebat';
+    const kepsekNama = document.getElementById('kepsekNama')?.value || 'Dr. H. Ahmad Budiman, M.Pd';
+    const kepsekNIP = document.getElementById('kepsekNIP')?.value || '19691231 202603 1 001';
+    
+    // Ambil setting target hari
+    const targetHariSemester = parseInt(document.getElementById('targetHariSetting')?.value) || 150;
+    const targetHariBulan = parseInt(document.getElementById('targetHariBulanSetting')?.value) || 30;
+    
+    if (!nama) { showToast('Pilih siswa dulu!', 'error'); return; }
     
     showLoading(true);
-    const result = await getScoresFromSheet();
-    showLoading(false);
+    let result = await getScoresFromSheet();
+    let habits = result.habits || [];
+    let data = result.scores?.[nama] || { total: 0, count: 0, kelas: '-' };
+    let userHabits = habits.filter(h => h && h.Nama === nama);
     
-    const data = result.scores?.[nama] || { total: 0, count: 0, kelas: '-' };
-    const today = new Date().toLocaleDateString('id-ID');
+    const now = new Date();
+    const tahun = now.getFullYear();
+    let periodeText = 'Semua Waktu';
+    let targetHari = 0;
     
-    // Hitung kategori berdasarkan rata-rata
-    let kategori = '';
-    let saran = '';
-    if (data.rata >= 15) {
-        kategori = '🌟 SANGAT BAIK';
-        saran = 'Pertahankan dan tingkatkan terus kebiasaan baikmu!';
-    } else if (data.rata >= 10) {
-        kategori = '👍 BAIK';
-        saran = 'Terus semangat membangun kebiasaan positif!';
-    } else if (data.rata >= 5) {
-        kategori = '⚠️ CUKUP';
-        saran = 'Perlu lebih konsisten dalam menerapkan kebiasaan.';
+    // Filter berdasarkan periode
+    if (periode === 'bulan_ini') {
+        periodeText = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        userHabits = userHabits.filter(h => { if(!h || !h.Tanggal_Kegiatan) return false; const tgl = new Date(h.Tanggal_Kegiatan); return tgl.getMonth() === now.getMonth() && tgl.getFullYear() === now.getFullYear(); });
+        targetHari = targetHariBulan;
+    } else if (periode === '30_hari') {
+        periodeText = '30 Hari Terakhir';
+        const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(now.getDate() - 30);
+        userHabits = userHabits.filter(h => h && h.Tanggal_Kegiatan && new Date(h.Tanggal_Kegiatan) >= thirtyDaysAgo);
+        targetHari = 30;
+    } else if (periode === 'ganjil') {
+        periodeText = `Semester Ganjil ${tahun}`;
+        const startDate = new Date(tahun, 6, 1);
+        const endDate = new Date(tahun, 11, 31);
+        userHabits = userHabits.filter(h => {
+            if(!h || !h.Tanggal_Kegiatan) return false;
+            const tgl = new Date(h.Tanggal_Kegiatan);
+            return tgl >= startDate && tgl <= endDate;
+        });
+        targetHari = targetHariSemester;
+    } else if (periode === 'genap') {
+        periodeText = `Semester Genap ${tahun}`;
+        const startDate = new Date(tahun, 0, 1);
+        const endDate = new Date(tahun, 5, 30);
+        userHabits = userHabits.filter(h => {
+            if(!h || !h.Tanggal_Kegiatan) return false;
+            const tgl = new Date(h.Tanggal_Kegiatan);
+            return tgl >= startDate && tgl <= endDate;
+        });
+        targetHari = targetHariSemester;
     } else {
-        kategori = '❌ PERLU DITINGKATKAN';
-        saran = 'Mulai biasakan diri dengan 7 kebiasaan ini.';
+        targetHari = 365;
     }
     
-    const html = `
-        <div style="padding:30px;background:white;border-radius:20px;text-align:center;max-width:800px;margin:0 auto;font-family:'Segoe UI',sans-serif;">
-            <div style="border-bottom: 3px solid #f59e0b; padding-bottom: 20px; margin-bottom: 20px;">
-                <div style="font-size: 48px;">🇮🇩✨</div>
-                <h1 style="color: #1e293b;">RAPOR 7 KEBASAAN</h1>
-                <h2 style="color: #f59e0b;">Anak Indonesia Hebat</h2>
-            </div>
-            
-            <div style="margin: 20px 0;">
-                <h3>${escapeHtml(nama)}</h3>
-                <p>Kelas: ${escapeHtml(data.kelas)}</p>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; margin: 20px 0;">
-                <div style="background: #fef3c7; padding: 15px; border-radius: 16px;">
-                    <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${data.total}</div>
-                    <div>Total Skor</div>
-                    <small>(SUM dari semua kebiasaan)</small>
-                </div>
-                <div style="background: #dbeafe; padding: 15px; border-radius: 16px;">
-                    <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">${data.count}</div>
-                    <div>Hari Aktif</div>
-                    <small>(Total hari mengisi)</small>
-                </div>
-                <div style="background: #dcfce7; padding: 15px; border-radius: 16px;">
-                    <div style="font-size: 28px; font-weight: bold; color: #10b981;">${(data.rata || 0).toFixed(1)}</div>
-                    <div>Rata-rata Skor</div>
-                    <small>(Total Skor ÷ Hari Aktif)</small>
-                </div>
-            </div>
-            
-            <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 20px; padding: 30px; margin-top: 20px;">
-                <div style="font-size: 48px;">🏅</div>
-                <h2 style="color: #1e293b;">KARTU PENGHARGAAN</h2>
-                <p>Diberikan kepada:</p>
-                <h3 style="color: #f59e0b;">${escapeHtml(nama)}</h3>
-                <p><strong>${kategori}</strong></p>
-                <p>${saran}</p>
-                <hr style="margin: 15px 0;">
-                <p><strong>Total Skor: ${data.total} poin</strong></p>
-                <p>${today}</p>
-            </div>
+    // Hitung ulang data berdasarkan filter
+    let totalSkor = 0;
+    userHabits.forEach(h => totalSkor += parseInt(h.TOTAL_SKOR) || 0);
+    const hariAktif = userHabits.length;
+    const rataRata = hariAktif > 0 ? totalSkor / hariAktif : 0;
+    data = { total: totalSkor, count: hariAktif, kelas: data.kelas, rata: rataRata };
+    
+    showLoading(false);
+    
+    const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    
+    // Hitung persentase capaian
+    let persentase = 0;
+    if (periode === 'semua') {
+        persentase = 100;
+    } else {
+        persentase = Math.min(100, Math.round((hariAktif / targetHari) * 100));
+    }
+    
+    // Kategori capaian berdasarkan persentase
+    let kategori = '', saran = '', iconKategori = '', warnaKategori = '';
+    if (persentase >= 80 && persentase <= 99) {
+        kategori = 'ISTIMEWA';
+        saran = '✨ Luar biasa! Konsistensimu sangat mengagumkan. Pertahankan prestasi ini dan jadilah motivator bagi teman-temanmu. Kamu adalah bintang yang bersinar terang! ✨';
+        iconKategori = '🏆';
+        warnaKategori = '#8b5cf6';
+    } else if (persentase > 60 && persentase < 80) {
+        kategori = 'SANGAT BAIK';
+        saran = '🌟 Hebat! Kamu telah menunjukkan komitmen yang luar biasa. Terus pertahankan semangatmu dan tingkatkan lagi kebiasaan baikmu. Kamu hebat! 🌟';
+        iconKategori = '🌟';
+        warnaKategori = '#10b981';
+    } else if (persentase >= 30 && persentase <= 60) {
+        kategori = 'BAIK';
+        saran = '👍 Bagus! Kamu sudah berada di jalur yang tepat. Tingkatkan lagi konsistensimu agar kebiasaan baik semakin melekat. Selamat! 👍';
+        iconKategori = '👍';
+        warnaKategori = '#f59e0b';
+    } else {
+        kategori = 'CUKUP';
+        saran = '🌱 Teruslah berusaha! Setiap hari adalah kesempatan baru untuk membangun kebiasaan baik. Jangan menyerah, kamu pasti bisa! Semangat! 🌱';
+        iconKategori = '🌱';
+        warnaKategori = '#ef4444';
+    }
+    
+    // Warna tema
+    const tema = {
+        orange: { primary: '#f59e0b', light: '#fef3c7', gradient: 'linear-gradient(135deg, #f59e0b, #ea580c)' },
+        hijau: { primary: '#10b981', light: '#d1fae5', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
+        biru: { primary: '#3b82f6', light: '#dbeafe', gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)' },
+        ungu: { primary: '#8b5cf6', light: '#ede9fe', gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' },
+        merah: { primary: '#ef4444', light: '#fee2e2', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' }
+    };
+    const color = tema[warnaTema] || tema.orange;
+    
+ // Di dalam fungsi generateRapor(), bagian HTML rapor:
+
+const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rapor - ${nama}</title>
+<style>
+    @page { size: A4; margin: 0.5cm; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Times New Roman', Arial, sans-serif; background: white; margin: 0; padding: 0; }
+    @media print { 
+        body { background: white; margin: 0; padding: 0; }
+        .rapor-container { box-shadow: none; margin: 0 auto; width: 100%; transform: scale(0.85); transform-origin: top center; }
+        .kop-sekolah { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .kop-sekolah .logo-kiri img,
+        .kop-sekolah .logo-kanan img {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    }
+    .rapor-container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .kop-sekolah { background: ${color.gradient}; color: white; text-align: center; padding: 25px 20px; position: relative; min-height: 120px; }
+    .kop-sekolah .logo-kiri { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); width: 70px; height: 70px; background: transparent; }
+    .kop-sekolah .logo-kanan { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); width: 70px; height: 70px; background: transparent; }
+    .kop-sekolah .logo-kiri img, .kop-sekolah .logo-kanan img { width: 100%; height: 100%; object-fit: contain; }
+    .kop-sekolah .kop-teks { font-size: 22px; font-weight: bold; letter-spacing: 1px; margin: 5px 0; white-space: pre-line; line-height: 1.3; }
+    .kop-sekolah .motto { font-size: 11px; margin-top: 5px; white-space: pre-line; }
+    .kop-sekolah .alamat { font-size: 10px; margin-top: 5px; white-space: pre-line; }
+    .kop-sekolah .info-teks { font-size: 9px; margin-top: 3px; white-space: pre-line; }
+    .judul-rapor { text-align: center; padding: 20px; background: ${color.light}; border-bottom: 2px solid ${color.primary}; }
+    .judul-rapor h3 { color: #1e293b; font-size: 18px; font-weight: bold; }
+    .info-siswa { background: ${color.light}; margin: 20px; padding: 15px; border-radius: 12px; }
+    .info-siswa table { width: 100%; }
+    .info-siswa td { padding: 6px 10px; font-size: 13px; }
+    .info-siswa td:first-child { font-weight: bold; width: 140px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin: 20px; }
+    .stat-card { background: linear-gradient(135deg, white, ${color.light}); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid ${color.primary}30; }
+    .stat-value { font-size: 28px; font-weight: 800; color: ${color.primary}; }
+    .stat-label { font-size: 11px; color: #64748b; margin-top: 5px; }
+    .progress-section { margin: 20px; }
+    .progress-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
+    .progress-bar-container { background: #e2e8f0; border-radius: 30px; height: 12px; overflow: hidden; }
+    .progress-bar { background: ${color.gradient}; border-radius: 30px; height: 100%; width: ${persentase}%; }
+    .kartu-penghargaan { background: linear-gradient(135deg, ${color.light}, #ffffff); border-radius: 16px; padding: 25px; text-align: center; margin: 20px; border: 2px solid ${color.primary}; }
+    .kartu-penghargaan .medali { font-size: 48px; }
+    .kartu-penghargaan h2 { font-size: 22px; color: #1e293b; margin: 10px 0; }
+    .kategori { display: inline-block; background: ${warnaKategori}; color: white; padding: 6px 25px; border-radius: 40px; font-weight: bold; margin: 12px 0; font-size: 14px; }
+    .ttd { margin-top: 20px; padding-top: 12px; border-top: 1px dashed ${color.primary}; font-size: 12px; }
+    .footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 15px; font-size: 10px; margin-top: 20px; }
+    .footer a { color: ${color.primary}; text-decoration: none; }
+</style>
+</head><body>
+<div class="rapor-container">
+    <div class="kop-sekolah">
+        <div class="logo-kiri"><img src="logokiri.jpg" alt="Logo Kiri"></div>
+        <div class="logo-kanan"><img src="logokanan.jpg" alt="Logo Kanan"></div>
+        <div class="kop-teks">${escapeHtml(sekolahNama)}</div>
+        <div class="motto">✨ ${escapeHtml(sekolahMotto)} ✨</div>
+        <div class="alamat">${escapeHtml(sekolahAlamat)}</div>
+        <div class="info-teks">${escapeHtml(sekolahKontak)}</div>
+        <div class="info-teks">📞 Wa: 089521255360</div>
+        <div class="info-teks">📧 Email: sdn.gbr01@gmail.com</div>
+        <div class="info-teks">🌐 Website: https://sdn-gambirono-01-web.vercel.app/</div>
+        <div class="info-teks">🏆 Akreditasi B | NPSN: 20524756</div>
+    </div>
+    <div class="judul-rapor">
+        <h3>📊 LAPORAN CAPAIAN 7 KEBIASAAN ANAK INDONESIA HEBAT 📊</h3>
+    </div>
+    <div class="info-siswa"><table>
+        <tr><td>👤 Nama Siswa</td><td>: <strong>${escapeHtml(nama)}</strong></td></tr>
+        <tr><td>📚 Kelas</td><td>: ${escapeHtml(data.kelas)}</td></tr>
+        <tr><td>📅 Periode</td><td>: ${periodeText}</td></tr>
+        <tr><td>🎯 Target Hari Aktif</td><td>: ${targetHari} hari</td></tr>
+        <tr><td>✅ Hari Aktif</td><td>: ${hariAktif} hari (${persentase}%)</td></tr>
+        <tr><td>🖨️ Tanggal Cetak</td><td>: ${today}</td></tr>
+    </table></div>
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-value">${totalSkor}</div><div class="stat-label">🏆 TOTAL SKOR</div></div>
+        <div class="stat-card"><div class="stat-value">${hariAktif}</div><div class="stat-label">📅 HARI AKTIF</div></div>
+        <div class="stat-card"><div class="stat-value">${rataRata.toFixed(1)}</div><div class="stat-label">⭐ RATA-RATA</div></div>
+        <div class="stat-card"><div class="stat-value">${persentase}%</div><div class="stat-label">📈 CAPAIAN</div></div>
+    </div>
+    <div class="progress-section">
+        <div class="progress-label"><span>🎯 Progress Capaian</span><span>${persentase}%</span></div>
+        <div class="progress-bar-container"><div class="progress-bar"></div></div>
+    </div>
+    <div class="kartu-penghargaan">
+        <div class="medali">🏅🎖️🏅</div>
+        <h2>KARTU PENGHARGAAN</h2>
+        <p>Diberikan kepada:</p>
+        <h3 style="font-size:20px; color:${color.primary};">${escapeHtml(nama)}</h3>
+        <div class="kategori">${iconKategori} ${kategori} ${iconKategori}</div>
+        <p style="font-size: 13px; margin-top: 10px;">${saran}</p>
+        <div class="ttd">
+            <p>Mengetahui,</p>
+            <p>Kepala Sekolah</p>
+            <p><strong>${escapeHtml(kepsekNama)}</strong></p>
+            <p>NIP. ${escapeHtml(kepsekNIP)}</p>
         </div>
-    `;
+    </div>
+    <div class="footer">
+        <p>Dicetak dari <strong>Sistem Informasi 7 Kebiasaan Anak Indonesia Hebat</strong></p>
+        <p><a href="https://7-kaih-baru-2026.vercel.app/index.html">https://7-kaih-baru-2026.vercel.app/index.html</a> © 2026</p>
+    </div>
+</div></body></html>`;
     
     document.getElementById('raporPreview').innerHTML = html;
     const printWindow = window.open('', '_blank');
     printWindow.document.write(html);
+    printWindow.document.close();
     printWindow.print();
-    showToast('Rapor sedang diproses', 'success');
+    showToast('📄 Rapor sedang diproses');
 }
     
-    // ==================== RAPOR ====================
-    async function renderRaporSelect() {
-        try {
-            const snapshot = await db.collection(USERS_COLLECTION).orderBy('nama').get();
-            const select = document.getElementById('raporSelect');
-            select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
-            snapshot.forEach(doc => {
-                const user = doc.data();
-                select.innerHTML += `<option value="${escapeHtml(user.nama)}">${escapeHtml(user.nama)} (${escapeHtml(user.kelas || '-')})</option>`;
-            });
-        } catch(e) {}
-    }
-    
-    async function generateRapor() {
-        const nama = document.getElementById('raporSelect').value;
-        if (!nama) {
-            showToast('Pilih siswa terlebih dahulu!', 'error');
-            return;
-        }
-        
-        showLoading(true);
-        const result = await getScoresFromSheet();
-        showLoading(false);
-        
-        const data = result.scores?.[nama] || { total: 0, count: 0, kelas: '-' };
-        const today = new Date().toLocaleDateString('id-ID');
-        
-        let kategori = '';
-        if (data.total >= 20) kategori = '🌟 Luar Biasa!';
-        else if (data.total >= 10) kategori = '👍 Baik';
-        else kategori = '⚠️ Perlu Ditingkatkan';
-        
-        const html = `
-            <div style="padding:30px;background:white;border-radius:20px;text-align:center;max-width:800px;margin:0 auto;">
-                <div style="border-bottom: 3px solid #f59e0b; padding-bottom: 20px; margin-bottom: 20px;">
-                    <div style="font-size: 48px;">🇮🇩✨</div>
-                    <h1 style="color: #1e293b;">RAPOR 7 KEBASAAN</h1>
-                    <h2 style="color: #f59e0b;">Anak Indonesia Hebat</h2>
-                </div>
-                <div style="margin: 20px 0;">
-                    <h3>${escapeHtml(nama)}</h3>
-                    <p>Kelas: ${escapeHtml(data.kelas)}</p>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; margin: 20px 0;">
-                    <div style="background: #fef3c7; padding: 15px; border-radius: 16px;">
-                        <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${data.total}</div>
-                        <div>Total Skor</div>
-                    </div>
-                    <div style="background: #dbeafe; padding: 15px; border-radius: 16px;">
-                        <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">${data.count}</div>
-                        <div>Hari Aktif</div>
-                    </div>
-                    <div style="background: #dcfce7; padding: 15px; border-radius: 16px;">
-                        <div style="font-size: 28px; font-weight: bold; color: #10b981;">${(data.rata || 0).toFixed(1)}</div>
-                        <div>Rata-rata Skor</div>
-                    </div>
-                </div>
-                <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 20px; padding: 30px; margin-top: 20px;">
-                    <div style="font-size: 48px;">🏅</div>
-                    <h2 style="color: #1e293b;">KARTU PENGHARGAAN</h2>
-                    <p>Diberikan kepada:</p>
-                    <h3 style="color: #f59e0b;">${escapeHtml(nama)}</h3>
-                    <p>${kategori}</p>
-                    <hr style="margin: 15px 0;">
-                    <p><strong>Total Skor: ${data.total} poin</strong></p>
-                    <p>${today}</p>
-                </div>
-            </div>
-        `;
-        
-        document.getElementById('raporPreview').innerHTML = html;
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(html);
-        printWindow.print();
-        showToast('Rapor sedang diproses', 'success');
-    }
-// ==================== IMPORT DATA MASSAL ====================
-function importData() {
-    document.getElementById('importDataFile').click();
+ // SAVE SCHOOL SETTINGS (UPDATE)
+function saveSchoolSettings() {
+    const settings = {
+        sekolahNama: document.getElementById('sekolahNama')?.value || '',
+        sekolahAlamat: document.getElementById('sekolahAlamat')?.value || '',
+        sekolahMotto: document.getElementById('sekolahMotto')?.value || '',
+        sekolahKontak: document.getElementById('sekolahKontak')?.value || '',
+        kepsekNama: document.getElementById('kepsekNama')?.value || '',
+        kepsekNIP: document.getElementById('kepsekNIP')?.value || '',
+        targetHariSemester: document.getElementById('targetHariSetting')?.value || 150,
+        targetHariBulan: document.getElementById('targetHariBulanSetting')?.value || 30
+    };
+    localStorage.setItem('sekolahSettings', JSON.stringify(settings));
 }
 
-async function processImportData(file) {
-    showLoading(true);
-    
-    try {
-        const data = await file.arrayBuffer();
-        const workbook = XLSX.read(data);
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet);
-        
-        console.log('📊 Data yang akan diimport:', rows.length, 'baris');
-        
-        // Konversi ke format yang diharapkan
-        const records = rows.map(row => {
-            // Mapping kolom yang fleksibel
-            return {
-                ID_USER: row.ID_USER || row.id_user || row.ID_USER || '',
-                Nama: row.Nama || row.nama || row.NAMA || '',
-                Kelas: row.Kelas || row.kelas || row.KELAS || '',
-                Tanggal_Kegiatan: row.Tanggal_Kegiatan || row.tanggal || row.TANGGAL || '',
-                TOTAL_SKOR: row.TOTAL_SKOR || row.total_skor || row.SKOR || 0,
-                Bangun_Pagi_Jam: row.Bangun_Pagi_Jam || row.bangun_pagi || '',
-                Ibadah_List: row.Ibadah_List || row.ibadah || '',
-                Quran_Surat: row.Quran_Surat || row.quran_surat || '',
-                Quran_Ayat: row.Quran_Ayat || row.quran_ayat || '',
-                Olahraga_Aktivitas: row.Olahraga_Aktivitas || row.olahraga || '',
-                Belajar_Materi: row.Belajar_Materi || row.belajar || '',
-                Makan_Pagi: row.Makan_Pagi || row.makan_pagi || '',
-                Makan_Siang: row.Makan_Siang || row.makan_siang || '',
-                Makan_Malam: row.Makan_Malam || row.makan_malam || '',
-                Bantu_Ortu: row.Bantu_Ortu || row.bantu_ortu || '',
-                Tidur_Jam: row.Tidur_Jam || row.tidur || ''
-            };
-        });
-        
-        // Kirim ke Apps Script
-        let successCount = 0;
-        for (const record of records) {
-            const formData = {
-                ID_USER: record.ID_USER,
-                Timestamp: new Date().toISOString(),
-                Tanggal_Kegiatan: record.Tanggal_Kegiatan,
-                Nama: record.Nama,
-                Kelas: record.Kelas,
-                Bangun_Pagi_Jam: record.Bangun_Pagi_Jam || '-',
-                Bangun_Pagi_Skor: 0,
-                Ibadah_List: record.Ibadah_List || '-',
-                Ibadah_Jumlah: 0,
-                Ibadah_Skor: 0,
-                Quran_Surat: record.Quran_Surat || '-',
-                Quran_Ayat: record.Quran_Ayat || '-',
-                Quran_Skor: 0,
-                Olahraga_Waktu: '-',
-                Olahraga_Aktivitas: record.Olahraga_Aktivitas || '-',
-                Olahraga_Skor: 0,
-                Belajar_Waktu: '-',
-                Belajar_Materi: record.Belajar_Materi || '-',
-                Belajar_Skor: 0,
-                Makan_Pagi: record.Makan_Pagi || '-',
-                Makan_Siang: record.Makan_Siang || '-',
-                Makan_Malam: record.Makan_Malam || '-',
-                Makan_Skor: 0,
-                Bantu_Ortu: record.Bantu_Ortu || '-',
-                Bantu_Ortu_Skor: 0,
-                Tidur_Jam: record.Tidur_Jam || '-',
-                Tidur_Skor: 0,
-                TOTAL_SKOR: parseInt(record.TOTAL_SKOR) || 0
-            };
-            
-            const result = await submitHabitToSheet(formData);
-            if (result.success) successCount++;
-            
-            // Delay 100ms antar request
-            await new Promise(r => setTimeout(r, 100));
-        }
-        
-        showToast(`✅ Import selesai! ${successCount} dari ${records.length} data berhasil diimport`, 'success');
-        
-        // Refresh data
-        loadAllHabits();
-        loadScoresData();
-        
-    } catch (error) {
-        console.error('Import error:', error);
-        showToast('❌ Gagal import data: ' + error.message, 'error');
-    } finally {
-        showLoading(false);
+function loadSchoolSettings() {
+    const saved = localStorage.getItem('sekolahSettings');
+    if (saved) {
+        const settings = JSON.parse(saved);
+        if (document.getElementById('sekolahNama')) document.getElementById('sekolahNama').value = settings.sekolahNama;
+        if (document.getElementById('sekolahAlamat')) document.getElementById('sekolahAlamat').value = settings.sekolahAlamat;
+        if (document.getElementById('sekolahMotto')) document.getElementById('sekolahMotto').value = settings.sekolahMotto;
+        if (document.getElementById('sekolahKontak')) document.getElementById('sekolahKontak').value = settings.sekolahKontak;
+        if (document.getElementById('kepsekNama')) document.getElementById('kepsekNama').value = settings.kepsekNama;
+        if (document.getElementById('kepsekNIP')) document.getElementById('kepsekNIP').value = settings.kepsekNIP;
+        if (document.getElementById('targetHariSetting')) document.getElementById('targetHariSetting').value = settings.targetHariSemester || 150;
+        if (document.getElementById('targetHariBulanSetting')) document.getElementById('targetHariBulanSetting').value = settings.targetHariBulan || 30;
     }
 }
-
-// Event listener untuk import
-document.getElementById('importDataBtn')?.addEventListener('click', importData);
-document.getElementById('importDataFile')?.addEventListener('change', (e) => {
-    if (e.target.files[0]) processImportData(e.target.files[0]);
-});
     
     // ==================== TAB SWITCHING ====================
     document.querySelectorAll('.tab').forEach(tab => {
@@ -684,7 +758,6 @@ document.getElementById('importDataFile')?.addEventListener('change', (e) => {
             const target = tab.getAttribute('data-tab');
             document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
             document.getElementById(`tab${target.charAt(0).toUpperCase() + target.slice(1)}`).classList.remove('hidden');
-            
             if (target === 'habits') loadAllHabits();
             if (target === 'scores') loadScoresData();
             if (target === 'rapor') renderRaporSelect();
@@ -696,20 +769,25 @@ document.getElementById('importDataFile')?.addEventListener('change', (e) => {
     document.getElementById('downloadTemplateBtn')?.addEventListener('click', downloadTemplate);
     document.getElementById('exportUsersBtn')?.addEventListener('click', exportUsers);
     document.getElementById('uploadExcelBtn')?.addEventListener('click', uploadExcel);
+    document.getElementById('uploadExcelFile')?.addEventListener('change', (e) => { if(e.target.files[0]) processExcel(e.target.files[0]); });
     document.getElementById('refreshHabitsBtn')?.addEventListener('click', loadAllHabits);
-    document.getElementById('generateRaporBtn')?.addEventListener('click', generateRapor);
-    document.getElementById('uploadExcelFile')?.addEventListener('change', (e) => {
-        if (e.target.files[0]) processExcel(e.target.files[0]);
-    });
     document.getElementById('applyFilterBtn')?.addEventListener('click', applyScoreFilter);
     document.getElementById('resetFilterBtn')?.addEventListener('click', resetScoreFilter);
     document.getElementById('exportScoresBtn')?.addEventListener('click', exportScoresToExcel);
+    document.getElementById('generateRaporBtn')?.addEventListener('click', generateRapor);
+    
+    const schoolInputs = ['sekolahNama', 'sekolahAlamat', 'sekolahMotto', 'kepsekNama', 'kepsekNIP'];
+    schoolInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', saveSchoolSettings);
+    });
     
     // ==================== INITIAL LOAD ====================
     renderUsers();
     loadAllHabits();
     loadScoresData();
     renderRaporSelect();
+    loadSchoolSettings();
 </script>
 </body>
 </html>
