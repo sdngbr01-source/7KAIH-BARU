@@ -1,5 +1,5 @@
 // ============ APPS SCRIPT API UNTUK GOOGLE SHEETS ============
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-CWZCea4gAu8ON5IpljbhjbozF5a5I1IqCnBAS_vINWXN_gRIWGw5jSejsL5fjoY7/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGrrFfw6tPQQDmlZqRwBiiH7tMj0Q8HxVZBwDB2eL8U8K152Omd1cQdIrpZAhjay9m/exec';
 
 let clientCache = null;
 let lastFetchTime = 0;
