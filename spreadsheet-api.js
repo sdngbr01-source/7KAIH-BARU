@@ -1,6 +1,6 @@
 // Google Sheets API
 // GANTI DENGAN URL WEB APP ANDA!
-const SPREADSHEET_API_URL = 'https://script.google.com/macros/s/AKfycbx-CWZCea4gAu8ON5IpljbhjbozF5a5I1IqCnBAS_vINWXN_gRIWGw5jSejsL5fjoY7/exec';
+const SPREADSHEET_API_URL = 'https://script.google.com/macros/s/AKfycbwxMKHyGM0Y5VwPokMzD5SWGsZtVde08Z0GMcfXazsGhmtfGKY5rKhWuWketzqZpLwq/exec';
 
 async function callSpreadsheetApi(action, data = {}) {
     try {
