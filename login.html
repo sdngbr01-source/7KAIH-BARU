@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - 7 Kebiasaan Anak Indonesia Hebat</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="utils.js"></script>
+    <style>
+        .login-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            min-height: 100vh;
+            margin: 0 auto;
+        }
+
+        .login-left {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+        }
+
+        .login-left .badge {
+            display: inline-block;
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--primary-light);
+            padding: 6px 20px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .login-left h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 15px;
+        }
+
+        .login-left h1 .highlight {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-left p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            max-width: 450px;
+        }
+
+        .login-left .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 450px;
+        }
+
+        .login-left .features .feat {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            transition: all 0.3s;
+        }
+
+        .login-left .features .feat:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .login-left .features .feat .icon {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .login-left .features .feat .label {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        .login-card {
+            flex: 0 0 420px;
+            max-width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: 40px 35px;
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .login-card .logo-area {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-card .logo-area .logo-img {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .login-card .logo-area .logo-img img {
+            height: 50px;
+            width: auto;
+            border-radius: 8px;
+        }
+
+        .login-card .logo-area .school-name {
+            font-size: 14px;
+            color: var(--text-light);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .login-card .logo-area h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .login-card .logo-area h2 span {
+            color: var(--primary-light);
+        }
+
+        .login-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-full);
+            padding: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-gradient);
+            color: #1e293b;
+            box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: white;
+        }
+
+        .form-group .input-hint {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        .form-group .input-hint .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .form-group .input-hint .status-indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot.valid { background: #10b981; }
+        .dot.invalid { background: #ef4444; }
+        .dot.pending { background: #f59e0b; animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .login-footer .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s;
+        }
+
+        .login-footer .back-link:hover {
+            color: var(--primary-light);
+        }
+
+        /* Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(251, 191, 36, 0.1);
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-10vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-wrapper { flex-direction: column; padding: 10px; }
+            .login-left h1 { font-size: 2rem; }
+            .login-left .features { grid-template-columns: 1fr 1fr; }
+            .login-card { flex: 0 0 100%; padding: 30px 20px; }
+        }
+
+        @media (max-width: 480px) {
+            .login-left .features { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .login-left .features .feat { padding: 12px; }
+            .login-left .features .feat .icon { font-size: 22px; }
+            .login-left h1 { font-size: 1.6rem; }
+            .login-card .logo-area h2 { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Loading -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="spinner"></div>
+</div>
+
+<div class="login-wrapper">
+    <!-- Left Side -->
+    <div class="login-left">
+        <div class="badge">🏫 SDN GAMBIRONO 01</div>
+        <h1>Bangun <span class="highlight">7 Kebiasaan</span><br>Anak Indonesia Hebat</h1>
+        <p>Platform digital untuk membentuk generasi emas dengan kebiasaan positif setiap hari.</p>
+        <div class="features">
+            <div class="feat"><div class="icon">🌅</div><div class="label">Bangun Pagi</div></div>
+            <div class="feat"><div class="icon">🕌</div><div class="label">Ibadah & Doa</div></div>
+            <div class="feat"><div class="icon">🏃</div><div class="label">Olahraga</div></div>
+            <div class="feat"><div class="icon">📚</div><div class="label">Gemar Belajar</div></div>
+            <div class="feat"><div class="icon">🥗</div><div class="label">Makan Sehat</div></div>
+            <div class="feat"><div class="icon">🤝</div><div class="label">Bantu Orang Tua</div></div>
+            <div class="feat" style="grid-column: span 2;"><div class="icon">🌙</div><div class="label">Tidur Cepat</div></div>
+        </div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="login-card">
+        <div class="logo-area">
+            <div class="logo-img">
+                <img src="logokiri.jpg" alt="Logo" onerror="this.style.display='none'">
+                <span style="font-size:32px;">🇮🇩</span>
+                <img src="logokanan.jpg" alt="Logo" onerror="this.style.display='none'">
+            </div>
+            <div class="school-name">SD NEGERI GAMBIRONO 01</div>
+            <h2>7 Kebiasaan <span>Hebat</span></h2>
+        </div>
+
+        <div class="login-tabs">
+            <button class="tab-btn active" data-tab="user">👤 Siswa</button>
+            <button class="tab-btn" data-tab="admin">🔐 Admin</button>
+        </div>
+
+        <!-- User Login -->
+        <div id="userLoginForm">
+            <div class="form-group">
+                <label>📋 NISN (Nomor Induk Siswa Nasional)</label>
+                <input type="text" id="userNISN" placeholder="Masukkan 10 digit NISN" maxlength="10" autocomplete="off">
+                <div class="input-hint">
+                    <small>Contoh: 0067890123</small>
+                    <div class="status-indicator">
+                        <span class="dot pending" id="nisnStatusDot"></span>
+                        <span id="nisnStatusText" style="color:var(--text-muted);">Belum dicek</span>
+                    </div>
+                </div>
+            </div>
+            <button id="btnUserLogin" class="btn btn-primary btn-block">🚀 Masuk ke Dashboard</button>
+        </div>
+
+        <!-- Admin Login -->
+        <div id="adminLoginForm" class="hidden">
+            <div class="form-group">
+                <label>👤 Username Admin</label>
+                <input type="text" id="adminUsername" placeholder="Masukkan username">
+            </div>
+            <div class="form-group">
+                <label>🔑 Password</label>
+                <input type="password" id="adminPassword" placeholder="Masukkan password">
+            </div>
+            <button id="btnAdminLogin" class="btn btn-secondary btn-block">🔐 Login Admin</button>
+        </div>
+
+        <div class="login-footer">
+            <a href="index.html" class="back-link">← Kembali ke Beranda</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============ PARTICLES ============
+    (function() {
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 8 + 3;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDuration = (Math.random() * 20 + 15) + 's';
+            p.style.animationDelay = (Math.random() * 20) + 's';
+            p.style.opacity = Math.random() * 0.3 + 0.1;
+            container.appendChild(p);
+        }
+    })();
+
+    // Check if already logged in
+    if (localStorage.getItem('currentUser')) {
+        window.location.href = 'user-dashboard.html';
+    }
+    if (localStorage.getItem('isAdmin') === 'true') {
+        window.location.href = 'admin-dashboard.html';
+    }
+
+    // ============ NISN VALIDATION ============
+    let nisnTimeout = null;
+    const nisnInput = document.getElementById('userNISN');
+    const nisnStatusDot = document.getElementById('nisnStatusDot');
+    const nisnStatusText = document.getElementById('nisnStatusText');
+
+    nisnInput.addEventListener('input', function() {
+        clearTimeout(nisnTimeout);
+        const nisn = this.value.trim();
+
+        if (nisn.length < 3) {
+            nisnStatusDot.className = 'dot pending';
+            nisnStatusText.textContent = 'Ketik NISN...';
+            nisnStatusText.style.color = 'var(--text-muted)';
+            return;
+        }
+
+        nisnStatusDot.className = 'dot pending';
+        nisnStatusText.textContent = 'Mengecek...';
+        nisnStatusText.style.color = '#f59e0b';
+
+        nisnTimeout = setTimeout(async () => {
+            try {
+                const result = await getUsersFromSheet();
+                if (result.success) {
+                    const users = result.data || [];
+                    const user = users.find(u => String(u.nisn) === String(nisn));
+                    
+                    if (user) {
+                        nisnStatusDot.className = 'dot valid';
+                        nisnStatusText.textContent = `✅ Ditemukan: ${user.nama}`;
+                        nisnStatusText.style.color = '#10b981';
+                    } else {
+                        nisnStatusDot.className = 'dot invalid';
+                        nisnStatusText.textContent = '❌ NISN tidak terdaftar';
+                        nisnStatusText.style.color = '#ef4444';
+                    }
+                }
+            } catch (e) {
+                nisnStatusDot.className = 'dot invalid';
+                nisnStatusText.textContent = '⚠️ Error cek NISN';
+                nisnStatusText.style.color = '#ef4444';
+            }
+        }, 500);
+    });
+
+    // ============ TAB SWITCHING ============
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const tab = btn.getAttribute('data-tab');
+            document.getElementById('userLoginForm').classList.toggle('hidden', tab !== 'user');
+            document.getElementById('adminLoginForm').classList.toggle('hidden', tab !== 'admin');
+        });
+    });
+
+    // ============ USER LOGIN ============
+    document.getElementById('btnUserLogin').addEventListener('click', async () => {
+        const nisn = nisnInput.value.trim();
+        if (!nisn) {
+            showToast('⚠️ Masukkan NISN terlebih dahulu!', 'warning');
+            nisnInput.focus();
+            return;
+        }
+
+        if (nisn.length !== 10 || !/^\d+$/.test(nisn)) {
+            showToast('⚠️ NISN harus 10 digit angka!', 'warning');
+            return;
+        }
+
+        showLoading(true);
+        try {
+            const result = await loginUser(nisn);
+            showLoading(false);
+            if (result.success) {
+                showToast(`✅ Selamat datang, ${result.user.nama}!`, 'success');
+                setTimeout(() => window.location.href = 'user-dashboard.html', 500);
+            } else {
+                showToast(`❌ ${result.message}`, 'error');
+            }
+        } catch (e) {
+            showLoading(false);
+            showToast(`❌ Error: ${e.message}`, 'error');
+        }
+    });
+
+    // Enter key for login
+    nisnInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('btnUserLogin').click();
+        }
+    });
+
+    // ============ ADMIN LOGIN ============
+    document.getElementById('btnAdminLogin').addEventListener('click', () => {
+        const username = document.getElementById('adminUsername').value.trim();
+        const password = document.getElementById('adminPassword').value.trim();
+
+        const result = loginAdmin(username, password);
+        if (result.success) {
+            showToast('✅ Login admin berhasil!', 'success');
+            setTimeout(() => window.location.href = 'admin-dashboard.html', 500);
+        } else {
+            showToast(`❌ ${result.message}`, 'error');
+        }
+    });
+
+    // Admin enter key
+    document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('btnAdminLogin').click();
+        }
+    });
+</script>
+</body>
+</html>

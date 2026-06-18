@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - 7 Kebiasaan Anak Indonesia Hebat</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="scoring.js"></script>
+    <script src="spreadsheet-api.js"></script>
+    <script src="utils.js"></script>
+    <script src="app.js"></script>
+    <style>
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .admin-stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border-glass);
+        }
+        .admin-stat-card .value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+        .admin-stat-card .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .filter-bar .form-group {
+            margin-bottom: 0;
+            min-width: 150px;
+        }
+        .filter-bar .form-group input,
+        .filter-bar .form-group select {
+            margin-top: 5px;
+        }
+        .btn-filter {
+            padding: 12px 24px;
+            height: 46px;
+        }
+        .tab-content.hidden { display: none; }
+        .tab-content { display: block; }
+        .user-management .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .data-table .skor-badge {
+            font-size: 12px;
+        }
+        .rapor-settings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .rapor-settings .form-group {
+            margin-bottom: 0;
+        }
+        .rapor-preview {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.03);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-glass);
+            min-height: 100px;
+        }
+        .btn-delete-sm {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        .btn-delete-sm:hover {
+            background: #dc2626;
+        }
+        @media (max-width: 768px) {
+            .filter-bar { flex-direction: column; }
+            .filter-bar .form-group { width: 100%; }
+            .admin-stats { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="spinner"></div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar" style="background: rgba(15,12,41,0.95); backdrop-filter: blur(20px); padding: 16px 32px; border-bottom: 1px solid var(--border-glass); position: sticky; top: 0; z-index: 100;">
+    <div class="nav-container" style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+        <div class="logo" style="display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.1rem;">
+            <span>👑</span>
+            <span>Admin Panel</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <span style="color:var(--text-muted); font-size:13px;">SDN Gambirono 01</span>
+            <button onclick="logout()" class="btn btn-sm btn-danger">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
+        <button class="tab" data-tab="users">👥 User</button>
+        <button class="tab" data-tab="habits">📋 Log Kebiasaan</button>
+        <button class="tab" data-tab="scores">📊 Rekap Skor</button>
+        <button class="tab" data-tab="rapor">📄 Rapor</button>
+    </div>
+
+    <!-- TAB: Dashboard -->
+    <div id="tabDashboard" class="tab-content">
+        <div class="card">
+            <h2 style="margin-bottom:20px;">📊 Overview</h2>
+            <div class="admin-stats" id="adminStats">
+                <div class="admin-stat-card">
+                    <div class="value" id="totalSiswa">0</div>
+                    <div class="label">👥 Total Siswa</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="value" id="totalHabits">0</div>
+                    <div class="label">📝 Total Pengisian</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="value" id="totalHariAktif">0</div>
+                    <div class="label">📅 Total Hari Aktif</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="value" id="rataSkorGlobal">0</div>
+                    <div class="label">⭐ Rata-rata Skor</div>
+                </div>
+            </div>
+            
+            <div style="background:rgba(255,255,255,0.03); border-radius:var(--radius); padding:20px; margin-top:20px;">
+                <h4 style="margin-bottom:10px;">📈 Aktivitas Terbaru</h4>
+                <div id="recentActivities" style="max-height:300px; overflow-y:auto;">
+                    <p style="color:var(--text-muted); text-align:center; padding:20px;">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: Users -->
+    <div id="tabUsers" class="tab-content hidden">
+        <div class="card user-management">
+            <div class="flex-between">
+                <h2>👥 Manajemen User</h2>
+            </div>
+            <div class="action-buttons">
+                <button id="addUserBtn" class="btn btn-primary">➕ Tambah Manual</button>
+                <button id="downloadTemplateBtn" class="btn btn-secondary">📥 Template</button>
+                <button id="exportUsersBtn" class="btn btn-secondary">📤 Export Excel</button>
+                <button id="uploadExcelBtn" class="btn btn-outline">📎 Upload Excel</button>
+                <input type="file" id="uploadExcelFile" accept=".xlsx,.xls,.csv" style="display:none">
+            </div>
+            <div id="userTableContainer" class="table-wrapper">
+                <table class="data-table">
+                    <thead><tr><th>No</th><th>NISN</th><th>Nama</th><th>Kelas</th><th>Aksi</th></tr></thead>
+                    <tbody id="userTableBody"><tr class="empty-row"><td colspan="5">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: Habits -->
+    <div id="tabHabits" class="tab-content hidden">
+        <div class="card">
+            <div class="flex-between">
+                <h2>📋 Semua Log Kebiasaan</h2>
+                <button id="refreshHabitsBtn" class="btn btn-sm btn-secondary">🔄 Refresh</button>
+            </div>
+            <div id="habitsTableContainer" class="table-wrapper">
+                <table class="data-table">
+                    <thead><tr><th>Tanggal</th><th>Nama</th><th>Kelas</th><th>Bangun</th><th>Ibadah</th><th>Quran</th><th>Olahraga</th><th>Belajar</th><th>Makan</th><th>Bantu</th><th>Tidur</th><th>Skor</th></tr></thead>
+                    <tbody id="habitsTableBody"><tr class="empty-row"><td colspan="12">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: Scores -->
+    <div id="tabScores" class="tab-content hidden">
+        <div class="card">
+            <h2>📊 Rekapitulasi Skor</h2>
+            <div class="filter-bar">
+                <div class="form-group">
+                    <label>Filter Kelas</label>
+                    <select id="filterKelas">
+                        <option value="">Semua</option>
+                        <option value="1A">1A</option><option value="1B">1B</option>
+                        <option value="2A">2A</option><option value="2B">2B</option>
+                        <option value="3A">3A</option><option value="3B">3B</option>
+                        <option value="4A">4A</option><option value="4B">4B</option>
+                        <option value="5A">5A</option><option value="5B">5B</option>
+                        <option value="6A">6A</option><option value="6B">6B</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cari Nama</label>
+                    <input type="text" id="filterNama" placeholder="Ketik nama...">
+                </div>
+                <button id="applyFilterBtn" class="btn btn-primary btn-filter">🔍 Terapkan</button>
+                <button id="resetFilterBtn" class="btn btn-outline btn-filter">🔄 Reset</button>
+                <button id="exportScoresBtn" class="btn btn-secondary btn-filter">📥 Export</button>
+            </div>
+            <div id="scoresTableContainer" class="table-wrapper">
+                <table class="data-table">
+                    <thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Total Skor</th><th>Hari Aktif</th><th>Rata-rata</th><th>Kategori</th></tr></thead>
+                    <tbody id="scoresTableBody"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: Rapor -->
+    <div id="tabRapor" class="tab-content hidden">
+        <div class="card">
+            <h2>📄 Generate Rapor & Kartu Penghargaan</h2>
+            
+            <div style="background:rgba(255,255,255,0.03); border-radius:var(--radius); padding:20px; margin:20px 0;">
+                <h4 style="margin-bottom:15px;">🏫 Pengaturan Sekolah</h4>
+                <div class="rapor-settings">
+                    <div class="form-group">
+                        <label>Nama Sekolah</label>
+                        <textarea id="sekolahNama" rows="2" style="width:100%;">SD NEGERI GAMBIRONO 01</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Alamat</label>
+                        <input type="text" id="sekolahAlamat" value="Jl. Gambirono, Kecamatan, Kabupaten">
+                    </div>
+                    <div class="form-group">
+                        <label>Motto</label>
+                        <input type="text" id="sekolahMotto" value="Membangun Generasi Emas Indonesia">
+                    </div>
+                    <div class="form-group">
+                        <label>Kontak</label>
+                        <input type="text" id="sekolahKontak" value="sdn.gbr01@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Kepala Sekolah</label>
+                        <input type="text" id="kepsekNama" value="Dr. H. Ahmad Budiman, M.Pd">
+                    </div>
+                    <div class="form-group">
+                        <label>NIP Kepsek</label>
+                        <input type="text" id="kepsekNIP" value="19691231 202603 1 001">
+                    </div>
+                </div>
+            </div>
+
+            <div class="rapor-settings">
+                <div class="form-group">
+                    <label>Pilih Siswa</label>
+                    <select id="raporSelect">
+                        <option value="">-- Pilih --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Periode</label>
+                    <select id="periodeRapor">
+                        <option value="semua">📅 Semua Waktu</option>
+                        <option value="bulan_ini">📆 Bulan Ini</option>
+                        <option value="30_hari">📊 30 Hari Terakhir</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Warna Tema</label>
+                    <select id="warnaTema">
+                        <option value="orange">🟠 Oranye</option>
+                        <option value="hijau">🟢 Hijau</option>
+                        <option value="biru">🔵 Biru</option>
+                        <option value="ungu">🟣 Ungu</option>
+                        <option value="merah">🔴 Merah</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display:flex; align-items:flex-end;">
+                    <button id="generateRaporBtn" class="btn btn-primary" style="width:100%;">📥 Cetak Rapor PDF</button>
+                </div>
+            </div>
+
+            <div id="raporPreview" class="rapor-preview">
+                <p style="color:var(--text-muted); text-align:center;">Pilih siswa dan klik cetak untuk melihat preview</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============ INIT ============
+    if (localStorage.getItem('isAdmin') !== 'true') {
+        window.location.href = 'login.html';
+    }
+
+    // ============ DASHBOARD ============
+    async function loadDashboard() {
+        try {
+            // Get users
+            const usersResult = await getUsersFromSheet();
+            const users = usersResult.success ? usersResult.data || [] : [];
+            document.getElementById('totalSiswa').textContent = users.length;
+
+            // Get habits
+            const habitsResult = await getHabitsFromSheet(true);
+            const habits = habitsResult.success ? habitsResult.data || [] : [];
+            document.getElementById('totalHabits').textContent = habits.length;
+
+            // Unique users with habits
+            const uniqueUsers = new Set(habits.map(h => h.Nama).filter(n => n && n !== '-'));
+            document.getElementById('totalHariAktif').textContent = uniqueUsers.size;
+
+            // Average score
+            let totalSkor = 0;
+            habits.forEach(h => totalSkor += parseInt(h.TOTAL_SKOR) || 0);
+            const avg = habits.length > 0 ? (totalSkor / habits.length).toFixed(1) : 0;
+            document.getElementById('rataSkorGlobal').textContent = avg;
+
+            // Recent activities
+            const recent = habits.slice(-10).reverse();
+            const container = document.getElementById('recentActivities');
+            if (recent.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">Belum ada aktivitas</p>';
+            } else {
+                container.innerHTML = recent.map(h => `
+                    <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-glass); font-size:13px;">
+                        <span><strong>${escapeHtml(h.Nama)}</strong> <span style="color:var(--text-muted);">(${h.Kelas || '-'})</span></span>
+                        <span>${formatTanggal(h.Tanggal_Kegiatan)}</span>
+                        <span class="skor-badge ${getSkorClass(parseInt(h.TOTAL_SKOR) || 0)}">${h.TOTAL_SKOR || 0}</span>
+                    </div>
+                `).join('');
+            }
+        } catch (e) {
+            console.error('Dashboard error:', e);
+        }
+    }
+
+    // ============ USERS ============
+    async function renderUsers() {
+        try {
+            const result = await getUsersFromSheet();
+            const tbody = document.getElementById('userTableBody');
+            
+            if (!result.success || !result.data || result.data.length === 0) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Belum ada user</td></tr>';
+                return;
+            }
+
+            let html = '';
+            let no = 1;
+            result.data.forEach(user => {
+                html += `
+                    <tr>
+                        <td>${no++}</td>
+                        <td><strong>${escapeHtml(user.nisn || '-')}</strong></td>
+                        <td>${escapeHtml(user.nama)}</td>
+                        <td>${escapeHtml(user.kelas || '-')}</td>
+                        <td>
+                            <button class="btn-delete-sm" onclick="deleteUser('${escapeHtml(user.nisn)}')">🗑️ Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        } catch (e) {
+            console.error('Render users error:', e);
+            document.getElementById('userTableBody').innerHTML = '<tr class="empty-row"><td colspan="5">Error loading users</td></tr>';
+        }
+    }
+
+    window.deleteUser = async (nisn) => {
+        if (!confirm(`Hapus user dengan NISN ${nisn}?`)) return;
+        showLoading(true);
+        try {
+            const result = await deleteUserFromSheet(nisn);
+            showLoading(false);
+            if (result.success) {
+                showToast('✅ User dihapus', 'success');
+                await renderUsers();
+                await loadDashboard();
+            } else {
+                showToast('❌ Gagal menghapus: ' + (result.error || 'Unknown error'), 'error');
+            }
+        } catch (e) {
+            showLoading(false);
+            showToast('❌ Error: ' + e.message, 'error');
+        }
+    };
+
+    document.getElementById('addUserBtn').addEventListener('click', async () => {
+        const nisn = prompt('Masukkan NISN (10 digit):');
+        if (!nisn) return;
+        if (nisn.length !== 10 || !/^\d+$/.test(nisn)) {
+            showToast('⚠️ NISN harus 10 digit angka!', 'warning');
+            return;
+        }
+        const nama = prompt('Masukkan nama lengkap:');
+        if (!nama) return;
+        const kelas = prompt('Masukkan kelas:') || '';
+
+        showLoading(true);
+        try {
+            const result = await addUserToSheet({ nisn, nama, kelas });
+            showLoading(false);
+            if (result.success) {
+                showToast('✅ User ditambahkan', 'success');
+                await renderUsers();
+                await loadDashboard();
+            } else {
+                showToast('❌ ' + (result.error || 'Gagal menambahkan user'), 'error');
+            }
+        } catch (e) {
+            showLoading(false);
+            showToast('❌ Error: ' + e.message, 'error');
+        }
+    });
+
+    document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
+        const wsData = [
+            ['NISN', 'Nama Lengkap', 'Kelas'],
+            ['0067890123', 'Budi Santoso', '5A'],
+            ['0067890456', 'Siti Aminah', '5B']
+        ];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Template_User');
+        XLSX.writeFile(wb, 'template_user_nisn.xlsx');
+        showToast('✅ Template downloaded', 'success');
+    });
+
+    document.getElementById('exportUsersBtn').addEventListener('click', async () => {
+        showLoading(true);
+        try {
+            const result = await getUsersFromSheet();
+            if (!result.success || !result.data) {
+                showToast('❌ Gagal mengambil data', 'error');
+                showLoading(false);
+                return;
+            }
+            const data = [['NISN', 'Nama', 'Kelas']];
+            result.data.forEach(user => {
+                data.push([user.nisn || '-', user.nama || '', user.kelas || '']);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Users');
+            XLSX.writeFile(wb, `users_${new Date().toISOString().slice(0,10)}.xlsx`);
+            showToast('✅ Export berhasil', 'success');
+        } catch (e) {
+            showToast('❌ Error: ' + e.message, 'error');
+        }
+        showLoading(false);
+    });
+
+    document.getElementById('uploadExcelBtn').addEventListener('click', () => {
+        document.getElementById('uploadExcelFile').click();
+    });
+
+    document.getElementById('uploadExcelFile').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        showLoading(true);
+        try {
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data);
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet);
+            let successCount = 0;
+            let errorCount = 0;
+            
+            for (const row of rows) {
+                const nisn = String(row['NISN'] || row['nisn'] || '').trim();
+                const nama = (row['Nama Lengkap'] || row['Nama'] || row['nama'] || '').trim();
+                const kelas = (row['Kelas'] || row['kelas'] || '').trim();
+                
+                if (nama && nisn && nisn.length === 10) {
+                    const result = await addUserToSheet({ nisn, nama, kelas });
+                    if (result.success) {
+                        successCount++;
+                    } else {
+                        errorCount++;
+                    }
+                } else {
+                    errorCount++;
+                }
+                // Delay to avoid rate limit
+                await new Promise(r => setTimeout(r, 100));
+            }
+            
+            showLoading(false);
+            showToast(`✅ ${successCount} user diimport, ${errorCount} gagal`, successCount > 0 ? 'success' : 'error');
+            await renderUsers();
+            await loadDashboard();
+        } catch (e) {
+            showLoading(false);
+            showToast('❌ Error: ' + e.message, 'error');
+        }
+        e.target.value = '';
+    });
+
+    // ============ HABITS ============
+    async function loadAllHabits() {
+        showLoading(true);
+        try {
+            const result = await getHabitsFromSheet(true);
+            showLoading(false);
+            
+            const tbody = document.getElementById('habitsTableBody');
+            if (!result.success || !result.data || result.data.length === 0) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="12">Belum ada data</td></tr>';
+                return;
+            }
+
+            const habits = result.data.slice(-100).reverse();
+            let html = '';
+            habits.forEach(h => {
+                // Format Quran
+                let quranText = '-';
+                if (h.Quran_Surat && h.Quran_Surat !== '-') {
+                    quranText = h.Quran_Surat;
+                    if (h.Quran_Ayat && h.Quran_Ayat !== '-') quranText += ` (${h.Quran_Ayat})`;
+                }
+                
+                html += `
+                    <tr>
+                        <td>${formatTanggal(h.Tanggal_Kegiatan)}</td>
+                        <td><strong>${escapeHtml(h.Nama)}</strong></td>
+                        <td>${escapeHtml(h.Kelas || '-')}</td>
+                        <td>${h.Bangun_Pagi_Jam || '-'} (${h.Bangun_Pagi_Skor || 0})</td>
+                        <td>${h.Ibadah_List && h.Ibadah_List !== '-' ? (h.Ibadah_List.length > 10 ? h.Ibadah_List.substring(0,10)+'...' : h.Ibadah_List) : '-'} (${h.Ibadah_Skor || 0})</td>
+                        <td>${quranText} (${h.Quran_Skor || 0})</td>
+                        <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Aktivitas : '-'} (${h.Olahraga_Skor || 0})</td>
+                        <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Materi : '-'} (${h.Belajar_Skor || 0})</td>
+                        <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? '✓' : '-'} (${h.Makan_Skor || 0})</td>
+                        <td>${h.Bantu_Ortu && h.Bantu_Ortu !== '-' ? '✓' : '-'} (${h.Bantu_Ortu_Skor || 0})</td>
+                        <td>${h.Tidur_Jam || '-'} (${h.Tidur_Skor || 0})</td>
+                        <td><span class="skor-badge ${getSkorClass(parseInt(h.TOTAL_SKOR) || 0)}">${h.TOTAL_SKOR || 0}</span></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        } catch (e) {
+            showLoading(false);
+            document.getElementById('habitsTableBody').innerHTML = '<tr class="empty-row"><td colspan="12">Error loading data</td></tr>';
+        }
+    }
+
+    // ============ SCORES ============
+    let allScoresData = [];
+
+    async function loadScoresData() {
+        showLoading(true);
+        try {
+            const result = await getScoresFromSheet(true);
+            showLoading(false);
+            
+            if (!result.success) {
+                document.getElementById('scoresTableBody').innerHTML = '<tr class="empty-row"><td colspan="7">Error loading data</td></tr>';
+                return;
+            }
+            
+            const scoresData = result.data || {};
+            allScoresData = Object.entries(scoresData).map(([nama, data]) => ({
+                nama: nama,
+                kelas: data.kelas || '-',
+                totalSkor: data.total || 0,
+                hariAktif: data.count || 0,
+                rataRata: data.rata || 0
+            }));
+            allScoresData.sort((a, b) => a.nama.localeCompare(b.nama));
+            applyScoreFilter();
+        } catch (e) {
+            showLoading(false);
+            document.getElementById('scoresTableBody').innerHTML = '<tr class="empty-row"><td colspan="7">Error loading data</td></tr>';
+        }
+    }
+
+    function applyScoreFilter() {
+        const filterKelas = document.getElementById('filterKelas').value;
+        const filterNama = document.getElementById('filterNama').value.toLowerCase().trim();
+        
+        let filtered = [...allScoresData];
+        if (filterKelas) filtered = filtered.filter(item => item.kelas === filterKelas);
+        if (filterNama) filtered = filtered.filter(item => item.nama.toLowerCase().includes(filterNama));
+        
+        renderScoresTable(filtered);
+    }
+
+    function renderScoresTable(data) {
+        const tbody = document.getElementById('scoresTableBody');
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Tidak ada data</td></tr>';
+            return;
+        }
+
+        let html = '';
+        data.forEach((item, idx) => {
+            const skorClass = getSkorClass(item.totalSkor);
+            const kategori = getKategori(item.rataRata);
+            html += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td><strong>${escapeHtml(item.nama)}</strong></td>
+                    <td>${escapeHtml(item.kelas)}</td>
+                    <td><span class="skor-badge ${skorClass}">${item.totalSkor}</span></td>
+                    <td>${item.hariAktif}</td>
+                    <td>${item.rataRata.toFixed(1)}</td>
+                    <td>${kategori.icon} ${kategori.label}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    document.getElementById('applyFilterBtn').addEventListener('click', applyScoreFilter);
+    document.getElementById('resetFilterBtn').addEventListener('click', () => {
+        document.getElementById('filterKelas').value = '';
+        document.getElementById('filterNama').value = '';
+        applyScoreFilter();
+    });
+
+    document.getElementById('exportScoresBtn').addEventListener('click', () => {
+        if (allScoresData.length === 0) {
+            showToast('⚠️ Tidak ada data untuk diexport', 'warning');
+            return;
+        }
+        const data = [['No', 'Nama', 'Kelas', 'Total Skor', 'Hari Aktif', 'Rata-rata']];
+        allScoresData.forEach((item, idx) => {
+            data.push([idx+1, item.nama, item.kelas, item.totalSkor, item.hariAktif, item.rataRata.toFixed(1)]);
+        });
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Rekap_Skor');
+        XLSX.writeFile(wb, `rekap_skor_${new Date().toISOString().slice(0,10)}.xlsx`);
+        showToast('✅ Export berhasil', 'success');
+    });
+
+    // ============ RAPOR ============
+    async function populateRaporSelect() {
+        try {
+            const result = await getUsersFromSheet();
+            const select = document.getElementById('raporSelect');
+            select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+            
+            if (result.success && result.data) {
+                result.data.forEach(user => {
+                    select.innerHTML += `<option value="${escapeHtml(user.nama)}">${escapeHtml(user.nama)} (${escapeHtml(user.kelas || '-')})</option>`;
+                });
+            }
+        } catch (e) {
+            console.error('Populate rapor select error:', e);
+        }
+    }
+
+    function loadSchoolSettings() {
+        const saved = localStorage.getItem('sekolahSettings');
+        if (saved) {
+            try {
+                const settings = JSON.parse(saved);
+                document.getElementById('sekolahNama').value = settings.sekolahNama || '';
+                document.getElementById('sekolahAlamat').value = settings.sekolahAlamat || '';
+                document.getElementById('sekolahMotto').value = settings.sekolahMotto || '';
+                document.getElementById('sekolahKontak').value = settings.sekolahKontak || '';
+                document.getElementById('kepsekNama').value = settings.kepsekNama || '';
+                document.getElementById('kepsekNIP').value = settings.kepsekNIP || '';
+            } catch (e) {}
+        }
+    }
+
+    function saveSchoolSettings() {
+        const settings = {
+            sekolahNama: document.getElementById('sekolahNama').value,
+            sekolahAlamat: document.getElementById('sekolahAlamat').value,
+            sekolahMotto: document.getElementById('sekolahMotto').value,
+            sekolahKontak: document.getElementById('sekolahKontak').value,
+            kepsekNama: document.getElementById('kepsekNama').value,
+            kepsekNIP: document.getElementById('kepsekNIP').value
+        };
+        localStorage.setItem('sekolahSettings', JSON.stringify(settings));
+    }
+
+    document.querySelectorAll('#sekolahNama, #sekolahAlamat, #sekolahMotto, #sekolahKontak, #kepsekNama, #kepsekNIP')
+        .forEach(el => el.addEventListener('change', saveSchoolSettings));
+
+    // Generate Rapor
+    document.getElementById('generateRaporBtn').addEventListener('click', async () => {
+        const nama = document.getElementById('raporSelect').value;
+        if (!nama) {
+            showToast('⚠️ Pilih siswa terlebih dahulu!', 'warning');
+            return;
+        }
+
+        showLoading(true);
+        
+        try {
+            const habitsResult = await getHabitsFromSheet(true);
+            const habits = habitsResult.success ? habitsResult.data || [] : [];
+            const userHabits = habits.filter(h => h.Nama === nama);
+            
+            const periode = document.getElementById('periodeRapor').value;
+            const warnaTema = document.getElementById('warnaTema').value;
+            const now = new Date();
+            
+            let periodeText = 'Semua Waktu';
+            let targetHari = 365;
+            let filteredHabits = [...userHabits];
+            
+            if (periode === 'bulan_ini') {
+                periodeText = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                filteredHabits = userHabits.filter(h => {
+                    const tgl = new Date(h.Tanggal_Kegiatan);
+                    return tgl.getMonth() === now.getMonth() && tgl.getFullYear() === now.getFullYear();
+                });
+                targetHari = 30;
+            } else if (periode === '30_hari') {
+                periodeText = '30 Hari Terakhir';
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(now.getDate() - 30);
+                filteredHabits = userHabits.filter(h => {
+                    const tgl = new Date(h.Tanggal_Kegiatan);
+                    return tgl >= thirtyDaysAgo;
+                });
+                targetHari = 30;
+            }
+            
+            let totalSkor = 0;
+            filteredHabits.forEach(h => totalSkor += parseInt(h.TOTAL_SKOR) || 0);
+            const hariAktif = filteredHabits.length;
+            const rataRata = hariAktif > 0 ? totalSkor / hariAktif : 0;
+            const persentase = targetHari > 0 ? Math.min(100, Math.round((hariAktif / targetHari) * 100)) : 0;
+            
+            const kategori = getKategori(rataRata);
+            const skorKategori = getKategori(totalSkor);
+            
+            const tema = {
+                orange: { primary: '#f59e0b', light: '#fef3c7', gradient: 'linear-gradient(135deg, #f59e0b, #ea580c)' },
+                hijau: { primary: '#10b981', light: '#d1fae5', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
+                biru: { primary: '#3b82f6', light: '#dbeafe', gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)' },
+                ungu: { primary: '#8b5cf6', light: '#ede9fe', gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' },
+                merah: { primary: '#ef4444', light: '#fee2e2', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' }
+            };
+            const color = tema[warnaTema] || tema.orange;
+            
+            const userResult = await getUsersFromSheet();
+            const userData = userResult.success ? userResult.data.find(u => u.nama === nama) : null;
+            
+            const html = generateRaporHTML({
+                nama: nama,
+                kelas: userData ? userData.kelas || '-' : '-',
+                periode: periodeText,
+                totalSkor: totalSkor,
+                hariAktif: hariAktif,
+                rataRata: rataRata,
+                persentase: persentase,
+                kategori: skorKategori.label,
+                saran: `🏆 ${skorKategori.label} - Pertahankan konsistensimu!`,
+                iconKategori: skorKategori.icon,
+                warnaKategori: skorKategori.color,
+                color: color,
+                sekolahNama: document.getElementById('sekolahNama').value || 'SD NEGERI GAMBIRONO 01',
+                sekolahAlamat: document.getElementById('sekolahAlamat').value || 'Jl. Gambirono',
+                sekolahMotto: document.getElementById('sekolahMotto').value || 'Membangun Generasi Emas',
+                sekolahKontak: document.getElementById('sekolahKontak').value || 'sdn.gbr01@gmail.com',
+                kepsekNama: document.getElementById('kepsekNama').value || 'Kepala Sekolah',
+                kepsekNIP: document.getElementById('kepsekNIP').value || '-',
+                targetHari: targetHari,
+                tanggalCetak: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+            });
+            
+            document.getElementById('raporPreview').innerHTML = html;
+            showLoading(false);
+            
+            const printWindow = window.open('', '_blank');
+            if (printWindow) {
+                printWindow.document.write(html);
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                showToast('📄 Rapor sedang dicetak', 'success');
+            } else {
+                showToast('⚠️ Mohon izinkan popup untuk mencetak', 'warning');
+            }
+            
+        } catch (e) {
+            showLoading(false);
+            showToast('❌ Error: ' + e.message, 'error');
+        }
+    });
+
+    // ============ TAB SWITCHING ============
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const target = tab.dataset.tab;
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`tab${target.charAt(0).toUpperCase() + target.slice(1)}`).classList.remove('hidden');
+            
+            // Load data per tab
+            if (target === 'dashboard') loadDashboard();
+            if (target === 'users') renderUsers();
+            if (target === 'habits') loadAllHabits();
+            if (target === 'scores') loadScoresData();
+            if (target === 'rapor') populateRaporSelect();
+        });
+    });
+
+    // ============ REFRESH ============
+    document.getElementById('refreshHabitsBtn').addEventListener('click', loadAllHabits);
+
+    // ============ INIT ============
+    loadDashboard();
+    renderUsers();
+    loadAllHabits();
+    loadScoresData();
+    populateRaporSelect();
+    loadSchoolSettings();
+
+    // ============ GENERATE RAPOR HTML FUNCTION ============
+    function generateRaporHTML(data) {
+        return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Rapor - ${data.nama}</title>
+            <style>
+                @page { size: A4; margin: 0.5cm; }
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Times New Roman', Arial, sans-serif; background: white; }
+                @media print {
+                    body { background: white; }
+                    .rapor-container { box-shadow: none; margin: 0 auto; width: 100%; }
+                    .kop-sekolah { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
+                .rapor-container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; }
+                .kop-sekolah { background: ${data.color.gradient}; color: white; text-align: center; padding: 25px 20px; position: relative; min-height: 120px; }
+                .kop-sekolah .kop-teks { font-size: 22px; font-weight: bold; letter-spacing: 1px; margin: 5px 0; line-height: 1.3; }
+                .kop-sekolah .motto { font-size: 11px; margin-top: 5px; }
+                .kop-sekolah .alamat { font-size: 10px; margin-top: 5px; }
+                .judul-rapor { text-align: center; padding: 20px; background: ${data.color.light}; border-bottom: 2px solid ${data.color.primary}; }
+                .judul-rapor h3 { color: #1e293b; font-size: 18px; font-weight: bold; }
+                .info-siswa { background: ${data.color.light}; margin: 20px; padding: 15px; border-radius: 12px; }
+                .info-siswa table { width: 100%; }
+                .info-siswa td { padding: 6px 10px; font-size: 13px; }
+                .info-siswa td:first-child { font-weight: bold; width: 140px; }
+                .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin: 20px; }
+                .stat-card { background: linear-gradient(135deg, white, ${data.color.light}); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid ${data.color.primary}30; }
+                .stat-value { font-size: 28px; font-weight: 800; color: ${data.color.primary}; }
+                .stat-label { font-size: 11px; color: #64748b; margin-top: 5px; }
+                .progress-section { margin: 20px; }
+                .progress-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
+                .progress-bar-container { background: #e2e8f0; border-radius: 30px; height: 12px; overflow: hidden; }
+                .progress-bar { background: ${data.color.gradient}; border-radius: 30px; height: 100%; width: ${data.persentase}%; }
+                .kartu-penghargaan { background: linear-gradient(135deg, ${data.color.light}, #ffffff); border-radius: 16px; padding: 25px; text-align: center; margin: 20px; border: 2px solid ${data.color.primary}; }
+                .kartu-penghargaan .medali { font-size: 48px; }
+                .kartu-penghargaan h2 { font-size: 22px; color: #1e293b; margin: 10px 0; }
+                .kategori { display: inline-block; background: ${data.warnaKategori}; color: white; padding: 6px 25px; border-radius: 40px; font-weight: bold; margin: 12px 0; font-size: 14px; }
+                .ttd { margin-top: 20px; padding-top: 12px; border-top: 1px dashed ${data.color.primary}; font-size: 12px; }
+                .footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 15px; font-size: 10px; margin-top: 20px; }
+                .footer a { color: ${data.color.primary}; text-decoration: none; }
+            </style>
+        </head>
+        <body>
+        <div class="rapor-container">
+            <div class="kop-sekolah">
+                <div class="kop-teks">${data.sekolahNama}</div>
+                <div class="motto">✨ ${data.sekolahMotto} ✨</div>
+                <div class="alamat">${data.sekolahAlamat}</div>
+                <div class="alamat">${data.sekolahKontak}</div>
+            </div>
+            <div class="judul-rapor">
+                <h3>📊 LAPORAN CAPAIAN 7 KEBIASAAN ANAK INDONESIA HEBAT 📊</h3>
+            </div>
+            <div class="info-siswa">
+                <table>
+                    <tr><td>👤 Nama Siswa</td><td>: <strong>${data.nama}</strong></td></tr>
+                    <tr><td>📚 Kelas</td><td>: ${data.kelas}</td></tr>
+                    <tr><td>📅 Periode</td><td>: ${data.periode}</td></tr>
+                    <tr><td>🎯 Target Hari</td><td>: ${data.targetHari} hari</td></tr>
+                    <tr><td>✅ Hari Aktif</td><td>: ${data.hariAktif} hari (${data.persentase}%)</td></tr>
+                    <tr><td>🖨️ Cetak</td><td>: ${data.tanggalCetak}</td></tr>
+                </table>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-value">${data.totalSkor}</div><div class="stat-label">🏆 TOTAL SKOR</div></div>
+                <div class="stat-card"><div class="stat-value">${data.hariAktif}</div><div class="stat-label">📅 HARI AKTIF</div></div>
+                <div class="stat-card"><div class="stat-value">${data.rataRata.toFixed(1)}</div><div class="stat-label">⭐ RATA-RATA</div></div>
+                <div class="stat-card"><div class="stat-value">${data.persentase}%</div><div class="stat-label">📈 CAPAIAN</div></div>
+            </div>
+            <div class="progress-section">
+                <div class="progress-label"><span>🎯 Progress Capaian</span><span>${data.persentase}%</span></div>
+                <div class="progress-bar-container"><div class="progress-bar"></div></div>
+            </div>
+            <div class="kartu-penghargaan">
+                <div class="medali">🏅🎖️🏅</div>
+                <h2>KARTU PENGHARGAAN</h2>
+                <p>Diberikan kepada:</p>
+                <h3 style="font-size:20px; color:${data.color.primary};">${data.nama}</h3>
+                <div class="kategori">${data.iconKategori} ${data.kategori} ${data.iconKategori}</div>
+                <p style="font-size: 13px; margin-top: 10px;">${data.saran}</p>
+                <div class="ttd">
+                    <p>Mengetahui,</p>
+                    <p>Kepala Sekolah</p>
+                    <p><strong>${data.kepsekNama}</strong></p>
+                    <p>NIP. ${data.kepsekNIP}</p>
+                </div>
+            </div>
+            <div class="footer">
+                <p>Dicetak dari <strong>Sistem 7 Kebiasaan Anak Indonesia Hebat</strong></p>
+                <p>© 2026 | SDN Gambirono 01</p>
+            </div>
+        </div>
+        </body>
+        </html>`;
+    }
+</script>
+</body>
+</html>
