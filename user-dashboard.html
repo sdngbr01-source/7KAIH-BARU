@@ -223,6 +223,7 @@
         .time-input-wrapper input[type="time"] {
             max-width: 150px;
             padding: 10px 14px;
+            font-size: 16px;
         }
         .time-label {
             font-size: 13px;
@@ -241,16 +242,120 @@
             padding: 10px 14px;
             font-size: 13px;
         }
+
+        /* ============ TARGET BULANAN ============ */
+        .target-section {
+            margin-top: 30px;
+        }
+        .target-section .target-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .target-section .target-header h3 {
+            font-size: 1.2rem;
+        }
+        .target-section .target-header .target-info {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .target-section .target-header .target-info strong {
+            color: var(--primary-light);
+        }
+        .target-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        .target-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--radius);
+            padding: 18px 16px;
+            text-align: center;
+            border: 1px solid var(--border-glass);
+            transition: all 0.3s;
+        }
+        .target-card:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-3px);
+        }
+        .target-card .bulan {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .target-card .progress-circle {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+        }
+        .target-card .progress-circle svg {
+            transform: rotate(-90deg);
+        }
+        .target-card .progress-circle .bg {
+            fill: none;
+            stroke: rgba(255,255,255,0.1);
+            stroke-width: 6;
+        }
+        .target-card .progress-circle .progress {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s ease;
+        }
+        .target-card .progress-circle .progress.baik { stroke: #10b981; }
+        .target-card .progress-circle .progress.cukup { stroke: #f59e0b; }
+        .target-card .progress-circle .progress.kurang { stroke: #ef4444; }
+        .target-card .progress-circle .progress.istimewa { stroke: #8b5cf6; }
+        .target-card .progress-circle .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            font-weight: 800;
+            color: white;
+        }
+        .target-card .detail {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .target-card .detail .isi {
+            color: white;
+            font-weight: 600;
+        }
+        .target-card .status {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+        .target-card .status.selesai { background: #10b981; color: white; }
+        .target-card .status.progress { background: #f59e0b; color: #1e293b; }
+        .target-card .status.belum { background: #ef4444; color: white; }
+        .target-card .status.istimewa { background: #8b5cf6; color: white; }
+
         @media (max-width: 768px) {
             .dashboard-header { flex-direction: column; align-items: flex-start; }
             .form-row { flex-direction: column; }
             .form-row .form-group { width: 100%; }
             .checkbox-grid { grid-template-columns: 1fr 1fr; }
             .quran-row { grid-template-columns: 1fr; }
+            .target-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
         }
         @media (max-width: 480px) {
             .checkbox-grid { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
+            .target-grid { grid-template-columns: 1fr 1fr; }
+            .target-card .progress-circle { width: 60px; height: 60px; }
+            .target-card .progress-circle .center-text { font-size: 14px; }
         }
     </style>
 </head>
@@ -282,7 +387,7 @@
     <div class="dashboard-header">
         <div class="user-greeting">
             <h2>👋 Selamat Datang, <span id="greetingName"></span>!</h2>
-            <p>Catat kebiasaan baikmu dengan jujur. Nilai hanyalah angka, yang utama adalah konsistensi.</p>
+            <p>Catat kebiasaan baikmu dengan jujur. Yang utama adalah konsistensi, bukan angka.</p>
         </div>
         <div>
             <span style="font-size:14px; color:var(--text-muted);">📅 </span>
@@ -330,7 +435,7 @@
                 <p class="sub-title">Masukkan jam bangun pagi (contoh: 04:00 atau 05:30)</p>
                 <div class="time-input-wrapper">
                     <input type="time" id="bangunPagi">
-                    <span class="time-label">⏰ Waktu bangun pagi</span>
+                    <span class="time-label">⏰ Waktu bangun</span>
                 </div>
                 <small>Kosongkan jika tidak diisi</small>
             </div>
@@ -433,24 +538,33 @@
                 <p class="sub-title">Masukkan jam tidur malam (contoh: 21:00 atau 22:30)</p>
                 <div class="time-input-wrapper">
                     <input type="time" id="tidurCepat">
-                    <span class="time-label">⏰ Waktu tidur malam</span>
+                    <span class="time-label">⏰ Waktu tidur</span>
                 </div>
                 <small>Kosongkan jika tidak diisi</small>
             </div>
 
-            <!-- Preview Skor -->
-            <div id="skorPreview" style="background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 15px; margin: 15px 0; display:none;">
-                <h4 style="margin-bottom:10px;">📊 Preview Skor</h4>
-                <div class="skor-detail" id="skorDetailPreview"></div>
-                <div style="margin-top:10px; text-align:center;">
-                    <strong style="font-size:20px;">Total: <span id="skorTotalPreview" style="color:var(--primary-light);">0</span></strong>
-                </div>
-            </div>
+            <!-- Preview Skor - DISEMBUNYIKAN -->
+            <div id="skorPreview" style="display:none;"></div>
 
             <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
                 💾 Simpan Kebiasaan
             </button>
         </form>
+    </div>
+
+    <!-- ============ TARGET PENGISIAN BULANAN ============ -->
+    <div class="card target-section">
+        <div class="target-header">
+            <h3>🎯 Target Pengisian Bulanan</h3>
+            <div class="target-info">
+                Target: <strong>12 kali</strong> pengisian per bulan
+            </div>
+        </div>
+        <div id="targetContainer">
+            <div id="targetGrid" class="target-grid">
+                <!-- Akan diisi oleh JavaScript -->
+            </div>
+        </div>
     </div>
 
     <!-- Riwayat -->
@@ -491,7 +605,7 @@
 </div>
 
 <script>
-    // ============ IBADAH LIST (Tetap satu daftar dengan pemisah) ============
+    // ============ IBADAH LIST ============
     const ibadahGroups = [
         {
             label: '🕌 Sholat Wajib',
@@ -530,6 +644,144 @@
     // Set today's date
     document.getElementById('tanggalKegiatan').value = new Date().toISOString().split('T')[0];
 
+   // ============ TARGET BULANAN ============
+const TARGET_PER_BULAN = 12; // Target 12 kali pengisian per bulan (3 kali per minggu)
+const BULAN_INDONESIA = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+function getNamaBulan(monthIndex) {
+    return BULAN_INDONESIA[monthIndex];
+}
+
+function hitungTargetBulanan(habits) {
+    const userHabits = habits.filter(h => h.Nama === user.nama);
+    const targetData = [];
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    
+    // Dapatkan semua bulan yang ada data + bulan sekarang
+    const bulanDenganData = new Set();
+    userHabits.forEach(h => {
+        if (h.Tanggal_Kegiatan) {
+            const tgl = new Date(h.Tanggal_Kegiatan);
+            if (!isNaN(tgl.getTime())) {
+                bulanDenganData.add(tgl.getMonth());
+            }
+        }
+    });
+    
+    // Tambahkan bulan sekarang jika belum ada data
+    bulanDenganData.add(currentMonth);
+    
+    // Urutkan bulan
+    const bulanList = Array.from(bulanDenganData).sort((a, b) => a - b);
+    
+    // Ambil 6 bulan terakhir dari data yang ada
+    const bulanTerakhir = bulanList.slice(-6);
+    
+    bulanTerakhir.forEach(monthIndex => {
+        const year = currentYear;
+        
+        // Filter habits untuk bulan ini
+        const bulanIni = userHabits.filter(h => {
+            if (!h.Tanggal_Kegiatan) return false;
+            const tgl = new Date(h.Tanggal_Kegiatan);
+            if (isNaN(tgl.getTime())) return false;
+            return tgl.getMonth() === monthIndex && tgl.getFullYear() === year;
+        });
+        
+        const jumlah = bulanIni.length;
+        const persentase = Math.min(100, Math.round((jumlah / TARGET_PER_BULAN) * 100));
+        
+        let status = 'belum';
+        let statusLabel = 'Belum Mencapai';
+        let progressClass = 'kurang';
+        
+        if (persentase >= 100) {
+            status = 'istimewa';
+            statusLabel = '🌟 Istimewa!';
+            progressClass = 'istimewa';
+        } else if (persentase >= 80) {
+            status = 'selesai';
+            statusLabel = '✅ Mendekati Target';
+            progressClass = 'baik';
+        } else if (persentase >= 50) {
+            status = 'progress';
+            statusLabel = '⏳ Sedang Berjalan';
+            progressClass = 'cukup';
+        } else if (persentase > 0) {
+            status = 'progress';
+            statusLabel = '⏳ Mulai Terisi';
+            progressClass = 'cukup';
+        } else {
+            status = 'belum';
+            statusLabel = '❌ Belum Terisi';
+            progressClass = 'kurang';
+        }
+        
+        // Jika bulan ini adalah bulan sekarang dan belum ada data
+        if (monthIndex === currentMonth && jumlah === 0) {
+            status = 'progress';
+            statusLabel = '⏳ Belum Ada Pengisian';
+            progressClass = 'kurang';
+        }
+        
+        targetData.push({
+            month: monthIndex,
+            year: year,
+            namaBulan: getNamaBulan(monthIndex),
+            jumlah: jumlah,
+            target: TARGET_PER_BULAN,
+            persentase: persentase,
+            status: status,
+            statusLabel: statusLabel,
+            progressClass: progressClass,
+            isActive: (monthIndex === currentMonth)
+        });
+    });
+    
+    return targetData;
+}
+
+    function renderTarget(habits) {
+        const targetData = hitungTargetBulanan(habits);
+        const container = document.getElementById('targetGrid');
+        
+        if (!targetData || targetData.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">Belum ada data target. Mulai isi kebiasaanmu!</p>';
+            return;
+        }
+        
+        let html = '';
+        targetData.forEach((data) => {
+            const circumference = 2 * Math.PI * 35;
+            const offset = circumference - (data.persentase / 100) * circumference;
+            
+            html += `
+                <div class="target-card">
+                    <div class="bulan">${data.namaBulan} ${data.year}</div>
+                    <div class="progress-circle">
+                        <svg width="80" height="80" viewBox="0 0 80 80">
+                            <circle class="bg" cx="40" cy="40" r="35"/>
+                            <circle class="progress ${data.progressClass}" 
+                                    cx="40" cy="40" r="35"
+                                    stroke-dasharray="${circumference}"
+                                    stroke-dashoffset="${offset}"/>
+                        </svg>
+                        <div class="center-text">${data.persentase}%</div>
+                    </div>
+                    <div class="detail">
+                        <span class="isi">${data.jumlah}</span> / ${data.target} pengisian
+                    </div>
+                    <div class="status ${data.status}">${data.statusLabel}</div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+
     // ============ BUILD IBADAH CHECKLIST ============
     function isFriday() {
         return new Date().getDay() === 5;
@@ -540,23 +792,19 @@
         let html = '';
         let isFirst = true;
         
-        ibadahGroups.forEach((group, groupIndex) => {
+        ibadahGroups.forEach((group) => {
             let items = [...group.items];
             
-            // Tambah Sholat Jum'at jika hari Jum'at
             if (group.label.includes('Wajib') && isFriday()) {
                 items.push('Sholat Jum\'at');
             }
             
-            // Tambah pemisah (garis) antar kelompok
             if (!isFirst) {
                 html += `<div class="group-divider"></div>`;
             }
             
-            // Label kelompok
             html += `<div class="group-label"><span class="icon">${group.label.split(' ')[0]}</span> ${group.label}</div>`;
             
-            // Item-item
             items.forEach(item => {
                 html += `
                     <label class="checkbox-item">
@@ -571,41 +819,20 @@
         
         container.innerHTML = html;
 
-        // Event listener untuk preview
-        document.querySelectorAll('.ibadahCheck').forEach(cb => {
-            cb.addEventListener('change', previewSkor);
-        });
+        // Event listener untuk preview - DINONAKTIFKAN
+        // document.querySelectorAll('.ibadahCheck').forEach(cb => {
+        //     cb.addEventListener('change', previewSkor);
+        // });
     }
 
     function getCheckedIbadah() {
         return Array.from(document.querySelectorAll('.ibadahCheck:checked')).map(ch => ch.value);
     }
 
-    // ============ PREVIEW SKOR ============
+    // ============ PREVIEW SKOR - DINONAKTIFKAN ============
     function previewSkor() {
-        const data = getFormData();
-        const skor = hitungSkor(data);
-        
-        const preview = document.getElementById('skorPreview');
-        const detail = document.getElementById('skorDetailPreview');
-        const total = document.getElementById('skorTotalPreview');
-        
-        if (data.isEmpty) {
-            preview.style.display = 'none';
-            return;
-        }
-        
-        preview.style.display = 'block';
-        detail.innerHTML = Object.entries(skor.detail).map(([key, value]) => `
-            <div class="skor-detail-item">
-                <div class="label">${key}</div>
-                <div class="value">${value}</div>
-            </div>
-        `).join('');
-        total.textContent = skor.total;
-        
-        const kategori = getKategori(skor.total);
-        total.style.color = kategori.color;
+        // Preview skor dinonaktifkan agar siswa lebih jujur
+        return;
     }
 
     function getFormData() {
@@ -643,11 +870,11 @@
         };
     }
 
-    // Event listeners untuk preview
-    document.querySelectorAll('#habitForm input, #habitForm .ibadahCheck').forEach(el => {
-        el.addEventListener('change', previewSkor);
-        el.addEventListener('input', previewSkor);
-    });
+    // Event listeners untuk preview - DINONAKTIFKAN
+    // document.querySelectorAll('#habitForm input, #habitForm .ibadahCheck').forEach(el => {
+    //     el.addEventListener('change', previewSkor);
+    //     el.addEventListener('input', previewSkor);
+    // });
 
     // ============ PAGINATION ============
     let currentPage = 1;
@@ -761,6 +988,7 @@
                 currentPage = 1;
                 renderHistory(allUserHabits);
                 updateStats(allUserHabits);
+                renderTarget(allUserHabits);
             } else {
                 console.error('Load data error:', result);
             }
@@ -903,7 +1131,8 @@
     // ============ INIT ============
     buildIbadahChecklist();
     loadData();
-    setTimeout(previewSkor, 500);
+    // Preview skor dinonaktifkan
+    // setTimeout(previewSkor, 500);
 </script>
 </body>
 </html>
