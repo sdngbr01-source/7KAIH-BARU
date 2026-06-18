@@ -3,23 +3,845 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7 Kebiasaan Anak Indonesia Hebat</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="app.js"></script>
+    <title>7 Kebiasaan Anak Indonesia Hebat - SDN Gambirono 01</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .hero-full {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        }
+        .hero-full .logo-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        .hero-full h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+        .hero-full h1 .highlight {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-full p.subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+        .hero-full .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .hero-full .btn-hero {
+            padding: 16px 40px;
+            font-size: 16px;
+            border-radius: var(--radius-full);
+        }
+        .hero-full .features-hero {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            max-width: 700px;
+            margin: 30px auto 0;
+            width: 100%;
+        }
+        .hero-full .features-hero .feat {
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--radius);
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border-glass);
+            transition: all 0.3s;
+            cursor: default;
+        }
+        .hero-full .features-hero .feat:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-3px);
+        }
+        .hero-full .features-hero .feat .icon {
+            font-size: 30px;
+        }
+        .hero-full .features-hero .feat .label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        .footer-hero {
+            margin-top: 40px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* ============ GLOSARIUM ============ */
+        .glosarium-section {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 60px 20px;
+            width: 100%;
+        }
+        .glosarium-section .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .glosarium-section .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 10px;
+        }
+        .glosarium-section .section-title span {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .glosarium-section .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+        .glosarium-section .section-subtitle strong {
+            color: var(--primary-light);
+        }
+        .glosarium-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 25px;
+        }
+        .glosarium-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            border: 1px solid var(--border-glass);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .glosarium-card:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .glosarium-card .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+        .glosarium-card .card-header .number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 800;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .glosarium-card .card-header .icon {
+            font-size: 32px;
+        }
+        .glosarium-card .card-header h3 {
+            font-size: 1.1rem;
+            color: white;
+            font-weight: 700;
+        }
+        .glosarium-card .pengertian {
+            font-size: 13px;
+            color: var(--text-light);
+            font-style: italic;
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+        .glosarium-card .ajakan {
+            background: rgba(251, 191, 36, 0.08);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(251, 191, 36, 0.12);
+        }
+        .glosarium-card .ajakan .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--primary-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .glosarium-card .ajakan .text {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 4px;
+            line-height: 1.7;
+        }
+        .glosarium-card .ajakan .text strong {
+            color: white;
+        }
+        .glosarium-card .benefits {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .glosarium-card .benefits .benefit-col {
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .glosarium-card .benefits .benefit-col .benefit-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .glosarium-card .benefits .benefit-col .benefit-title .emoji {
+            margin-right: 4px;
+        }
+        .glosarium-card .benefits .benefit-col ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .glosarium-card .benefits .benefit-col ul li {
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 3px 0;
+            padding-left: 14px;
+            position: relative;
+            line-height: 1.4;
+        }
+        .glosarium-card .benefits .benefit-col ul li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+        .glosarium-card .fact {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: rgba(251, 191, 36, 0.08);
+            border-radius: 8px;
+            border: 1px solid rgba(251, 191, 36, 0.15);
+        }
+        .glosarium-card .fact .fact-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--primary-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .glosarium-card .fact .fact-text {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 3px;
+            font-style: italic;
+        }
+
+        .glosarium-footer {
+            margin-top: 40px;
+            padding: 35px;
+            background: rgba(255,255,255,0.03);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-glass);
+            text-align: center;
+        }
+        .glosarium-footer h3 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .glosarium-footer h3 span {
+            color: var(--primary-light);
+        }
+        .glosarium-footer p {
+            color: var(--text-muted);
+            font-size: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 2;
+        }
+        .glosarium-footer p strong {
+            color: white;
+        }
+        .glosarium-footer .btn-footer {
+            margin-top: 20px;
+            display: inline-flex;
+            padding: 14px 40px;
+            font-size: 15px;
+            border-radius: var(--radius-full);
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .glosarium-footer .btn-footer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        /* ============ LINK WEBSITE SEKOLAH ============ */
+        .school-link-section {
+            background: linear-gradient(135deg, #0f0c29, #1a1a2e);
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border-glass);
+        }
+        .school-link-section .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .school-link-section .school-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 32px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-full);
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .school-link-section .school-link:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        .school-link-section .school-link .icon {
+            font-size: 24px;
+        }
+        .school-link-section .school-link .arrow {
+            transition: transform 0.3s;
+        }
+        .school-link-section .school-link:hover .arrow {
+            transform: translateX(5px);
+        }
+        .school-link-section .school-name {
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .school-link-section .school-name strong {
+            color: var(--primary-light);
+        }
+
+        @media (max-width: 768px) {
+            .hero-full h1 { font-size: 2.2rem; }
+            .hero-full .btn-hero { padding: 14px 28px; font-size: 14px; }
+            .glosarium-section .section-title { font-size: 1.8rem; }
+            .glosarium-grid { grid-template-columns: 1fr; }
+            .glosarium-card .benefits { grid-template-columns: 1fr; }
+            .glosarium-footer h3 { font-size: 1.2rem; }
+            .glosarium-footer p { font-size: 14px; }
+            .school-link-section .school-link { font-size: 13px; padding: 12px 24px; }
+        }
+        @media (max-width: 480px) {
+            .glosarium-card .benefits { grid-template-columns: 1fr; }
+            .glosarium-card .card-header h3 { font-size: 1rem; }
+            .glosarium-section .section-subtitle { font-size: 0.95rem; }
+            .school-link-section .school-link { font-size: 12px; padding: 10px 18px; flex-wrap: wrap; justify-content: center; }
+        }
+    </style>
 </head>
 <body>
-<div id="loadingOverlay" class="loading-overlay hidden"><div class="spinner"></div></div>
 
-<div class="container">
-    <div class="hero">
-        <div class="logo-icon">🇮🇩✨</div>
-        <h1>7 Kebiasaan<br>Anak Indonesia Hebat</h1>
-        <p>Platform digital untuk membangun generasi emas Indonesia 2045</p>
-        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-            <button onclick="window.location.href='login.html'" class="btn btn-primary" style="padding: 16px 40px; font-size: 16px;">Mulai Sekarang</button>
+<!-- ============ HERO SECTION ============ -->
+<div class="hero-full">
+    <div class="logo-icon">🇮🇩✨</div>
+    <h1>7 Kebiasaan<br><span class="highlight">Anak Indonesia Hebat</span></h1>
+    <p class="subtitle">Platform digital untuk membangun generasi emas dengan kebiasaan positif setiap hari.</p>
+    <div class="btn-group">
+        <a href="login.html" class="btn btn-primary btn-hero">🚀 Mulai Sekarang</a>
+        <a href="#glosarium" class="btn btn-secondary btn-hero">📖 Lihat Manfaat</a>
+    </div>
+    
+    <div class="features-hero">
+        <div class="feat"><div class="icon">🌅</div><div class="label">Bangun Pagi</div></div>
+        <div class="feat"><div class="icon">🕌</div><div class="label">Ibadah</div></div>
+        <div class="feat"><div class="icon">🏃</div><div class="label">Olahraga</div></div>
+        <div class="feat"><div class="icon">📚</div><div class="label">Belajar</div></div>
+        <div class="feat"><div class="icon">🥗</div><div class="label">Makan Sehat</div></div>
+        <div class="feat"><div class="icon">🤝</div><div class="label">Bantu Ortu</div></div>
+        <div class="feat"><div class="icon">🌙</div><div class="label">Tidur Cepat</div></div>
+    </div>
+    
+    <div class="footer-hero">
+        © 2026 | SDN Gambirono 01 | 7 Kebiasaan Anak Indonesia Hebat
+    </div>
+</div>
+
+<!-- ============ GLOSARIUM SECTION ============ -->
+<section class="glosarium-section" id="glosarium">
+    <div class="container">
+        <h2 class="section-title">📖 Glosarium <span>Manfaat</span></h2>
+        <p class="section-subtitle">
+            Setiap kebiasaan baik memiliki manfaat luar biasa bagi <strong>kesehatan fisik, mental, dan keagamaan</strong>. 
+            Yuk, simak mengapa kebiasaan-kebiasaan ini sangat <strong>penting untukmu</strong> sebagai pelajar 
+            yang sedang menuntut ilmu dan meraih prestasi!
+        </p>
+
+        <div class="glosarium-grid">
+            <!-- 1. Bangun Pagi -->
+            <div class="glosarium-card">
+                <div class="card-header">
+                    <span class="number">1</span>
+                    <span class="icon">🌅</span>
+                    <h3>Bangun Pagi</h3>
+                </div>
+                <div class="pengertian">
+                    Kebiasaan bangun pada waktu pagi sebelum atau sesaat setelah terbit matahari.
+                </div>
+                <div class="ajakan">
+                    <div class="label">✨ Kenapa Kamu Harus Bangun Pagi?</div>
+                    <div class="text">
+                        Dengan bangun pagi, kamu punya <strong>waktu lebih banyak</strong> untuk mengulang pelajaran 
+                        dan mempersiapkan diri sebelum berangkat sekolah. Otakmu yang masih segar di pagi hari membuat 
+                        <strong>daya serap pelajaran lebih tinggi</strong> dan konsentrasi di kelas lebih terjaga. 
+                        Kamu juga bisa tiba di sekolah <strong>tepat waktu</strong> tanpa terburu-buru!
+                    </div>
+                </div>
+                <div class="benefits">
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">💪</span> Kesehatan</div>
+                        <ul>
+                            <li>Mengatur ritme sirkadian & kualitas tidur</li>
+                            <li>Meningkatkan hormon kortisol pagi</li>
+                            <li>Paparan sinar matahari untuk vitamin D</li>
+                            <li>Menurunkan risiko obesitas & diabetes</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">🕌</span> Keagamaan</div>
+                        <ul>
+                            <li>Memudahkan salat Subuh tepat waktu</li>
+                            <li>Kesempatan berdoa di waktu berkah</li>
+                            <li>Membentuk kedisiplinan & rasa syukur</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="fact">
+                    <div class="fact-label">💡 Tahukah Kamu?</div>
+                    <div class="fact-text">Siswa yang bangun pagi memiliki nilai akademik lebih baik karena otak dalam kondisi optimal saat menerima pelajaran. Sinar matahari pagi juga membantu produksi serotonin yang membuatmu lebih bahagia dan semangat belajar!</div>
+                </div>
+            </div>
+
+            <!-- 2. Rajin Sholat -->
+            <div class="glosarium-card">
+                <div class="card-header">
+                    <span class="number">2</span>
+                    <span class="icon">🕌</span>
+                    <h3>Rajin Sholat</h3>
+                </div>
+                <div class="pengertian">
+                    Melaksanakan salat secara rutin dan tepat waktu sesuai tuntunan agama Islam.
+                </div>
+                <div class="ajakan">
+                    <div class="label">✨ Kenapa Kamu Harus Rajin Sholat?</div>
+                    <div class="text">
+                        Sholat mengajarkanmu <strong>kedisiplinan waktu</strong> yang sangat berguna untuk 
+                        mengatur jadwal belajar. Ketenangan hati setelah sholat membuatmu <strong>lebih fokus</strong> 
+                        saat belajar. Sholat juga menjadi <strong>pengelola stres alami</strong> saat kamu 
+                        menghadapi ujian atau tugas sekolah yang berat.
+                    </div>
+                </div>
+                <div class="benefits">
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">💪</span> Kesehatan</div>
+                        <ul>
+                            <li>Melatih kelenturan otot & persendian</li>
+                            <li>Melancarkan peredaran darah</li>
+                            <li>Mengurangi stres & kecemasan</li>
+                            <li>Meningkatkan keseimbangan tubuh</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">🕌</span> Keagamaan</div>
+                        <ul>
+                            <li>Mendekatkan diri kepada Allah SWT</li>
+                            <li>Menumbuhkan kedisiplinan & tanggung jawab</li>
+                            <li>Penghapus dosa & peningkat keimanan</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="fact">
+                    <div class="fact-label">💡 Tahukah Kamu?</div>
+                    <div class="fact-text">Saat sujud, aliran darah ke otak meningkat, membantu suplai oksigen dan nutrisi ke sel-sel otak. Ini membuatmu lebih siap secara mental dan fisik untuk menerima pelajaran setelah sholat!</div>
+                </div>
+            </div>
+
+            <!-- 3. Rajin Berdzikir -->
+            <div class="glosarium-card">
+                <div class="card-header">
+                    <span class="number">3</span>
+                    <span class="icon">🤲</span>
+                    <h3>Rajin Berdzikir</h3>
+                </div>
+                <div class="pengertian">
+                    Mengingat dan menyebut nama Allah SWT melalui bacaan-bacaan dzikir.
+                </div>
+                <div class="ajakan">
+                    <div class="label">✨ Kenapa Kamu Harus Rajin Berdzikir?</div>
+                    <div class="text">
+                        Dzikir membantu <strong>menenangkan pikiranmu</strong> sebelum belajar sehingga 
+                        lebih mudah memahami materi. Saat menghadapi ujian, dzikir membuat hatimu 
+                        <strong>lebih tenang</strong> dan mengurangi rasa gugup. Kamu juga akan memiliki 
+                        <strong>daya ingat lebih kuat</strong> dan emosi yang lebih stabil!
+                    </div>
+                </div>
+                <div class="benefits">
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">💪</span> Kesehatan</div>
+                        <ul>
+                            <li>Menurunkan stres & ketegangan saraf</li>
+                            <li>Menstabilkan detak jantung & tekanan darah</li>
+                            <li>Meningkatkan ketenangan pikiran</li>
+                            <li>Meningkatkan kualitas tidur</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">🕌</span> Keagamaan</div>
+                        <ul>
+                            <li>Menambah keimanan & ketakwaan</li>
+                            <li>Mendapatkan pahala & keberkahan</li>
+                            <li>Menumbuhkan rasa syukur & sabar</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="fact">
+                    <div class="fact-label">💡 Tahukah Kamu?</div>
+                    <div class="fact-text">Pengulangan bacaan dzikir memiliki efek mirip teknik relaksasi yang menenangkan sistem saraf. Kamu akan lebih tenang saat mengerjakan soal-soal ujian yang sulit!</div>
+                </div>
+            </div>
+
+            <!-- 4. Membaca Al-Qur'an -->
+            <div class="glosarium-card">
+                <div class="card-header">
+                    <span class="number">4</span>
+                    <span class="icon">📖</span>
+                    <h3>Membaca Al-Qur'an</h3>
+                </div>
+                <div class="pengertian">
+                    Kegiatan membaca, mempelajari, dan memahami isi Al-Qur'an.
+                </div>
+                <div class="ajakan">
+                    <div class="label">✨ Kenapa Kamu Harus Membaca Al-Qur'an?</div>
+                    <div class="text">
+                        Membaca Al-Qur'an melatih <strong>konsentrasi dan daya ingatmu</strong>. 
+                        Kebiasaan ini juga membentuk <strong>karakter disiplin</strong> dan meningkatkan 
+                        <strong>kecerdasan spiritual</strong>. Kamu akan memiliki <strong>kemampuan berpikir 
+                        kritis</strong> yang lebih baik karena terbiasa memahami makna dan pesan-pesan 
+                        di dalamnya!
+                    </div>
+                </div>
+                <div class="benefits">
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">💪</span> Kesehatan</div>
+                        <ul>
+                            <li>Melatih konsentrasi & daya ingat</li>
+                            <li>Menenangkan pikiran & mengurangi kecemasan</li>
+                            <li>Merangsang aktivitas otak</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">🕌</span> Keagamaan</div>
+                        <ul>
+                            <li>Mendapat pahala setiap huruf yang dibaca</li>
+                            <li>Menambah ilmu agama & petunjuk hidup</li>
+                            <li>Menjadi syafaat di akhirat</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="fact">
+                    <div class="fact-label">💡 Tahukah Kamu?</div>
+                    <div class="fact-text">Membaca Al-Qur'an dengan tartil membantu melatih pernapasan yang teratur dan menjaga fungsi kognitif otakmu. Aktivitas membaca rutin juga membantumu mempertahankan daya ingat jangka panjang!</div>
+                </div>
+            </div>
+
+            <!-- 5. Makan Sehat dan Teratur -->
+            <div class="glosarium-card">
+                <div class="card-header">
+                    <span class="number">5</span>
+                    <span class="icon">🥗</span>
+                    <h3>Makan Sehat & Teratur</h3>
+                </div>
+                <div class="pengertian">
+                    Kebiasaan mengonsumsi makanan bergizi seimbang secara teratur setiap hari.
+                </div>
+                <div class="ajakan">
+                    <div class="label">✨ Kenapa Kamu Harus Makan Sehat & Teratur?</div>
+                    <div class="text">
+                        Makan sehat dan teratur memberikan <strong>energi yang cukup</strong> untuk aktivitas 
+                        belajarmu sepanjang hari. Dengan sarapan sebelum sekolah, <strong>konsentrasimu 
+                        lebih terjaga</strong> dan kamu tidak mudah mengantuk di kelas. Makan siang dan malam 
+                        yang bergizi membuat <strong>tubuhmu kuat</strong> dan <strong>daya tahan tubuh 
+                        meningkat</strong>, sehingga kamu tidak mudah sakit dan tetap semangat belajar!
+                    </div>
+                </div>
+                <div class="benefits">
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">💪</span> Kesehatan</div>
+                        <ul>
+                            <li>Memberikan energi untuk aktivitas sehari-hari</li>
+                            <li>Menjaga berat badan ideal</li>
+                            <li>Meningkatkan daya tahan tubuh</li>
+                            <li>Mendukung pertumbuhan & perkembangan otak</li>
+                            <li>Mencegah penyakit kronis</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">🕌</span> Keagamaan</div>
+                        <ul>
+                            <li>Menjaga tubuh sehat sebagai amanah Allah</li>
+                            <li>Membantu konsentrasi saat beribadah</li>
+                            <li>Bersyukur atas nikmat makanan</li>
+                            <li>Menghindari makanan haram & berbahaya</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="fact">
+                    <div class="fact-label">💡 Tahukah Kamu?</div>
+                    <div class="fact-text">Otakmu membutuhkan glukosa dari makanan untuk berpikir dan berkonsentrasi. Sarapan pagi yang sehat dapat meningkatkan nilai ujianmu hingga 20%! Makan teratur juga membantu menjaga mood dan semangat belajarmu sepanjang hari.</div>
+                </div>
+            </div>
+
+            <!-- 6. Rajin Belajar -->
+            <div class="glosarium-card">
+                <div class="card-header">
+                    <span class="number">6</span>
+                    <span class="icon">📚</span>
+                    <h3>Rajin Belajar</h3>
+                </div>
+                <div class="pengertian">
+                    Melakukan kegiatan belajar secara rutin dan sungguh-sungguh.
+                </div>
+                <div class="ajakan">
+                    <div class="label">✨ Kenapa Kamu Harus Rajin Belajar?</div>
+                    <div class="text">
+                        Ini adalah <strong>kebiasaan inti bagimu sebagai pelajar</strong>! Belajar rutin membuat 
+                        <strong>pemahaman materi semakin kuat</strong> dan tidak mudah lupa. Kamu akan memiliki 
+                        <strong>prestasi akademik yang lebih baik</strong>, lebih percaya diri saat ujian, 
+                        dan <strong>wawasan yang luas</strong> untuk masa depanmu!
+                    </div>
+                </div>
+                <div class="benefits">
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">💪</span> Kesehatan</div>
+                        <ul>
+                            <li>Melatih kerja otak & kemampuan berpikir</li>
+                            <li>Memperkuat daya ingat</li>
+                            <li>Menurunkan risiko penurunan fungsi otak</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">🕌</span> Keagamaan</div>
+                        <ul>
+                            <li>Menuntut ilmu adalah ibadah</li>
+                            <li>Membuka jalan keberhasilan dunia & akhirat</li>
+                            <li>Menambah wawasan untuk berbuat kebaikan</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="fact">
+                    <div class="fact-label">💡 Tahukah Kamu?</div>
+                    <div class="fact-text">Belajar hal baru dapat membentuk sambungan baru antar sel saraf otakmu (neuroplastisitas). Belajar 20-30 menit setiap hari lebih efektif daripada belajar berjam-jam hanya saat menjelang ujian!</div>
+                </div>
+            </div>
+
+            <!-- 7. Rajin Membantu Orang Tua -->
+            <div class="glosarium-card">
+                <div class="card-header">
+                    <span class="number">7</span>
+                    <span class="icon">🤝</span>
+                    <h3>Rajin Membantu Orang Tua</h3>
+                </div>
+                <div class="pengertian">
+                    Meringankan pekerjaan dan membantu kebutuhan orang tua dengan ikhlas.
+                </div>
+                <div class="ajakan">
+                    <div class="label">✨ Kenapa Kamu Harus Membantu Orang Tua?</div>
+                    <div class="text">
+                        Membantu orang tua mengajarkanmu tentang <strong>tanggung jawab dan kerja keras</strong>. 
+                        Kamu akan memiliki <strong>kecerdasan emosional</strong> yang lebih baik dan 
+                        <strong>mudah bekerja sama</strong> dalam kelompok belajar. Kebiasaan ini juga membuatmu 
+                        lebih <strong>mandiri dan menghargai perjuangan</strong> orang tua!
+                    </div>
+                </div>
+                <div class="benefits">
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">💪</span> Kesehatan</div>
+                        <ul>
+                            <li>Meningkatkan kebugaran tubuh</li>
+                            <li>Menumbuhkan perasaan bahagia</li>
+                            <li>Meningkatkan empati & sosialisasi</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">🕌</span> Keagamaan</div>
+                        <ul>
+                            <li>Termasuk berbakti kepada orang tua</li>
+                            <li>Mendapat ridha Allah melalui ridha orang tua</li>
+                            <li>Menumbuhkan akhlak mulia & tanggung jawab</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="fact">
+                    <div class="fact-label">💡 Tahukah Kamu?</div>
+                    <div class="fact-text">Membantu orang lain meningkatkan produksi hormon oksitosin yang berhubungan dengan rasa bahagia. Kamu yang terbiasa membantu orang tua cenderung lebih sukses dalam karir karena memiliki kemampuan kerja sama yang baik!</div>
+                </div>
+            </div>
+
+            <!-- 8. Tidur Cepat -->
+            <div class="glosarium-card">
+                <div class="card-header">
+                    <span class="number">8</span>
+                    <span class="icon">🌙</span>
+                    <h3>Tidur Cepat</h3>
+                </div>
+                <div class="pengertian">
+                    Membiasakan tidur pada waktu malam yang cukup dan tidak terlalu larut.
+                </div>
+                <div class="ajakan">
+                    <div class="label">✨ Kenapa Kamu Harus Tidur Cepat?</div>
+                    <div class="text">
+                        Tidur cukup sangat penting bagimu karena <strong>otak memproses dan menyimpan</strong> 
+                        informasi yang kamu pelajari sepanjang hari saat tidur. Kamu akan memiliki 
+                        <strong>konsentrasi lebih baik</strong> di kelas, <strong>daya ingat kuat</strong>, 
+                        dan <strong>tubuh yang sehat</strong> sehingga tidak mudah sakit dan absen sekolah!
+                    </div>
+                </div>
+                <div class="benefits">
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">💪</span> Kesehatan</div>
+                        <ul>
+                            <li>Membantu pertumbuhan & perbaikan sel</li>
+                            <li>Meningkatkan daya tahan tubuh</li>
+                            <li>Menjaga kesehatan otak & konsentrasi</li>
+                            <li>Mengurangi risiko obesitas</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">🕌</span> Keagamaan</div>
+                        <ul>
+                            <li>Memudahkan bangun malam untuk ibadah</li>
+                            <li>Menjaga tubuh sehat untuk beribadah</li>
+                            <li>Memudahkan salat Subuh</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="fact">
+                    <div class="fact-label">💡 Tahukah Kamu?</div>
+                    <div class="fact-text">Hormon pertumbuhan paling banyak diproduksi saat tidur malam yang cukup. Otakmu juga melakukan proses "pembersihan" zat sisa metabolisme. Kamu yang tidur 8-10 jam memiliki nilai akademik lebih baik!</div>
+                </div>
+            </div>
+
+            <!-- 9. Rajin Olahraga -->
+            <div class="glosarium-card">
+                <div class="card-header">
+                    <span class="number">9</span>
+                    <span class="icon">🏃</span>
+                    <h3>Rajin Olahraga</h3>
+                </div>
+                <div class="pengertian">
+                    Melakukan aktivitas fisik secara rutin untuk menjaga kesehatan dan kebugaran tubuh.
+                </div>
+                <div class="ajakan">
+                    <div class="label">✨ Kenapa Kamu Harus Rajin Olahraga?</div>
+                    <div class="text">
+                        Olahraga teratur membuatmu <strong>lebih bugar dan semangat</strong> saat belajar. 
+                        Aliran darah ke otak meningkat sehingga <strong>daya serap pelajaran lebih tinggi</strong>. 
+                        Kamu akan memiliki <strong>tubuh sehat</strong> sehingga tidak mudah sakit dan 
+                        <strong>konsentrasi lebih terjaga</strong> selama jam pelajaran berlangsung!
+                    </div>
+                </div>
+                <div class="benefits">
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">💪</span> Kesehatan</div>
+                        <ul>
+                            <li>Menguatkan otot, tulang, & jantung</li>
+                            <li>Meningkatkan daya tahan tubuh</li>
+                            <li>Mengurangi risiko penyakit kronis</li>
+                            <li>Menjaga berat badan ideal</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-col">
+                        <div class="benefit-title"><span class="emoji">🕌</span> Keagamaan</div>
+                        <ul>
+                            <li>Menjaga kesehatan sebagai amanah Allah</li>
+                            <li>Membantu tubuh kuat untuk beribadah</li>
+                            <li>Meningkatkan semangat beraktivitas</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="fact">
+                    <div class="fact-label">💡 Tahukah Kamu?</div>
+                    <div class="fact-text">Olahraga teratur meningkatkan produksi hormon endorfin (hormon kebahagiaan) dan memperlancar aliran darah ke otak. Kamu yang berolahraga 30 menit setiap hari memiliki nilai ujian 20% lebih tinggi!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kesimpulan -->
+        <div class="glosarium-footer">
+            <h3>🌱 <span>Kesimpulan untukmu, Pelajar Hebat!</span></h3>
+            <p>
+                <strong>Bangun pagi, rajin salat, berdzikir, membaca Al-Qur'an, makan sehat dan teratur, 
+                rajin belajar, membantu orang tua, tidur cepat, dan rajin olahraga</strong> bukan hanya bernilai ibadah, 
+                tetapi juga memiliki <strong>manfaat ilmiah</strong> yang sangat besar bagimu dalam 
+                <strong>menuntut ilmu</strong> dan <strong>meraih prestasi</strong> di sekolah.
+                <br><br>
+                Kebiasaan-kebiasaan ini saling mendukung untuk membentuk dirimu menjadi 
+                <strong>pribadi yang sehat, cerdas, disiplin, dan berakhlak mulia</strong>. 
+                Dengan menerapkan kebiasaan-kebiasaan ini, kamu akan <strong>lebih siap menghadapi 
+                tantangan belajar</strong>, memiliki <strong>semangat yang tinggi</strong>, 
+                dan <strong>meraih kesuksesan</strong> baik di dunia maupun di akhirat. 🌟
+            </p>
+            <br>
+            <a href="login.html" class="btn-footer">🚀 Yuk, Mulai Catat Kebiasaanmu Sekarang!</a>
         </div>
     </div>
-    <footer style="text-align: center; padding: 30px;">© 2026 | 7 Kebiasaan Anak Indonesia Hebat |Mahardika Setyo S|</footer>
-</div>
+</section>
+
+<!-- ============ LINK WEBSITE SEKOLAH ============ -->
+<section class="school-link-section">
+    <div class="container">
+        <a href="https://sdn-gambirono-01-web.vercel.app/" target="_blank" class="school-link">
+            <span class="icon">🏫</span>
+            <span>Kunjungi Website Resmi SDN Gambirono 01</span>
+            <span class="arrow">→</span>
+        </a>
+        <div class="school-name">
+            <strong>SDN Gambirono 01</strong> — Sekolah Unggulan, Berkarakter, dan Berprestasi
+        </div>
+    </div>
+</section>
+
 </body>
 </html>
