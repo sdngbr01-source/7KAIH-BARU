@@ -1,7 +1,7 @@
 // ============ KONFIGURASI GLOBAL ============
 const CONFIG = {
     // GANTI DENGAN URL DEPLOY ANDA!
-    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyiGBs3T1sk_d_ddtKwB5zS-xx5J_d5SUvYhLwSKc6PbhlMVQEl1Qt2KVUUYF40m0O0/exec',
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyXpKPO-A5SZwfa2NA-pXQRKyKF1Q2cvGGv-fuB36MkhAK0dqsPTc80y9ImWFygqsgg/exec',
     
     // Admin Credentials
     ADMIN: {
