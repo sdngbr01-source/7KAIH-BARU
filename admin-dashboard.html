@@ -96,6 +96,15 @@
         .btn-delete-sm:hover {
             background: #dc2626;
         }
+        .link-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: var(--radius-full);
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .link-badge.yes { background: #10b981; color: white; }
+        .link-badge.no { background: #64748b; color: white; }
         @media (max-width: 768px) {
             .filter-bar { flex-direction: column; }
             .filter-bar .form-group { width: 100%; }
@@ -148,8 +157,8 @@
                     <div class="label">📝 Total Pengisian</div>
                 </div>
                 <div class="admin-stat-card">
-                    <div class="value" id="totalHariAktif">0</div>
-                    <div class="label">📅 Total Hari Aktif</div>
+                    <div class="value" id="totalLink">0</div>
+                    <div class="label">🔗 Total Link Sosmed</div>
                 </div>
                 <div class="admin-stat-card">
                     <div class="value" id="rataSkorGlobal">0</div>
@@ -197,8 +206,23 @@
             </div>
             <div id="habitsTableContainer" class="table-wrapper">
                 <table class="data-table">
-                    <thead><tr><th>Tanggal</th><th>Nama</th><th>Kelas</th><th>Bangun</th><th>Ibadah</th><th>Quran</th><th>Olahraga</th><th>Belajar</th><th>Makan</th><th>Bantu</th><th>Tidur</th><th>Skor</th></tr></thead>
-                    <tbody id="habitsTableBody"><tr class="empty-row"><td colspan="12">Loading...</td></tr></tbody>
+                    <thead><tr>
+                        <th>Tanggal</th>
+                        <th>Nama</th>
+                        <th>Kelas</th>
+                        <th>Bangun</th>
+                        <th>Ibadah</th>
+                        <th>Quran</th>
+                        <th>Olahraga</th>
+                        <th>Belajar</th>
+                        <th>Makan</th>
+                        <th>Bantu</th>
+                        <th>Tidur</th>
+                        <th>Link</th>
+                        <th>Skor Link</th>
+                        <th>Total</th>
+                    </tr></thead>
+                    <tbody id="habitsTableBody"><tr class="empty-row"><td colspan="14">Loading...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -231,8 +255,17 @@
             </div>
             <div id="scoresTableContainer" class="table-wrapper">
                 <table class="data-table">
-                    <thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Total Skor</th><th>Hari Aktif</th><th>Rata-rata</th><th>Kategori</th></tr></thead>
-                    <tbody id="scoresTableBody"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+                    <thead><tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Kelas</th>
+                        <th>Total Skor</th>
+                        <th>Hari Aktif</th>
+                        <th>Rata-rata</th>
+                        <th>Total Link</th>
+                        <th>Kategori</th>
+                    </tr></thead>
+                    <tbody id="scoresTableBody"><tr class="empty-row"><td colspan="8">Loading...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -319,27 +352,25 @@
     // ============ DASHBOARD ============
     async function loadDashboard() {
         try {
-            // Get users
             const usersResult = await getUsersFromSheet();
             const users = usersResult.success ? usersResult.data || [] : [];
             document.getElementById('totalSiswa').textContent = users.length;
 
-            // Get habits
             const habitsResult = await getHabitsFromSheet(true);
             const habits = habitsResult.success ? habitsResult.data || [] : [];
             document.getElementById('totalHabits').textContent = habits.length;
 
-            // Unique users with habits
-            const uniqueUsers = new Set(habits.map(h => h.Nama).filter(n => n && n !== '-'));
-            document.getElementById('totalHariAktif').textContent = uniqueUsers.size;
+            // Hitung total link
+            const totalLink = habits.filter(h => h.Link_sosmed && h.Link_sosmed !== '-' && h.Link_sosmed !== '').length;
+            document.getElementById('totalLink').textContent = totalLink;
 
-            // Average score
+            const uniqueUsers = new Set(habits.map(h => h.Nama).filter(n => n && n !== '-'));
+            
             let totalSkor = 0;
             habits.forEach(h => totalSkor += parseInt(h.TOTAL_SKOR) || 0);
             const avg = habits.length > 0 ? (totalSkor / habits.length).toFixed(1) : 0;
             document.getElementById('rataSkorGlobal').textContent = avg;
 
-            // Recent activities
             const recent = habits.slice(-10).reverse();
             const container = document.getElementById('recentActivities');
             if (recent.length === 0) {
@@ -349,6 +380,7 @@
                     <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-glass); font-size:13px;">
                         <span><strong>${escapeHtml(h.Nama)}</strong> <span style="color:var(--text-muted);">(${h.Kelas || '-'})</span></span>
                         <span>${formatTanggal(h.Tanggal_Kegiatan)}</span>
+                        ${h.Link_sosmed && h.Link_sosmed !== '-' ? '<span style="color:#10b981;">🔗</span>' : ''}
                         <span class="skor-badge ${getSkorClass(parseInt(h.TOTAL_SKOR) || 0)}">${h.TOTAL_SKOR || 0}</span>
                     </div>
                 `).join('');
@@ -506,7 +538,6 @@
                 } else {
                     errorCount++;
                 }
-                // Delay to avoid rate limit
                 await new Promise(r => setTimeout(r, 100));
             }
             
@@ -530,19 +561,22 @@
             
             const tbody = document.getElementById('habitsTableBody');
             if (!result.success || !result.data || result.data.length === 0) {
-                tbody.innerHTML = '<tr class="empty-row"><td colspan="12">Belum ada data</td></tr>';
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="14">Belum ada data</td></tr>';
                 return;
             }
 
             const habits = result.data.slice(-100).reverse();
             let html = '';
             habits.forEach(h => {
-                // Format Quran
                 let quranText = '-';
                 if (h.Quran_Surat && h.Quran_Surat !== '-') {
                     quranText = h.Quran_Surat;
                     if (h.Quran_Ayat && h.Quran_Ayat !== '-') quranText += ` (${h.Quran_Ayat})`;
                 }
+                
+                const linkText = h.Link_sosmed && h.Link_sosmed !== '-' && h.Link_sosmed !== '' 
+                    ? `<a href="${h.Link_sosmed}" target="_blank" style="color:var(--primary-light); text-decoration:underline; font-size:11px;">🔗</a>`
+                    : '-';
                 
                 html += `
                     <tr>
@@ -557,6 +591,8 @@
                         <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? '✓' : '-'} (${h.Makan_Skor || 0})</td>
                         <td>${h.Bantu_Ortu && h.Bantu_Ortu !== '-' ? '✓' : '-'} (${h.Bantu_Ortu_Skor || 0})</td>
                         <td>${h.Tidur_Jam || '-'} (${h.Tidur_Skor || 0})</td>
+                        <td>${linkText}</td>
+                        <td>${h.Skor_Link || 0}</td>
                         <td><span class="skor-badge ${getSkorClass(parseInt(h.TOTAL_SKOR) || 0)}">${h.TOTAL_SKOR || 0}</span></td>
                     </tr>
                 `;
@@ -564,7 +600,7 @@
             tbody.innerHTML = html;
         } catch (e) {
             showLoading(false);
-            document.getElementById('habitsTableBody').innerHTML = '<tr class="empty-row"><td colspan="12">Error loading data</td></tr>';
+            document.getElementById('habitsTableBody').innerHTML = '<tr class="empty-row"><td colspan="14">Error loading data</td></tr>';
         }
     }
 
@@ -578,7 +614,7 @@
             showLoading(false);
             
             if (!result.success) {
-                document.getElementById('scoresTableBody').innerHTML = '<tr class="empty-row"><td colspan="7">Error loading data</td></tr>';
+                document.getElementById('scoresTableBody').innerHTML = '<tr class="empty-row"><td colspan="8">Error loading data</td></tr>';
                 return;
             }
             
@@ -588,13 +624,14 @@
                 kelas: data.kelas || '-',
                 totalSkor: data.total || 0,
                 hariAktif: data.count || 0,
-                rataRata: data.rata || 0
+                rataRata: data.rata || 0,
+                totalLink: data.totalLink || 0
             }));
             allScoresData.sort((a, b) => a.nama.localeCompare(b.nama));
             applyScoreFilter();
         } catch (e) {
             showLoading(false);
-            document.getElementById('scoresTableBody').innerHTML = '<tr class="empty-row"><td colspan="7">Error loading data</td></tr>';
+            document.getElementById('scoresTableBody').innerHTML = '<tr class="empty-row"><td colspan="8">Error loading data</td></tr>';
         }
     }
 
@@ -612,7 +649,7 @@
     function renderScoresTable(data) {
         const tbody = document.getElementById('scoresTableBody');
         if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Tidak ada data</td></tr>';
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="8">Tidak ada data</td></tr>';
             return;
         }
 
@@ -628,6 +665,7 @@
                     <td><span class="skor-badge ${skorClass}">${item.totalSkor}</span></td>
                     <td>${item.hariAktif}</td>
                     <td>${item.rataRata.toFixed(1)}</td>
+                    <td>${item.totalLink}</td>
                     <td>${kategori.icon} ${kategori.label}</td>
                 </tr>
             `;
@@ -647,9 +685,9 @@
             showToast('⚠️ Tidak ada data untuk diexport', 'warning');
             return;
         }
-        const data = [['No', 'Nama', 'Kelas', 'Total Skor', 'Hari Aktif', 'Rata-rata']];
+        const data = [['No', 'Nama', 'Kelas', 'Total Skor', 'Hari Aktif', 'Rata-rata', 'Total Link']];
         allScoresData.forEach((item, idx) => {
-            data.push([idx+1, item.nama, item.kelas, item.totalSkor, item.hariAktif, item.rataRata.toFixed(1)]);
+            data.push([idx+1, item.nama, item.kelas, item.totalSkor, item.hariAktif, item.rataRata.toFixed(1), item.totalLink]);
         });
         const ws = XLSX.utils.aoa_to_sheet(data);
         const wb = XLSX.utils.book_new();
@@ -747,7 +785,13 @@
             }
             
             let totalSkor = 0;
-            filteredHabits.forEach(h => totalSkor += parseInt(h.TOTAL_SKOR) || 0);
+            let totalLink = 0;
+            filteredHabits.forEach(h => {
+                totalSkor += parseInt(h.TOTAL_SKOR) || 0;
+                if (h.Link_sosmed && h.Link_sosmed !== '-' && h.Link_sosmed !== '') {
+                    totalLink += parseInt(h.Skor_Link) || 0;
+                }
+            });
             const hariAktif = filteredHabits.length;
             const rataRata = hariAktif > 0 ? totalSkor / hariAktif : 0;
             const persentase = targetHari > 0 ? Math.min(100, Math.round((hariAktif / targetHari) * 100)) : 0;
@@ -772,11 +816,12 @@
                 kelas: userData ? userData.kelas || '-' : '-',
                 periode: periodeText,
                 totalSkor: totalSkor,
+                totalLink: totalLink,
                 hariAktif: hariAktif,
                 rataRata: rataRata,
                 persentase: persentase,
                 kategori: skorKategori.label,
-                saran: `🏆 ${skorKategori.label} - Pertahankan konsistensimu!`,
+                saran: `🏆 ${skorKategori.label} - Pertahankan konsistensimu! ${totalLink > 0 ? '🔥 +' + totalLink + ' dari Link Sosmed' : ''}`,
                 iconKategori: skorKategori.icon,
                 warnaKategori: skorKategori.color,
                 color: color,
@@ -820,7 +865,6 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
             document.getElementById(`tab${target.charAt(0).toUpperCase() + target.slice(1)}`).classList.remove('hidden');
             
-            // Load data per tab
             if (target === 'dashboard') loadDashboard();
             if (target === 'users') renderUsers();
             if (target === 'habits') loadAllHabits();
@@ -903,6 +947,7 @@
                     <tr><td>📅 Periode</td><td>: ${data.periode}</td></tr>
                     <tr><td>🎯 Target Hari</td><td>: ${data.targetHari} hari</td></tr>
                     <tr><td>✅ Hari Aktif</td><td>: ${data.hariAktif} hari (${data.persentase}%)</td></tr>
+                    <tr><td>🔗 Total Link Sosmed</td><td>: ${data.totalLink > 0 ? '✅ ' + data.totalLink + ' poin' : '❌ Belum ada'}</td></tr>
                     <tr><td>🖨️ Cetak</td><td>: ${data.tanggalCetak}</td></tr>
                 </table>
             </div>
