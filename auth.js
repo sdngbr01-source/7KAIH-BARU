@@ -1,21 +1,6 @@
 // ============ SISTEM AUTENTIKASI ============
 
-function checkAuth() {
-    const user = localStorage.getItem('currentUser');
-    const isAdmin = localStorage.getItem('isAdmin');
-    
-    if (isAdmin === 'true') {
-        window.location.href = 'admin-dashboard.html';
-        return true;
-    }
-    
-    if (user) {
-        window.location.href = 'user-dashboard.html';
-        return true;
-    }
-    
-    return false;
-}
+
 
 async function loginUser(nisn) {
     try {
