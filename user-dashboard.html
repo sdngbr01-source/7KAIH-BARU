@@ -11,351 +11,46 @@
     <script src="utils.js"></script>
     <script src="app.js"></script>
     <style>
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .dashboard-header .user-greeting h2 {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-        .dashboard-header .user-greeting p {
-            color: var(--text-muted);
-        }
-        .badge-kelas {
-            display: inline-block;
-            background: var(--primary-gradient);
-            color: white;
-            padding: 4px 16px;
-            border-radius: var(--radius-full);
-            font-size: 12px;
-            font-weight: 700;
-        }
-        .habit-card {
-            background: rgba(255, 255, 255, 0.05);
+        /* ... existing styles ... */
+        .link-sosmed-section {
+            background: rgba(251, 191, 36, 0.08);
+            border: 2px solid rgba(251, 191, 36, 0.2);
             border-radius: var(--radius);
             padding: 20px;
             margin-bottom: 20px;
-            border-left: 4px solid var(--primary);
             transition: all 0.3s;
         }
-        .habit-card:hover {
-            background: rgba(255, 255, 255, 0.08);
+        .link-sosmed-section.completed {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.08);
         }
-        .habit-card h3 {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.1rem;
-        }
-        .habit-card h3 .skor-indikator {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: normal;
-        }
-        .habit-card .sub-title {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-        }
-        .habit-card .sub-title i {
-            font-style: italic;
-        }
-        .checkbox-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        .checkbox-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px 14px;
-            border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid var(--border-glass);
-            cursor: pointer;
-            transition: all 0.3s;
-            color: var(--text-light);
-            font-size: 13px;
-        }
-        .checkbox-item:hover {
-            background: rgba(251, 191, 36, 0.1);
-            border-color: var(--primary);
-        }
-        .checkbox-item input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--primary);
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        .checkbox-item.checked {
-            background: rgba(251, 191, 36, 0.15);
-            border-color: var(--primary);
-        }
-        .group-divider {
-            grid-column: 1 / -1;
-            border-top: 1px dashed var(--border-glass);
-            margin: 4px 0 8px 0;
-            padding-top: 4px;
-        }
-        .group-label {
-            grid-column: 1 / -1;
-            font-weight: 600;
-            color: var(--text-muted);
-            font-size: 12px;
-            letter-spacing: 1px;
-            padding: 2px 0 2px 4px;
-        }
-        .group-label .icon {
-            margin-right: 6px;
-        }
-        .history-table th {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 12px;
-            text-align: center;
-            white-space: nowrap;
-            font-size: 12px;
-        }
-        .history-table td {
-            padding: 10px 12px;
-            text-align: center;
-            vertical-align: middle;
-            font-size: 13px;
-        }
-        .btn-pagination {
-            padding: 6px 14px;
-            border: 1px solid var(--border-glass);
-            background: rgba(255,255,255,0.05);
-            color: var(--text-light);
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s;
-        }
-        .btn-pagination:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .btn-pagination.active {
-            background: var(--primary-gradient);
-            color: white;
-            border-color: var(--primary);
-        }
-        .btn-delete-sm {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 4px 12px;
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            font-size: 11px;
-            transition: all 0.3s;
-        }
-        .btn-delete-sm:hover {
-            background: #dc2626;
-        }
-        .date-input {
-            max-width: 250px;
-        }
-        .form-row {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .form-row .form-group {
-            margin-bottom: 0;
-            flex: 1;
-            min-width: 150px;
-        }
-        .skor-detail {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .skor-detail-item {
-            background: rgba(255,255,255,0.03);
-            padding: 8px 12px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 12px;
-        }
-        .skor-detail-item .label { color: var(--text-muted); }
-        .skor-detail-item .value { font-weight: 700; color: var(--primary-light); }
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-        }
-        .empty-state .icon { font-size: 48px; margin-bottom: 15px; }
-        .nav-user {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .nav-user .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--primary-gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
-            color: white;
-        }
-        .time-input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .time-input-wrapper input[type="time"] {
-            max-width: 150px;
-            padding: 10px 14px;
-            font-size: 16px;
-        }
-        .time-label {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-        .quran-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .quran-row .form-group {
-            margin-bottom: 0;
-        }
-        .quran-row input {
-            padding: 10px 14px;
-            font-size: 13px;
-        }
-
-        /* ============ TARGET BULANAN ============ */
-        .target-section {
-            margin-top: 30px;
-        }
-        .target-section .target-header {
+        .link-sosmed-section .link-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
         }
-        .target-section .target-header h3 {
-            font-size: 1.2rem;
-        }
-        .target-section .target-header .target-info {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-        .target-section .target-header .target-info strong {
-            color: var(--primary-light);
-        }
-        .target-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-        }
-        .target-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: var(--radius);
-            padding: 18px 16px;
-            text-align: center;
-            border: 1px solid var(--border-glass);
-            transition: all 0.3s;
-        }
-        .target-card:hover {
-            background: rgba(255,255,255,0.08);
-            transform: translateY(-3px);
-        }
-        .target-card .bulan {
-            font-size: 14px;
+        .link-sosmed-section .link-info .badge-link {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
             font-weight: 700;
-            color: white;
-            margin-bottom: 8px;
         }
-        .target-card .progress-circle {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 10px;
-        }
-        .target-card .progress-circle svg {
-            transform: rotate(-90deg);
-        }
-        .target-card .progress-circle .bg {
-            fill: none;
-            stroke: rgba(255,255,255,0.1);
-            stroke-width: 6;
-        }
-        .target-card .progress-circle .progress {
-            fill: none;
-            stroke-width: 6;
-            stroke-linecap: round;
-            transition: stroke-dashoffset 0.8s ease;
-        }
-        .target-card .progress-circle .progress.baik { stroke: #10b981; }
-        .target-card .progress-circle .progress.cukup { stroke: #f59e0b; }
-        .target-card .progress-circle .progress.kurang { stroke: #ef4444; }
-        .target-card .progress-circle .progress.istimewa { stroke: #8b5cf6; }
-        .target-card .progress-circle .center-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 18px;
-            font-weight: 800;
-            color: white;
-        }
-        .target-card .detail {
+        .badge-link.pending { background: #f59e0b; color: #1e293b; }
+        .badge-link.done { background: #10b981; color: white; }
+        .badge-link.completed { background: #8b5cf6; color: white; }
+        .link-sosmed-section .syarat-info {
             font-size: 12px;
             color: var(--text-muted);
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
         }
-        .target-card .detail .isi {
-            color: white;
-            font-weight: 600;
-        }
-        .target-card .status {
-            display: inline-block;
-            padding: 2px 12px;
-            border-radius: var(--radius-full);
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 6px;
-        }
-        .target-card .status.selesai { background: #10b981; color: white; }
-        .target-card .status.progress { background: #f59e0b; color: #1e293b; }
-        .target-card .status.belum { background: #ef4444; color: white; }
-        .target-card .status.istimewa { background: #8b5cf6; color: white; }
-
-        @media (max-width: 768px) {
-            .dashboard-header { flex-direction: column; align-items: flex-start; }
-            .form-row { flex-direction: column; }
-            .form-row .form-group { width: 100%; }
-            .checkbox-grid { grid-template-columns: 1fr 1fr; }
-            .quran-row { grid-template-columns: 1fr; }
-            .target-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-        }
-        @media (max-width: 480px) {
-            .checkbox-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .target-grid { grid-template-columns: 1fr 1fr; }
-            .target-card .progress-circle { width: 60px; height: 60px; }
-            .target-card .progress-circle .center-text { font-size: 14px; }
+        .link-sosmed-section .syarat-info strong {
+            color: var(--primary-light);
         }
     </style>
 </head>
@@ -543,6 +238,42 @@
                 <small>Kosongkan jika tidak diisi</small>
             </div>
 
+            <!-- ============ LINK SOSMED (BARU!) ============ -->
+            <div class="link-sosmed-section" id="linkSosmedSection">
+                <div class="link-info">
+                    <div>
+                        <h3 style="font-size:1rem; display:flex; align-items:center; gap:8px;">
+                            📱 8. Upload Link Sosmed
+                            <span class="skor-indikator">(Skor: 20)</span>
+                        </h3>
+                        <p class="sub-title" style="margin-top:4px;">
+                            Upload bukti kegiatan sosial media kamu (Instagram/TikTok/YouTube)
+                        </p>
+                    </div>
+                    <div>
+                        <span class="badge-link pending" id="linkBadge">⏳ Belum</span>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top:12px;">
+                    <input type="url" id="linkSosmed" placeholder="https://www.instagram.com/... / https://www.youtube.com/..." 
+                           style="width:100%;">
+                    <small>Contoh: Link postingan Instagram, TikTok, atau YouTube</small>
+                </div>
+
+                <div class="syarat-info">
+                    <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                        <span>📌 <strong>Syarat:</strong> Minimal 1x per bulan, 2x per semester</span>
+                        <span id="linkCounter" style="color:var(--text-muted);">📊 Sudah: 0 kali</span>
+                    </div>
+                    <div style="margin-top:8px;">
+                        <span id="linkStatusText" style="color:var(--text-muted); font-size:12px;">
+                            💡 Kamu perlu upload link minimal 1 kali di bulan ini
+                        </span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Preview Skor - DISEMBUNYIKAN -->
             <div id="skorPreview" style="display:none;"></div>
 
@@ -579,23 +310,24 @@
             <div class="table-wrapper">
                 <table class="data-table history-table">
                     <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Tanggal</th>
-                            <th>Bangun</th>
-                            <th>Ibadah</th>
-                            <th>Quran</th>
-                            <th>Olahraga</th>
-                            <th>Belajar</th>
-                            <th>Makan</th>
-                            <th>Bantu Ortu</th>
-                            <th>Tidur</th>
-                            <th>Skor</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
+    <tr>
+        <th>No</th>
+        <th>Tanggal</th>
+        <th>Bangun</th>
+        <th>Ibadah</th>
+        <th>Quran</th>
+        <th>Olahraga</th>
+        <th>Belajar</th>
+        <th>Makan</th>
+        <th>Bantu Ortu</th>
+        <th>Tidur</th>
+        <th>Link</th>
+        <th>Skor</th>
+        <th>Aksi</th>
+    </tr>
+</thead>
                     <tbody id="historyTableBody">
-                        <tr class="empty-row"><td colspan="12">Loading...</td></tr>
+                        <tr class="empty-row"><td colspan="13">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -628,6 +360,7 @@
         }
     ];
 
+   
     // ============ INIT ============
     const user = getCurrentUser();
     if (!user) window.location.href = 'login.html';
@@ -644,105 +377,97 @@
     // Set today's date
     document.getElementById('tanggalKegiatan').value = new Date().toISOString().split('T')[0];
 
-   // ============ TARGET BULANAN ============
-const TARGET_PER_BULAN = 12; // Target 12 kali pengisian per bulan (3 kali per minggu)
-const BULAN_INDONESIA = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
-                         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    // ============ TARGET BULANAN ============
+    const TARGET_PER_BULAN = 12;
+    const BULAN_INDONESIA = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-function getNamaBulan(monthIndex) {
-    return BULAN_INDONESIA[monthIndex];
-}
+    function getNamaBulan(monthIndex) {
+        return BULAN_INDONESIA[monthIndex];
+    }
 
-function hitungTargetBulanan(habits) {
-    const userHabits = habits.filter(h => h.Nama === user.nama);
-    const targetData = [];
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
-    
-    // Dapatkan semua bulan yang ada data + bulan sekarang
-    const bulanDenganData = new Set();
-    userHabits.forEach(h => {
-        if (h.Tanggal_Kegiatan) {
-            const tgl = new Date(h.Tanggal_Kegiatan);
-            if (!isNaN(tgl.getTime())) {
-                bulanDenganData.add(tgl.getMonth());
+    function hitungTargetBulanan(habits) {
+        const userHabits = habits.filter(h => h.Nama === user.nama);
+        const targetData = [];
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        
+        const bulanDenganData = new Set();
+        userHabits.forEach(h => {
+            if (h.Tanggal_Kegiatan) {
+                const tgl = new Date(h.Tanggal_Kegiatan);
+                if (!isNaN(tgl.getTime())) {
+                    bulanDenganData.add(tgl.getMonth());
+                }
             }
-        }
-    });
-    
-    // Tambahkan bulan sekarang jika belum ada data
-    bulanDenganData.add(currentMonth);
-    
-    // Urutkan bulan
-    const bulanList = Array.from(bulanDenganData).sort((a, b) => a - b);
-    
-    // Ambil 6 bulan terakhir dari data yang ada
-    const bulanTerakhir = bulanList.slice(-6);
-    
-    bulanTerakhir.forEach(monthIndex => {
-        const year = currentYear;
+        });
+        bulanDenganData.add(currentMonth);
         
-        // Filter habits untuk bulan ini
-        const bulanIni = userHabits.filter(h => {
-            if (!h.Tanggal_Kegiatan) return false;
-            const tgl = new Date(h.Tanggal_Kegiatan);
-            if (isNaN(tgl.getTime())) return false;
-            return tgl.getMonth() === monthIndex && tgl.getFullYear() === year;
+        const bulanList = Array.from(bulanDenganData).sort((a, b) => a - b);
+        const bulanTerakhir = bulanList.slice(-6);
+        
+        bulanTerakhir.forEach(monthIndex => {
+            const year = currentYear;
+            
+            const bulanIni = userHabits.filter(h => {
+                if (!h.Tanggal_Kegiatan) return false;
+                const tgl = new Date(h.Tanggal_Kegiatan);
+                if (isNaN(tgl.getTime())) return false;
+                return tgl.getMonth() === monthIndex && tgl.getFullYear() === year;
+            });
+            
+            const jumlah = bulanIni.length;
+            const persentase = Math.min(100, Math.round((jumlah / TARGET_PER_BULAN) * 100));
+            
+            let status = 'belum';
+            let statusLabel = 'Belum Mencapai';
+            let progressClass = 'kurang';
+            
+            if (persentase >= 100) {
+                status = 'istimewa';
+                statusLabel = '🌟 Istimewa!';
+                progressClass = 'istimewa';
+            } else if (persentase >= 80) {
+                status = 'selesai';
+                statusLabel = '✅ Mendekati Target';
+                progressClass = 'baik';
+            } else if (persentase >= 50) {
+                status = 'progress';
+                statusLabel = '⏳ Sedang Berjalan';
+                progressClass = 'cukup';
+            } else if (persentase > 0) {
+                status = 'progress';
+                statusLabel = '⏳ Mulai Terisi';
+                progressClass = 'cukup';
+            } else {
+                status = 'belum';
+                statusLabel = '❌ Belum Terisi';
+                progressClass = 'kurang';
+            }
+            
+            if (monthIndex === currentMonth && jumlah === 0) {
+                status = 'progress';
+                statusLabel = '⏳ Belum Ada Pengisian';
+                progressClass = 'kurang';
+            }
+            
+            targetData.push({
+                month: monthIndex,
+                year: year,
+                namaBulan: getNamaBulan(monthIndex),
+                jumlah: jumlah,
+                target: TARGET_PER_BULAN,
+                persentase: persentase,
+                status: status,
+                statusLabel: statusLabel,
+                progressClass: progressClass,
+                isActive: (monthIndex === currentMonth)
+            });
         });
         
-        const jumlah = bulanIni.length;
-        const persentase = Math.min(100, Math.round((jumlah / TARGET_PER_BULAN) * 100));
-        
-        let status = 'belum';
-        let statusLabel = 'Belum Mencapai';
-        let progressClass = 'kurang';
-        
-        if (persentase >= 100) {
-            status = 'istimewa';
-            statusLabel = '🌟 Istimewa!';
-            progressClass = 'istimewa';
-        } else if (persentase >= 80) {
-            status = 'selesai';
-            statusLabel = '✅ Mendekati Target';
-            progressClass = 'baik';
-        } else if (persentase >= 50) {
-            status = 'progress';
-            statusLabel = '⏳ Sedang Berjalan';
-            progressClass = 'cukup';
-        } else if (persentase > 0) {
-            status = 'progress';
-            statusLabel = '⏳ Mulai Terisi';
-            progressClass = 'cukup';
-        } else {
-            status = 'belum';
-            statusLabel = '❌ Belum Terisi';
-            progressClass = 'kurang';
-        }
-        
-        // Jika bulan ini adalah bulan sekarang dan belum ada data
-        if (monthIndex === currentMonth && jumlah === 0) {
-            status = 'progress';
-            statusLabel = '⏳ Belum Ada Pengisian';
-            progressClass = 'kurang';
-        }
-        
-        targetData.push({
-            month: monthIndex,
-            year: year,
-            namaBulan: getNamaBulan(monthIndex),
-            jumlah: jumlah,
-            target: TARGET_PER_BULAN,
-            persentase: persentase,
-            status: status,
-            statusLabel: statusLabel,
-            progressClass: progressClass,
-            isActive: (monthIndex === currentMonth)
-        });
-    });
-    
-    return targetData;
-}
+        return targetData;
+    }
 
     function renderTarget(habits) {
         const targetData = hitungTargetBulanan(habits);
@@ -818,23 +543,13 @@ function hitungTargetBulanan(habits) {
         });
         
         container.innerHTML = html;
-
-        // Event listener untuk preview - DINONAKTIFKAN
-        // document.querySelectorAll('.ibadahCheck').forEach(cb => {
-        //     cb.addEventListener('change', previewSkor);
-        // });
     }
 
     function getCheckedIbadah() {
         return Array.from(document.querySelectorAll('.ibadahCheck:checked')).map(ch => ch.value);
     }
 
-    // ============ PREVIEW SKOR - DINONAKTIFKAN ============
-    function previewSkor() {
-        // Preview skor dinonaktifkan agar siswa lebih jujur
-        return;
-    }
-
+    // ============ GET FORM DATA ============
     function getFormData() {
         const bangun = document.getElementById('bangunPagi').value;
         const ibadahList = getCheckedIbadah();
@@ -848,10 +563,11 @@ function hitungTargetBulanan(habits) {
         const makanMalam = document.getElementById('makanMalam').value.trim();
         const bantuOrtu = document.getElementById('bantuOrtu').value.trim();
         const tidur = document.getElementById('tidurCepat').value;
+        const linkSosmed = document.getElementById('linkSosmed').value.trim();
 
         const isEmpty = !bangun && ibadahList.length === 0 && !quranSurat && !olahraga && 
                        !belajar && !makanPagi && !makanSiang && !makanMalam && 
-                       !bantuOrtu && !tidur;
+                       !bantuOrtu && !tidur && !linkSosmed;
 
         return {
             bangunWaktu: bangun || '-',
@@ -866,15 +582,141 @@ function hitungTargetBulanan(habits) {
             makanMalam: makanMalam || '-',
             bantuOrtu: bantuOrtu || '-',
             tidurWaktu: tidur || '-',
+            linkSosmed: linkSosmed || '-',
             isEmpty: isEmpty
         };
     }
 
-    // Event listeners untuk preview - DINONAKTIFKAN
-    // document.querySelectorAll('#habitForm input, #habitForm .ibadahCheck').forEach(el => {
-    //     el.addEventListener('change', previewSkor);
-    //     el.addEventListener('input', previewSkor);
-    // });
+    // ============ CEK STATUS LINK SOSMED ============
+    function cekStatusLinkSosmed(habits) {
+        const userHabits = habits.filter(h => h.Nama === user.nama);
+        const now = new Date();
+        const bulanIni = now.getMonth();
+        const tahunIni = now.getFullYear();
+        
+        // Hitung link bulan ini
+        const linkBulanIni = userHabits.filter(h => {
+            if (!h.Link_Sosmed || h.Link_Sosmed === '-' || h.Link_Sosmed === '') return false;
+            const tgl = new Date(h.Tanggal_Kegiatan);
+            return tgl.getMonth() === bulanIni && tgl.getFullYear() === tahunIni;
+        });
+        
+        // Hitung link semester ini (6 bulan terakhir)
+        const startSemester = new Date(now.getFullYear(), Math.floor(now.getMonth() / 6) * 6, 1);
+        const linkSemester = userHabits.filter(h => {
+            if (!h.Link_Sosmed || h.Link_Sosmed === '-' || h.Link_Sosmed === '') return false;
+            const tgl = new Date(h.Tanggal_Kegiatan);
+            return tgl >= startSemester;
+        });
+        
+        const countBulanIni = linkBulanIni.length;
+        const countSemester = linkSemester.length;
+        const sudahCukupSemester = countSemester >= TARGET_LINK_PER_SEMESTER;
+        
+        return {
+            countBulanIni: countBulanIni,
+            countSemester: countSemester,
+            sudahCukupSemester: sudahCukupSemester,
+            perluBulanIni: countBulanIni < TARGET_LINK_PER_BULAN,
+            totalData: userHabits.length
+        };
+    }
+
+    function updateLinkStatus(habits) {
+    const userHabits = habits.filter(h => h.Nama === user.nama);
+    const now = new Date();
+    const bulanIni = now.getMonth();
+    const tahunIni = now.getFullYear();
+    
+    console.log('📊 === UPDATE LINK STATUS ===');
+    console.log('Total habits user:', userHabits.length);
+    
+    // === CEK FIELD LINK DARI SPREADSHEET ===
+    // Perhatikan: di spreadsheet nama kolomnya "Link_sosmed" (huruf L besar, s kecil)
+    const linkBulanIni = userHabits.filter(h => {
+        // Coba berbagai kemungkinan nama field
+        const link = h.Link_sosmed || h.link_sosmed || h.Link_Sosmed || h['Link_sosmed'] || '';
+        
+        console.log('🔍 Cek link:', link, 'untuk tanggal:', h.Tanggal_Kegiatan);
+        
+        if (!link || link === '-' || link === '' || link === 'undefined') return false;
+        
+        const tgl = new Date(h.Tanggal_Kegiatan);
+        if (isNaN(tgl.getTime())) return false;
+        
+        const match = tgl.getMonth() === bulanIni && tgl.getFullYear() === tahunIni;
+        if (match) {
+            console.log('✅ Link ditemukan bulan ini:', link, 'tanggal:', h.Tanggal_Kegiatan);
+        }
+        return match;
+    });
+    
+    // Hitung link semester (6 bulan terakhir)
+    const startSemester = new Date(now.getFullYear(), Math.floor(now.getMonth() / 6) * 6, 1);
+    const linkSemester = userHabits.filter(h => {
+        const link = h.Link_sosmed || h.link_sosmed || h.Link_Sosmed || h['Link_sosmed'] || '';
+        if (!link || link === '-' || link === '' || link === 'undefined') return false;
+        
+        const tgl = new Date(h.Tanggal_Kegiatan);
+        if (isNaN(tgl.getTime())) return false;
+        
+        return tgl >= startSemester;
+    });
+    
+    const countBulanIni = linkBulanIni.length;
+    const countSemester = linkSemester.length;
+    const sudahCukupSemester = countSemester >= TARGET_LINK_PER_SEMESTER;
+    
+    console.log('📊 Status Link:', {
+        countBulanIni,
+        countSemester,
+        sudahCukupSemester,
+        linkBulanIni: linkBulanIni.map(h => ({
+            tanggal: h.Tanggal_Kegiatan,
+            link: h.Link_sosmed || h.link_sosmed
+        }))
+    });
+    
+    // === UPDATE UI ===
+    const section = document.getElementById('linkSosmedSection');
+    const badge = document.getElementById('linkBadge');
+    const counter = document.getElementById('linkCounter');
+    const statusText = document.getElementById('linkStatusText');
+    const linkInput = document.getElementById('linkSosmed');
+    
+    // Update counter
+    counter.textContent = `📊 Sudah: ${countSemester} kali (semester) / ${countBulanIni} kali (bulan ini)`;
+    
+    if (sudahCukupSemester) {
+        section.style.opacity = '0.5';
+        section.style.pointerEvents = 'none';
+        badge.textContent = '✅ Selesai';
+        badge.className = 'badge-link completed';
+        statusText.textContent = '🎉 Selamat! Kamu sudah memenuhi target 2x di semester ini!';
+        statusText.style.color = '#10b981';
+        linkInput.disabled = true;
+        linkInput.placeholder = '✅ Target semester sudah terpenuhi';
+    } else if (countBulanIni >= TARGET_LINK_PER_BULAN) {
+        section.style.opacity = '0.6';
+        section.style.pointerEvents = 'none';
+        badge.textContent = '✅ Bulan ini selesai';
+        badge.className = 'badge-link done';
+        statusText.textContent = `✅ Kamu sudah upload ${countBulanIni} kali bulan ini. Target bulan ini terpenuhi!`;
+        statusText.style.color = '#10b981';
+        linkInput.disabled = true;
+        linkInput.placeholder = '✅ Target bulan ini sudah terpenuhi';
+    } else {
+        section.style.opacity = '1';
+        section.style.pointerEvents = 'auto';
+        badge.textContent = `⏳ ${countBulanIni}/${TARGET_LINK_PER_BULAN}`;
+        badge.className = 'badge-link pending';
+        const sisa = TARGET_LINK_PER_BULAN - countBulanIni;
+        statusText.textContent = `📌 Kamu perlu upload link ${sisa} kali lagi di bulan ini (total ${TARGET_LINK_PER_SEMESTER} kali per semester)`;
+        statusText.style.color = 'var(--text-muted)';
+        linkInput.disabled = false;
+        linkInput.placeholder = 'https://www.instagram.com/... / https://www.youtube.com/...';
+    }
+}
 
     // ============ PAGINATION ============
     let currentPage = 1;
@@ -882,60 +724,66 @@ function hitungTargetBulanan(habits) {
     let allUserHabits = [];
 
     function renderHistory(habits) {
-        const userHabits = habits.filter(h => h.Nama === user.nama);
-        const tbody = document.getElementById('historyTableBody');
-        
-        if (!userHabits || userHabits.length === 0) {
-            tbody.innerHTML = `<tr class="empty-row"><td colspan="12">📭 Belum ada riwayat pengisian</td></tr>`;
-            document.getElementById('paginationControls').innerHTML = '';
-            return;
-        }
-
-        const sorted = [...userHabits].sort((a, b) => {
-            return new Date(b.Tanggal_Kegiatan) - new Date(a.Tanggal_Kegiatan);
-        });
-
-        const totalPages = Math.ceil(sorted.length / itemsPerPage);
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = Math.min(startIndex + itemsPerPage, sorted.length);
-        const currentData = sorted.slice(startIndex, endIndex);
-
-        let html = '';
-        currentData.forEach((h, idx) => {
-            const nomor = startIndex + idx + 1;
-            const skor = parseInt(h.TOTAL_SKOR) || 0;
-            const skorClass = getSkorClass(skor);
-            
-            let quranText = '-';
-            if (h.Quran_Surat && h.Quran_Surat !== '-') {
-                quranText = h.Quran_Surat;
-                if (h.Quran_Ayat && h.Quran_Ayat !== '-') quranText += ` (${h.Quran_Ayat})`;
-                if (h.Quran_Terjemah && h.Quran_Terjemah !== '-') quranText += `: ${h.Quran_Terjemah}`;
-            }
-            
-            html += `
-                <tr>
-                    <td>${nomor}</td>
-                    <td>${formatTanggal(h.Tanggal_Kegiatan)}</td>
-                    <td>${h.Bangun_Pagi_Jam || '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Bangun_Pagi_Skor || 0})</span></td>
-                    <td>${h.Ibadah_List && h.Ibadah_List !== '-' ? (h.Ibadah_List.length > 15 ? h.Ibadah_List.substring(0,15)+'...' : h.Ibadah_List) : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Ibadah_Skor || 0})</span></td>
-                    <td>${quranText} <span style="font-size:11px;color:var(--text-muted);">(${h.Quran_Skor || 0})</span></td>
-                    <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Aktivitas : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Olahraga_Skor || 0})</span></td>
-                    <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Materi : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Belajar_Skor || 0})</span></td>
-                    <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? '✓' : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Makan_Skor || 0})</span></td>
-                    <td>${h.Bantu_Ortu && h.Bantu_Ortu !== '-' ? '✓' : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Bantu_Ortu_Skor || 0})</span></td>
-                    <td>${h.Tidur_Jam || '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Tidur_Skor || 0})</span></td>
-                    <td><span class="skor-badge ${skorClass}">${skor}</span></td>
-                    <td>
-                        <button class="btn-delete-sm" onclick="deleteHabit('${h.ID || idx}', '${h.Tanggal_Kegiatan}')">🗑️</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        tbody.innerHTML = html;
-        renderPagination(totalPages);
+    const userHabits = habits.filter(h => h.Nama === user.nama);
+    const tbody = document.getElementById('historyTableBody');
+    
+    if (!userHabits || userHabits.length === 0) {
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="13">📭 Belum ada riwayat pengisian</td></tr>`;
+        document.getElementById('paginationControls').innerHTML = '';
+        return;
     }
+
+    const sorted = [...userHabits].sort((a, b) => {
+        return new Date(b.Tanggal_Kegiatan) - new Date(a.Tanggal_Kegiatan);
+    });
+
+    const totalPages = Math.ceil(sorted.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, sorted.length);
+    const currentData = sorted.slice(startIndex, endIndex);
+
+    let html = '';
+    currentData.forEach((h, idx) => {
+        const nomor = startIndex + idx + 1;
+        const skor = parseInt(h.TOTAL_SKOR) || 0;
+        const skorClass = getSkorClass(skor);
+        
+        let quranText = '-';
+        if (h.Quran_Surat && h.Quran_Surat !== '-') {
+            quranText = h.Quran_Surat;
+            if (h.Quran_Ayat && h.Quran_Ayat !== '-') quranText += ` (${h.Quran_Ayat})`;
+            if (h.Quran_Terjemah && h.Quran_Terjemah !== '-') quranText += `: ${h.Quran_Terjemah}`;
+        }
+        
+        // Tampilkan Link dengan skor
+        const linkText = h.Link_sosmed && h.Link_sosmed !== '-' && h.Link_sosmed !== '' 
+            ? `<a href="${h.Link_sosmed}" target="_blank" style="color:var(--primary-light); text-decoration:underline; font-size:11px;">🔗 Link</a> <span style="font-size:11px;color:var(--text-muted);">(${h.Skor_Link || 0})</span>` 
+            : '-';
+        
+        html += `
+            <tr>
+                <td>${nomor}</td>
+                <td>${formatTanggal(h.Tanggal_Kegiatan)}</td>
+                <td>${h.Bangun_Pagi_Jam || '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Bangun_Pagi_Skor || 0})</span></td>
+                <td>${h.Ibadah_List && h.Ibadah_List !== '-' ? (h.Ibadah_List.length > 15 ? h.Ibadah_List.substring(0,15)+'...' : h.Ibadah_List) : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Ibadah_Skor || 0})</span></td>
+                <td>${quranText} <span style="font-size:11px;color:var(--text-muted);">(${h.Quran_Skor || 0})</span></td>
+                <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Aktivitas : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Olahraga_Skor || 0})</span></td>
+                <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Materi : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Belajar_Skor || 0})</span></td>
+                <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? '✓' : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Makan_Skor || 0})</span></td>
+                <td>${h.Bantu_Ortu && h.Bantu_Ortu !== '-' ? '✓' : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Bantu_Ortu_Skor || 0})</span></td>
+                <td>${h.Tidur_Jam || '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Tidur_Skor || 0})</span></td>
+                <td>${linkText}</td>
+                <td><span class="skor-badge ${skorClass}">${skor}</span></td>
+                <td>
+                    <button class="btn-delete-sm" onclick="deleteHabit('${h.ID || idx}', '${h.Tanggal_Kegiatan}')">🗑️</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = html;
+    renderPagination(totalPages);
+}
 
     function renderPagination(totalPages) {
         const container = document.getElementById('paginationControls');
@@ -978,25 +826,48 @@ function hitungTargetBulanan(habits) {
         }
     }
 
-    // ============ LOAD DATA ============
-    async function loadData() {
-        showLoading(true);
-        try {
-            const result = await getHabitsFromSheet(true);
-            if (result.success) {
-                allUserHabits = result.data || [];
-                currentPage = 1;
-                renderHistory(allUserHabits);
-                updateStats(allUserHabits);
-                renderTarget(allUserHabits);
-            } else {
-                console.error('Load data error:', result);
-            }
-        } catch (e) {
-            console.error('Load data error:', e);
+   // ============ LOAD DATA ============
+async function loadData() {
+    showLoading(true);
+    try {
+        // === FORCE REFRESH DARI SPREADSHEET ===
+        const result = await getHabitsFromSheet(true);
+        
+        if (result.success) {
+            allUserHabits = result.data || [];
+            console.log('📥 Data loaded:', allUserHabits.length, 'entries');
+            
+            // === DEBUG: TAMPILKAN DATA LINK USER ===
+            const userHabits = allUserHabits.filter(h => h.Nama === user.nama);
+            console.log('👤 User habits:', userHabits.length);
+            
+            // Tampilkan semua data link dari user
+            userHabits.forEach((h, idx) => {
+                const link = h.Link_sosmed || h.link_sosmed || h.Link_Sosmed || h['Link_sosmed'] || '';
+                console.log(`  ${idx+1}. ${h.Tanggal_Kegiatan} -> Link: "${link}" | Skor_Link: ${h.Skor_Link || h.skor_link || 0}`);
+            });
+            
+            // === UPDATE SEMUA KOMPONEN ===
+            currentPage = 1;
+            renderHistory(allUserHabits);
+            updateStats(allUserHabits);
+            renderTarget(allUserHabits);
+            
+            // === UPDATE LINK STATUS DENGAN DATA TERBARU ===
+            setTimeout(() => {
+                updateLinkStatus(allUserHabits);
+            }, 300);
+            
+        } else {
+            console.error('Load data error:', result);
+            showToast('❌ Gagal memuat data', 'error');
         }
-        showLoading(false);
+    } catch (e) {
+        console.error('Load data error:', e);
+        showToast('❌ Error: ' + e.message, 'error');
     }
+    showLoading(false);
+}
 
     // ============ UPDATE STATS ============
     function updateStats(habits) {
@@ -1041,89 +912,135 @@ function hitungTargetBulanan(habits) {
     }
 
     // ============ SUBMIT FORM ============
-    document.getElementById('habitForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const tanggalKegiatan = document.getElementById('tanggalKegiatan').value;
-        if (!tanggalKegiatan) {
-            showToast('⚠️ Pilih tanggal kegiatan!', 'warning');
+document.getElementById('habitForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const tanggalKegiatan = document.getElementById('tanggalKegiatan').value;
+    if (!tanggalKegiatan) {
+        showToast('⚠️ Pilih tanggal kegiatan!', 'warning');
+        return;
+    }
+
+    const isDuplicate = await cekDuplikasiTanggal(tanggalKegiatan);
+    if (isDuplicate) {
+        showToast('⚠️ Tanggal ini sudah diisi! Pilih tanggal lain.', 'warning');
+        return;
+    }
+
+    const tanggalFormatted = formatTanggal(tanggalKegiatan);
+    const ibadahList = getCheckedIbadah();
+    const formData = getFormData();
+    
+    // Hitung skor kebiasaan
+    const skorKebiasaan = hitungSkor(formData);
+    
+    // === PERBAIKAN: Ambil link dari input dengan benar ===
+    const linkInput = document.getElementById('linkSosmed');
+    const linkSosmed = linkInput ? linkInput.value.trim() : '';
+    
+    let skorLink = 0;
+    let linkValid = false;
+    
+    // Cek apakah link diisi DAN valid
+    if (linkSosmed && linkSosmed !== '' && linkSosmed !== '-') {
+        // Validasi link
+        if (linkSosmed.startsWith('http://') || linkSosmed.startsWith('https://')) {
+            skorLink = LINK_SOSMED_NILAI; // 20
+            linkValid = true;
+        } else {
+            showToast('⚠️ Link harus diawali http:// atau https://', 'warning');
             return;
         }
+    }
+    
+    // Total skor = skor kebiasaan + skor link (jika valid)
+    const totalSkor = skorKebiasaan.total + skorLink;
+    
+    // === PERBAIKAN: Pastikan data terkirim dengan benar ===
+    const data = {
+        ID: generateId(),
+        Timestamp: new Date().toISOString(),
+        Tanggal_Kegiatan: tanggalFormatted,
+        Nama: user.nama,
+        Kelas: user.kelas || '-',
+        Bangun_Pagi_Jam: document.getElementById('bangunPagi').value || '-',
+        Bangun_Pagi_Skor: skorKebiasaan.skorBangun,
+        Ibadah_List: ibadahList.join(', ') || '-',
+        Ibadah_Jumlah: ibadahList.length,
+        Ibadah_Skor: skorKebiasaan.skorIbadah,
+        Quran_Surat: document.getElementById('quranSurat').value.trim() || '-',
+        Quran_Ayat: document.getElementById('quranAyat').value.trim() || '-',
+        Quran_Terjemah: document.getElementById('quranTerjemah').value.trim() || '-',
+        Quran_Skor: skorKebiasaan.skorQuran,
+        Olahraga_Waktu: document.getElementById('olahragaWaktu').value.trim() || '-',
+        Olahraga_Aktivitas: document.getElementById('olahragaAktivitas').value.trim() || '-',
+        Olahraga_Skor: skorKebiasaan.skorOlahraga,
+        Belajar_Waktu: document.getElementById('belajarWaktu').value.trim() || '-',
+        Belajar_Materi: document.getElementById('belajarMateri').value.trim() || '-',
+        Belajar_Skor: skorKebiasaan.skorBelajar,
+        Makan_Pagi: document.getElementById('makanPagi').value.trim() || '-',
+        Makan_Siang: document.getElementById('makanSiang').value.trim() || '-',
+        Makan_Malam: document.getElementById('makanMalam').value.trim() || '-',
+        Makan_Skor: skorKebiasaan.skorMakan,
+        Bantu_Ortu: document.getElementById('bantuOrtu').value.trim() || '-',
+        Bantu_Ortu_Skor: skorKebiasaan.skorBantuOrtu,
+        Tidur_Jam: document.getElementById('tidurCepat').value || '-',
+        Tidur_Skor: skorKebiasaan.skorTidur,
+        Link_sosmed: linkValid ? linkSosmed : '',  // KIRIM LINK jika valid
+        Skor_Link: skorLink,                       // KIRIM SKOR LINK
+        TOTAL_SKOR: totalSkor
+    };
 
-        const isDuplicate = await cekDuplikasiTanggal(tanggalKegiatan);
-        if (isDuplicate) {
-            showToast('⚠️ Tanggal ini sudah diisi! Pilih tanggal lain.', 'warning');
-            return;
-        }
+    // DEBUG: Cek data sebelum submit
+    console.log('Data yang akan dikirim:', data);
+    console.log('Link_sosmed:', data.Link_sosmed);
+    console.log('Skor_Link:', data.Skor_Link);
+    console.log('TOTAL_SKOR:', data.TOTAL_SKOR);
 
-        const tanggalFormatted = formatTanggal(tanggalKegiatan);
-        const ibadahList = getCheckedIbadah();
-        const formData = getFormData();
-        const skor = hitungSkor(formData);
-        
-        const data = {
-            ID: generateId(),
-            Timestamp: new Date().toISOString(),
-            Tanggal_Kegiatan: tanggalFormatted,
-            Nama: user.nama,
-            Kelas: user.kelas || '-',
-            Bangun_Pagi_Jam: document.getElementById('bangunPagi').value || '-',
-            Bangun_Pagi_Skor: skor.skorBangun,
-            Ibadah_List: ibadahList.join(', ') || '-',
-            Ibadah_Jumlah: ibadahList.length,
-            Ibadah_Skor: skor.skorIbadah,
-            Quran_Surat: document.getElementById('quranSurat').value.trim() || '-',
-            Quran_Ayat: document.getElementById('quranAyat').value.trim() || '-',
-            Quran_Terjemah: document.getElementById('quranTerjemah').value.trim() || '-',
-            Quran_Skor: skor.skorQuran,
-            Olahraga_Waktu: document.getElementById('olahragaWaktu').value.trim() || '-',
-            Olahraga_Aktivitas: document.getElementById('olahragaAktivitas').value.trim() || '-',
-            Olahraga_Skor: skor.skorOlahraga,
-            Belajar_Waktu: document.getElementById('belajarWaktu').value.trim() || '-',
-            Belajar_Materi: document.getElementById('belajarMateri').value.trim() || '-',
-            Belajar_Skor: skor.skorBelajar,
-            Makan_Pagi: document.getElementById('makanPagi').value.trim() || '-',
-            Makan_Siang: document.getElementById('makanSiang').value.trim() || '-',
-            Makan_Malam: document.getElementById('makanMalam').value.trim() || '-',
-            Makan_Skor: skor.skorMakan,
-            Bantu_Ortu: document.getElementById('bantuOrtu').value.trim() || '-',
-            Bantu_Ortu_Skor: skor.skorBantuOrtu,
-            Tidur_Jam: document.getElementById('tidurCepat').value || '-',
-            Tidur_Skor: skor.skorTidur,
-            TOTAL_SKOR: skor.total
-        };
+    showLoading(true);
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Menyimpan...';
 
-        showLoading(true);
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.textContent = '⏳ Menyimpan...';
+    try {
+        const result = await submitHabitToSheet(data);
+        showLoading(false);
+        btn.disabled = false;
+        btn.textContent = '💾 Simpan Kebiasaan';
 
-        try {
-            const result = await submitHabitToSheet(data);
-            showLoading(false);
-            btn.disabled = false;
-            btn.textContent = '💾 Simpan Kebiasaan';
-
-            if (result.success) {
-                const kategori = getKategori(skor.total);
-                showToast(`✅ Berhasil! Skor: ${skor.total} - ${kategori.icon} ${kategori.label}`, 'success');
-                
-                document.getElementById('habitForm').reset();
-                document.getElementById('tanggalKegiatan').value = new Date().toISOString().split('T')[0];
-                buildIbadahChecklist();
-                document.getElementById('skorPreview').style.display = 'none';
-                
-                await loadData();
-            } else {
-                showToast('❌ Gagal menyimpan data!', 'error');
+        if (result.success) {
+            const kategori = getKategori(totalSkor);
+            let msg = `✅ Berhasil! Skor: ${totalSkor} - ${kategori.icon} ${kategori.label}`;
+            if (skorLink > 0) {
+                msg += ` (+${skorLink} dari Link Sosmed)`;
             }
-        } catch (e) {
-            showLoading(false);
-            btn.disabled = false;
-            btn.textContent = '💾 Simpan Kebiasaan';
-            showToast('❌ Error: ' + e.message, 'error');
+            showToast(msg, 'success');
+            
+            // Reset form
+            document.getElementById('habitForm').reset();
+            document.getElementById('tanggalKegiatan').value = new Date().toISOString().split('T')[0];
+            buildIbadahChecklist();
+            
+            // Reset link input
+            const linkInputReset = document.getElementById('linkSosmed');
+            if (linkInputReset) {
+                linkInputReset.value = '';
+                linkInputReset.disabled = false;
+            }
+            
+            document.getElementById('skorPreview').style.display = 'none';
+            
+            await loadData();
+        } else {
+            showToast('❌ Gagal menyimpan data!', 'error');
         }
-    });
+    } catch (e) {
+        showLoading(false);
+        btn.disabled = false;
+        btn.textContent = '💾 Simpan Kebiasaan';
+        showToast('❌ Error: ' + e.message, 'error');
+    }
+});
 
     // ============ REFRESH ============
     document.getElementById('refreshHistoryBtn').addEventListener('click', loadData);
@@ -1131,8 +1048,9 @@ function hitungTargetBulanan(habits) {
     // ============ INIT ============
     buildIbadahChecklist();
     loadData();
-    // Preview skor dinonaktifkan
-    // setTimeout(previewSkor, 500);
+
+    // Auto-disable link input jika sudah cukup
+    // Status akan diupdate oleh loadData()
 </script>
 </body>
 </html>
