@@ -7,51 +7,51 @@
 function hitungSkor(data) {
     const S = CONFIG.SCORING;
     
-    // 1. Bangun Pagi (objektif berdasarkan jam)
+    // 1. Bangun Pagi
     let skorBangun = 0;
     if (data.bangunWaktu && data.bangunWaktu !== '-' && data.bangunWaktu !== '') {
         const jam = parseInt(data.bangunWaktu.split(':')[0]);
         if (jam >= 3 && jam < 5) skorBangun = S.BANGUN_PAGI.jam_3_5;
         else if (jam >= 5 && jam < 6) skorBangun = S.BANGUN_PAGI.jam_5_6;
-        else if (jam >= 6) skorBangun = 0; // Terlambat
+        else if (jam >= 6) skorBangun = 0;
     }
     
-    // 2. Ibadah (objektif berdasarkan jumlah yang dicentang)
+    // 2. Ibadah
     const skorIbadah = Math.min(data.ibadahList.length, S.IBADAH.max);
     
-    // 3. Baca Quran (objektif: ada/tidak)
+    // 3. Baca Quran
     let skorQuran = 0;
     if (data.quranSurat && data.quranSurat !== '-' && data.quranSurat !== '' &&
         data.quranAyat && data.quranAyat !== '-' && data.quranAyat !== '') {
         skorQuran = S.QURAN.nilai;
     }
     
-    // 4. Olahraga (objektif: ada/tidak)
+    // 4. Olahraga
     let skorOlahraga = 0;
     if (data.olahragaAktivitas && data.olahragaAktivitas !== '-' && data.olahragaAktivitas !== '') {
         skorOlahraga = S.OLAHRAGA.nilai;
     }
     
-    // 5. Belajar (objektif: ada/tidak)
+    // 5. Belajar
     let skorBelajar = 0;
     if (data.belajarMateri && data.belajarMateri !== '-' && data.belajarMateri !== '') {
         skorBelajar = S.BELAJAR.nilai;
     }
     
-    // 6. Makan Sehat (objektif: jumlah makanan yang diisi)
+    // 6. Makan Sehat
     let skorMakan = 0;
     if (data.makanPagi && data.makanPagi !== '-' && data.makanPagi !== '') skorMakan++;
     if (data.makanSiang && data.makanSiang !== '-' && data.makanSiang !== '') skorMakan++;
     if (data.makanMalam && data.makanMalam !== '-' && data.makanMalam !== '') skorMakan++;
     skorMakan = Math.min(skorMakan, S.MAKAN.max);
     
-    // 7. Bantu Orang Tua (objektif: ada/tidak)
+    // 7. Bantu Orang Tua
     let skorBantuOrtu = 0;
     if (data.bantuOrtu && data.bantuOrtu !== '-' && data.bantuOrtu !== '') {
         skorBantuOrtu = S.BANTU_ORTU.nilai;
     }
     
-    // 8. Tidur (objektif berdasarkan jam)
+    // 8. Tidur
     let skorTidur = 0;
     if (data.tidurWaktu && data.tidurWaktu !== '-' && data.tidurWaktu !== '') {
         const jam = parseInt(data.tidurWaktu.split(':')[0]);
@@ -59,7 +59,10 @@ function hitungSkor(data) {
         else if (jam > 22) skorTidur = S.TIDUR.default;
     }
     
-    // Total skor (maksimal 20)
+    // 9. Link Sosmed - Dihitung terpisah di submit
+    // (tidak dihitung di sini karena nilainya fixed 20)
+    
+    // Total skor (maksimal 20, tanpa link)
     const total = skorBangun + skorIbadah + skorQuran + skorOlahraga + 
                   skorBelajar + skorMakan + skorBantuOrtu + skorTidur;
     
@@ -85,6 +88,8 @@ function hitungSkor(data) {
         }
     };
 }
+
+// ... rest of functions tetap sama ...
 
 /**
  * Dapatkan kategori berdasarkan skor
