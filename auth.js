@@ -1,6 +1,5 @@
 // ============ SISTEM AUTENTIKASI ============
 
-// Cek session
 function checkAuth() {
     const user = localStorage.getItem('currentUser');
     const isAdmin = localStorage.getItem('isAdmin');
@@ -18,7 +17,6 @@ function checkAuth() {
     return false;
 }
 
-// Login User dengan NISN
 async function loginUser(nisn) {
     try {
         const result = await getUsersFromSheet();
@@ -46,7 +44,6 @@ async function loginUser(nisn) {
     }
 }
 
-// Login Admin
 function loginAdmin(username, password) {
     if (username === CONFIG.ADMIN.username && password === CONFIG.ADMIN.password) {
         localStorage.setItem('isAdmin', 'true');
@@ -55,20 +52,17 @@ function loginAdmin(username, password) {
     return { success: false, message: 'Username atau password salah!' };
 }
 
-// Logout
 function logout() {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('isAdmin');
     window.location.href = 'index.html';
 }
 
-// Get current user
 function getCurrentUser() {
     const data = localStorage.getItem('currentUser');
     return data ? JSON.parse(data) : null;
 }
 
-// Get all users from sheet
 async function getUsersFromSheet() {
     try {
         const url = CONFIG.APPS_SCRIPT_URL + '?action=getUsers';
