@@ -1,7 +1,7 @@
 // ============ KONFIGURASI GLOBAL ============
 const CONFIG = {
     // GANTI DENGAN URL DEPLOY ANDA!
-    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyXpKPO-A5SZwfa2NA-pXQRKyKF1Q2cvGGv-fuB36MkhAK0dqsPTc80y9ImWFygqsgg/exec',
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyOzROcm6eS9J-UAXeEqKCAjmFYoYc4j3Pe5IbZUphxGudwCI0jBHDaFa-FjWeDdDpiIw/exec',
     
     // Admin Credentials
     ADMIN: {
@@ -39,6 +39,11 @@ const CONFIG = {
         TIDUR: {
             jam_20_22: 2,
             default: 1
+        },
+        LINK_SOSMED: {
+            nilai: 20,
+            target_per_bulan: 1,
+            target_per_semester: 2
         }
     },
     
@@ -48,3 +53,8 @@ const CONFIG = {
         hari_bulan: 30
     }
 };
+
+// Konstanta untuk Link Sosmed
+const LINK_SOSMED_NILAI = 20;
+const TARGET_LINK_PER_BULAN = 1;
+const TARGET_LINK_PER_SEMESTER = 2;
