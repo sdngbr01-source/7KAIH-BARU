@@ -406,3 +406,111 @@ small {
     .stat-card { padding: 15px; }
     .stat-value { font-size: 24px; }
 }
+
+/* ============ TARGET BULANAN ============ */
+.target-section {
+    margin-top: 30px;
+}
+.target-section .target-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.target-section .target-header h3 {
+    font-size: 1.2rem;
+}
+.target-section .target-header .target-info {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.target-section .target-header .target-info strong {
+    color: var(--primary-light);
+}
+.target-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+.target-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    text-align: center;
+    border: 1px solid var(--border-glass);
+    transition: all 0.3s;
+}
+.target-card:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateY(-3px);
+}
+.target-card .bulan {
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 8px;
+}
+.target-card .progress-circle {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 10px;
+}
+.target-card .progress-circle svg {
+    transform: rotate(-90deg);
+}
+.target-card .progress-circle .bg {
+    fill: none;
+    stroke: rgba(255,255,255,0.1);
+    stroke-width: 6;
+}
+.target-card .progress-circle .progress {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s ease;
+}
+/* === WARNA PROGRESS BERDASARKAN PERSENTASE === */
+.target-card .progress-circle .progress.istimewa { 
+    stroke: #8b5cf6; 
+}
+.target-card .progress-circle .progress.baik { 
+    stroke: #10b981; 
+}
+.target-card .progress-circle .progress.cukup { 
+    stroke: #f59e0b; 
+}
+.target-card .progress-circle .progress.kurang { 
+    stroke: #ef4444; 
+}
+.target-card .progress-circle .center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    font-weight: 800;
+    color: white;
+}
+.target-card .detail {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.target-card .detail .isi {
+    color: white;
+    font-weight: 600;
+}
+.target-card .status {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 6px;
+}
+.target-card .status.selesai { background: #10b981; color: white; }
+.target-card .status.progress { background: #f59e0b; color: #1e293b; }
+.target-card .status.belum { background: #ef4444; color: white; }
+.target-card .status.istimewa { background: #8b5cf6; color: white; }
