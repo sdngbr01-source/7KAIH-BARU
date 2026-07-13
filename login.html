@@ -367,14 +367,7 @@
         }
     })();
 
-    // Check if already logged in
-    if (localStorage.getItem('currentUser')) {
-        window.location.href = 'user-dashboard.html';
-    }
-    if (localStorage.getItem('isAdmin') === 'true') {
-        window.location.href = 'admin-dashboard.html';
-    }
-
+  
     // ============ NISN VALIDATION ============
     let nisnTimeout = null;
     const nisnInput = document.getElementById('userNISN');
