@@ -22,6 +22,27 @@ async function getHabitsFromSheet(forceRefresh = false) {
         const url = CONFIG.APPS_SCRIPT_URL + '?action=getHabits' + (forceRefresh ? '&refresh=true' : '');
         const response = await fetch(url);
         const result = await response.json();
+        
+        // === FORMAT ULANG DATA WAKTU ===
+        if (result.success && result.data) {
+            result.data = result.data.map(habit => {
+                // Format semua field waktu dengan formatTimeDisplay
+                if (habit.Bangun_Pagi_Jam !== undefined) {
+                    habit.Bangun_Pagi_Jam = formatTimeDisplay(habit.Bangun_Pagi_Jam);
+                }
+                if (habit.Tidur_Jam !== undefined) {
+                    habit.Tidur_Jam = formatTimeDisplay(habit.Tidur_Jam);
+                }
+                if (habit.Olahraga_Waktu !== undefined) {
+                    habit.Olahraga_Waktu = formatTimeDisplay(habit.Olahraga_Waktu);
+                }
+                if (habit.Belajar_Waktu !== undefined) {
+                    habit.Belajar_Waktu = formatTimeDisplay(habit.Belajar_Waktu);
+                }
+                return habit;
+            });
+        }
+        
         return result;
     } catch (error) {
         return { success: false, error: error.message };
