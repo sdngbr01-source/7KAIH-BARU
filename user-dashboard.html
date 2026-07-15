@@ -765,17 +765,19 @@
             <tr>
                 <td>${nomor}</td>
                 <td>${formatTanggal(h.Tanggal_Kegiatan)}</td>
-                <td>${h.Bangun_Pagi_Jam || '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Bangun_Pagi_Skor || 0})</span></td>
+                <td>${formatTimeDisplay(h.Bangun_Pagi_Jam)} <span style="font-size:11px;color:var(--text-muted);">(${h.Bangun_Pagi_Skor || 0})</span></td>
                 <td>${h.Ibadah_List && h.Ibadah_List !== '-' ? (h.Ibadah_List.length > 15 ? h.Ibadah_List.substring(0,15)+'...' : h.Ibadah_List) : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Ibadah_Skor || 0})</span></td>
                 <td>${quranText} <span style="font-size:11px;color:var(--text-muted);">(${h.Quran_Skor || 0})</span></td>
-                <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Aktivitas : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Olahraga_Skor || 0})</span></td>
-                <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Materi : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Belajar_Skor || 0})</span></td>
+                <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Aktivitas : '-'} ${formatTimeDisplay(h.Olahraga_Waktu) !== '-' ? `(${formatTimeDisplay(h.Olahraga_Waktu)})` : ''} <span style="font-size:11px;color:var(--text-muted);">(${h.Olahraga_Skor || 0})</span></td>
+               <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Materi : '-'} ${formatTimeDisplay(h.Belajar_Waktu) !== '-' ? `(${formatTimeDisplay(h.Belajar_Waktu)})` : ''} <span style="font-size:11px;color:var(--text-muted);">(${h.Belajar_Skor || 0})</span></td>
                 <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? '✓' : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Makan_Skor || 0})</span></td>
                 <td>${h.Bantu_Ortu && h.Bantu_Ortu !== '-' ? '✓' : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Bantu_Ortu_Skor || 0})</span></td>
-                <td>${h.Tidur_Jam || '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Tidur_Skor || 0})</span></td>
+                <td>${formatTimeDisplay(h.Tidur_Jam)} <span style="font-size:11px;color:var(--text-muted);">(${h.Tidur_Skor || 0})</span></td>
                 <td>${linkText}</td>
                 <td><span class="skor-badge ${skorClass}">${skor}</span></td>
                 <td>
+                    <button class="btn-delete-sm" onclick="deleteHabit('${h.ID || idx}', '${h.Tanggal_Kegiatan}')">🗑️</button>
+                </td>
                     <button class="btn-delete-sm" onclick="deleteHabit('${h.ID || idx}', '${h.Tanggal_Kegiatan}')">🗑️</button>
                 </td>
             </tr>
