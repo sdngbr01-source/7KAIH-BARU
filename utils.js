@@ -112,3 +112,130 @@ function formatWaktu(jam) {
     }
     return jam;
 }
+
+
+
+// ============ FORMAT WAKTU KHUSUS UNTUK SPREADSHEET ============
+
+/**
+ * Format waktu dari berbagai format ke HH:mm
+ * KHUSUS untuk menangani format dari Google Sheets
+ */
+function formatTimeDisplay(timeValue) {
+    // Jika null/undefined/kosong
+    if (!timeValue || timeValue === '-' || timeValue === '' || timeValue === 'undefined' || timeValue === 'null') {
+        return '-';
+    }
+    
+    // Jika sudah dalam format HH:mm
+    if (/^\d{2}:\d{2}$/.test(timeValue)) {
+        return timeValue;
+    }
+    
+    // Jika angka (misal dari spreadsheet: 0.2 = 04:48)
+    if (typeof timeValue === 'number') {
+        try {
+            const totalMinutes = Math.round(timeValue * 24 * 60);
+            const hours = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+            const minutes = String(totalMinutes % 60).padStart(2, '0');
+            return hours + ':' + minutes;
+        } catch (e) {
+            // ignore
+        }
+    }
+    
+    // Jika string dengan format ISO (1899-12-30T13:52:48.000Z)
+    if (typeof timeValue === 'string' && timeValue.includes('T')) {
+        try {
+            const date = new Date(timeValue);
+            if (!isNaN(date.getTime())) {
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return hours + ':' + minutes;
+            }
+        } catch (e) {
+            // ignore
+        }
+    }
+    
+    // Jika string waktu lainnya (contoh: "4:30")
+    if (typeof timeValue === 'string' && /^\d{1,2}:\d{2}$/.test(timeValue)) {
+        const parts = timeValue.split(':');
+        const hours = String(parseInt(parts[0])).padStart(2, '0');
+        const minutes = String(parseInt(parts[1])).padStart(2, '0');
+        return hours + ':' + minutes;
+    }
+    
+    // Jika dalam format datetime lain
+    try {
+        const date = new Date(timeValue);
+        if (!isNaN(date.getTime())) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return hours + ':' + minutes;
+        }
+    } catch (e) {
+        // ignore
+    }
+    
+    return String(timeValue);
+}
+
+/**
+ * Format waktu untuk disimpan ke spreadsheet (HH:mm)
+ */
+function formatTimeForSheet(timeValue) {
+    if (!timeValue || timeValue === '-' || timeValue === '' || timeValue === 'undefined') {
+        return '';
+    }
+    
+    // Jika sudah dalam format HH:mm
+    if (/^\d{2}:\d{2}$/.test(timeValue)) {
+        return timeValue;
+    }
+    
+    // Jika dalam format "4:30" (tanpa leading zero)
+    if (typeof timeValue === 'string' && /^\d{1,2}:\d{2}$/.test(timeValue)) {
+        const parts = timeValue.split(':');
+        const hours = String(parseInt(parts[0])).padStart(2, '0');
+        const minutes = String(parseInt(parts[1])).padStart(2, '0');
+        return hours + ':' + minutes;
+    }
+    
+    // Jika dalam format ISO, ekstrak jam:menit
+    if (typeof timeValue === 'string' && timeValue.includes('T')) {
+        const parts = timeValue.split('T');
+        if (parts.length > 1) {
+            const timePart = parts[1].substring(0, 5);
+            if (/^\d{2}:\d{2}$/.test(timePart)) {
+                return timePart;
+            }
+        }
+    }
+    
+    // Jika angka (nilai desimal dari spreadsheet)
+    if (typeof timeValue === 'number') {
+        try {
+            const totalMinutes = Math.round(timeValue * 24 * 60);
+            const hours = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+            const minutes = String(totalMinutes % 60).padStart(2, '0');
+            return hours + ':' + minutes;
+        } catch (e) {
+            // ignore
+        }
+    }
+    
+    // Jika dalam format datetime lain
+    try {
+        const date = new Date(timeValue);
+        if (!isNaN(date.getTime())) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return hours + ':' + minutes;
+        }
+    } catch (e) {
+        // ignore
+    }
+    
+    return String(timeValue);
+}
