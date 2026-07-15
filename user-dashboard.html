@@ -914,6 +914,69 @@ async function loadData() {
         }
     }
 
+// ============ VALIDASI TANGGAL ============
+function isValidTanggal(tanggal) {
+    if (!tanggal) return false;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const selectedDate = new Date(tanggal);
+    selectedDate.setHours(0, 0, 0, 0);
+    
+    // Hitung selisih hari
+    const diffTime = today.getTime() - selectedDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Tidak boleh lebih dari 7 hari yang lalu
+    if (diffDays > 7) {
+        return {
+            valid: false,
+            message: `⚠️ Tanggal ${formatTanggal(tanggal)} sudah lewat ${diffDays} hari yang lalu. Maksimal 7 hari ke belakang.`
+        };
+    }
+    
+    // Tidak boleh di masa depan
+    if (diffDays < 0) {
+        return {
+            valid: false,
+            message: '⚠️ Tidak boleh mengisi tanggal di masa depan!'
+        };
+    }
+    
+    return {
+        valid: true,
+        message: null
+    };
+}
+
+// ============ VALIDASI TANGGAL REAL-TIME ============
+document.getElementById('tanggalKegiatan').addEventListener('change', function() {
+    const tanggal = this.value;
+    if (!tanggal) return;
+    
+    // Hapus warning lama
+    const existingWarning = document.querySelector('.tanggal-warning');
+    if (existingWarning) existingWarning.remove();
+    
+    const validasi = isValidTanggal(tanggal);
+    if (!validasi.valid) {
+        const warning = document.createElement('small');
+        warning.className = 'tanggal-warning';
+        warning.style.cssText = 'color: #ef4444; display: block; margin-top: 5px; font-weight: 600;';
+        warning.textContent = validasi.message;
+        
+        const formGroup = this.closest('.form-group');
+        formGroup.appendChild(warning);
+        this.style.borderColor = '#ef4444';
+    } else {
+        this.style.borderColor = '';
+    }
+});
+
+// Panggil saat inisialisasi
+setDateLimit();
+    
     // ============ SUBMIT FORM ============
 document.getElementById('habitForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -921,6 +984,13 @@ document.getElementById('habitForm').addEventListener('submit', async (e) => {
     const tanggalKegiatan = document.getElementById('tanggalKegiatan').value;
     if (!tanggalKegiatan) {
         showToast('⚠️ Pilih tanggal kegiatan!', 'warning');
+        return;
+    }
+
+    // === VALIDASI TANGGAL (MAKSIMAL 7 HARI YANG LALU) ===
+    const validasiTanggal = isValidTanggal(tanggalKegiatan);
+    if (!validasiTanggal.valid) {
+        showToast(validasiTanggal.message, 'warning');
         return;
     }
 
@@ -1049,6 +1119,7 @@ document.getElementById('habitForm').addEventListener('submit', async (e) => {
     document.getElementById('refreshHistoryBtn').addEventListener('click', loadData);
 
     // ============ INIT ============
+    setDateLimit();
     buildIbadahChecklist();
     loadData();
 
