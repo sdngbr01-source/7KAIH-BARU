@@ -210,14 +210,14 @@
                         <th>Tanggal</th>
                         <th>Nama</th>
                         <th>Kelas</th>
-                        <th>Bangun</th>
+                        <th>Bangun (Jam)</th>
                         <th>Ibadah</th>
                         <th>Quran</th>
                         <th>Olahraga</th>
                         <th>Belajar</th>
                         <th>Makan</th>
                         <th>Bantu</th>
-                        <th>Tidur</th>
+                        <th>Tidur (Jam)</th>
                         <th>Link</th>
                         <th>Skor Link</th>
                         <th>Total</th>
@@ -344,11 +344,69 @@
 </div>
 
 <script>
+    
     // ============ INIT ============
     if (localStorage.getItem('isAdmin') !== 'true') {
         window.location.href = 'login.html';
     }
-
+function formatTimeDisplay(timeValue) {
+    if (!timeValue || timeValue === '-' || timeValue === '' || timeValue === 'undefined' || timeValue === 'null') {
+        return '-';
+    }
+    
+    // Jika sudah dalam format HH:mm
+    if (/^\d{2}:\d{2}$/.test(timeValue)) {
+        return timeValue;
+    }
+    
+    // Jika angka (misal dari spreadsheet: 0.2 = 04:48)
+    if (typeof timeValue === 'number') {
+        try {
+            const totalMinutes = Math.round(timeValue * 24 * 60);
+            const hours = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+            const minutes = String(totalMinutes % 60).padStart(2, '0');
+            return hours + ':' + minutes;
+        } catch (e) {
+            // ignore
+        }
+    }
+    
+    // Jika string dengan format ISO (1899-12-30T13:52:48.000Z)
+    if (typeof timeValue === 'string' && timeValue.includes('T')) {
+        try {
+            const date = new Date(timeValue);
+            if (!isNaN(date.getTime())) {
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return hours + ':' + minutes;
+            }
+        } catch (e) {
+            // ignore
+        }
+    }
+    
+    // Jika string waktu lainnya (contoh: "4:30")
+    if (typeof timeValue === 'string' && /^\d{1,2}:\d{2}$/.test(timeValue)) {
+        const parts = timeValue.split(':');
+        const hours = String(parseInt(parts[0])).padStart(2, '0');
+        const minutes = String(parseInt(parts[1])).padStart(2, '0');
+        return hours + ':' + minutes;
+    }
+    
+    // Jika dalam format datetime lain
+    try {
+        const date = new Date(timeValue);
+        if (!isNaN(date.getTime())) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return hours + ':' + minutes;
+        }
+    } catch (e) {
+        // ignore
+    }
+    
+    return String(timeValue);
+}
     // ============ DASHBOARD ============
     async function loadDashboard() {
         try {
@@ -553,56 +611,62 @@
     });
 
     // ============ HABITS ============
-    async function loadAllHabits() {
-        showLoading(true);
-        try {
-            const result = await getHabitsFromSheet(true);
-            showLoading(false);
-            
-            const tbody = document.getElementById('habitsTableBody');
-            if (!result.success || !result.data || result.data.length === 0) {
-                tbody.innerHTML = '<tr class="empty-row"><td colspan="14">Belum ada data</td></tr>';
-                return;
-            }
-
-            const habits = result.data.slice(-100).reverse();
-            let html = '';
-            habits.forEach(h => {
-                let quranText = '-';
-                if (h.Quran_Surat && h.Quran_Surat !== '-') {
-                    quranText = h.Quran_Surat;
-                    if (h.Quran_Ayat && h.Quran_Ayat !== '-') quranText += ` (${h.Quran_Ayat})`;
-                }
-                
-                const linkText = h.Link_sosmed && h.Link_sosmed !== '-' && h.Link_sosmed !== '' 
-                    ? `<a href="${h.Link_sosmed}" target="_blank" style="color:var(--primary-light); text-decoration:underline; font-size:11px;">🔗</a>`
-                    : '-';
-                
-                html += `
-                    <tr>
-                        <td>${formatTanggal(h.Tanggal_Kegiatan)}</td>
-                        <td><strong>${escapeHtml(h.Nama)}</strong></td>
-                        <td>${escapeHtml(h.Kelas || '-')}</td>
-                        <td>${h.Bangun_Pagi_Jam || '-'} (${h.Bangun_Pagi_Skor || 0})</td>
-                        <td>${h.Ibadah_List && h.Ibadah_List !== '-' ? (h.Ibadah_List.length > 10 ? h.Ibadah_List.substring(0,10)+'...' : h.Ibadah_List) : '-'} (${h.Ibadah_Skor || 0})</td>
-                        <td>${quranText} (${h.Quran_Skor || 0})</td>
-                        <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Aktivitas : '-'} (${h.Olahraga_Skor || 0})</td>
-                        <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Materi : '-'} (${h.Belajar_Skor || 0})</td>
-                        <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? '✓' : '-'} (${h.Makan_Skor || 0})</td>
-                        <td>${h.Bantu_Ortu && h.Bantu_Ortu !== '-' ? '✓' : '-'} (${h.Bantu_Ortu_Skor || 0})</td>
-                        <td>${h.Tidur_Jam || '-'} (${h.Tidur_Skor || 0})</td>
-                        <td>${linkText}</td>
-                        <td>${h.Skor_Link || 0}</td>
-                        <td><span class="skor-badge ${getSkorClass(parseInt(h.TOTAL_SKOR) || 0)}">${h.TOTAL_SKOR || 0}</span></td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = html;
-        } catch (e) {
-            showLoading(false);
-            document.getElementById('habitsTableBody').innerHTML = '<tr class="empty-row"><td colspan="14">Error loading data</td></tr>';
+   async function loadAllHabits() {
+    showLoading(true);
+    try {
+        const result = await getHabitsFromSheet(true);
+        showLoading(false);
+        
+        const tbody = document.getElementById('habitsTableBody');
+        if (!result.success || !result.data || result.data.length === 0) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="14">Belum ada data</td></tr>';
+            return;
         }
+
+        const habits = result.data.slice(-100).reverse();
+        let html = '';
+        habits.forEach(h => {
+            let quranText = '-';
+            if (h.Quran_Surat && h.Quran_Surat !== '-') {
+                quranText = h.Quran_Surat;
+                if (h.Quran_Ayat && h.Quran_Ayat !== '-') quranText += ` (${h.Quran_Ayat})`;
+            }
+            
+            const linkText = h.Link_sosmed && h.Link_sosmed !== '-' && h.Link_sosmed !== '' 
+                ? `<a href="${h.Link_sosmed}" target="_blank" style="color:var(--primary-light); text-decoration:underline; font-size:11px;">🔗</a>`
+                : '-';
+            
+            // === PERBAIKAN: Format waktu dengan formatTimeDisplay ===
+            const bangunJam = formatTimeDisplay(h.Bangun_Pagi_Jam);
+            const tidurJam = formatTimeDisplay(h.Tidur_Jam);
+            const olahragaWaktu = formatTimeDisplay(h.Olahraga_Waktu);
+            const belajarWaktu = formatTimeDisplay(h.Belajar_Waktu);
+            
+            html += `
+                <tr>
+                    <td>${formatTanggal(h.Tanggal_Kegiatan)}</td>
+                    <td><strong>${escapeHtml(h.Nama)}</strong></td>
+                    <td>${escapeHtml(h.Kelas || '-')}</td>
+                    <td>${bangunJam} (${h.Bangun_Pagi_Skor || 0})</td>
+                    <td>${h.Ibadah_List && h.Ibadah_List !== '-' ? (h.Ibadah_List.length > 10 ? h.Ibadah_List.substring(0,10)+'...' : h.Ibadah_List) : '-'} (${h.Ibadah_Skor || 0})</td>
+                    <td>${quranText} (${h.Quran_Skor || 0})</td>
+                    <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Aktivitas : '-'} ${olahragaWaktu !== '-' ? `(${olahragaWaktu})` : ''} (${h.Olahraga_Skor || 0})</td>
+                    <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Materi : '-'} ${belajarWaktu !== '-' ? `(${belajarWaktu})` : ''} (${h.Belajar_Skor || 0})</td>
+                    <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? '✓' : '-'} (${h.Makan_Skor || 0})</td>
+                    <td>${h.Bantu_Ortu && h.Bantu_Ortu !== '-' ? '✓' : '-'} (${h.Bantu_Ortu_Skor || 0})</td>
+                    <td>${tidurJam} (${h.Tidur_Skor || 0})</td>
+                    <td>${linkText}</td>
+                    <td>${h.Skor_Link || 0}</td>
+                    <td><span class="skor-badge ${getSkorClass(parseInt(h.TOTAL_SKOR) || 0)}">${h.TOTAL_SKOR || 0}</span></td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    } catch (e) {
+        showLoading(false);
+        document.getElementById('habitsTableBody').innerHTML = '<tr class="empty-row"><td colspan="14">Error loading data</td></tr>';
     }
+}
 
     // ============ SCORES ============
     let allScoresData = [];
