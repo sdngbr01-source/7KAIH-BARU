@@ -52,6 +52,17 @@
         .link-sosmed-section .syarat-info strong {
             color: var(--primary-light);
         }
+        /* Style untuk warning tanggal */
+        .tanggal-warning {
+            color: #ef4444;
+            display: block;
+            margin-top: 5px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .date-input-error {
+            border-color: #ef4444 !important;
+        }
     </style>
 </head>
 <body>
@@ -118,7 +129,7 @@
         <div class="form-group">
             <label for="tanggalKegiatan">📅 Pilih Tanggal Kegiatan</label>
             <input type="date" id="tanggalKegiatan" class="date-input">
-            <small>Pilih tanggal kegiatan yang ingin kamu isi</small>
+            <small>Pilih tanggal kegiatan yang ingin kamu isi (maksimal 7 hari yang lalu)</small>
         </div>
 
         <form id="habitForm">
@@ -191,7 +202,7 @@
                         <input type="text" id="belajarWaktu" placeholder="Waktu (contoh: 19:00-20:00)">
                     </div>
                     <div class="form-group">
-                        <input type="text" id="belajarMateri" placeholder="Materi yang dipelajari (Contoh : Matematika Perkalian 5">
+                        <input type="text" id="belajarMateri" placeholder="Materi yang dipelajari (Contoh : Matematika Perkalian 5)">
                     </div>
                 </div>
             </div>
@@ -239,7 +250,7 @@
                 <small>Kosongkan jika tidak diisi</small>
             </div>
 
-            <!-- ============ LINK SOSMED (BARU!) ============ -->
+            <!-- ============ LINK SOSMED ============ -->
             <div class="link-sosmed-section" id="linkSosmedSection">
                 <div class="link-info">
                     <div>
@@ -311,22 +322,22 @@
             <div class="table-wrapper">
                 <table class="data-table history-table">
                     <thead>
-    <tr>
-        <th>No</th>
-        <th>Tanggal</th>
-        <th>Bangun</th>
-        <th>Ibadah</th>
-        <th>Quran</th>
-        <th>Olahraga</th>
-        <th>Belajar</th>
-        <th>Makan</th>
-        <th>Bantu Ortu</th>
-        <th>Tidur</th>
-        <th>Link</th>
-        <th>Skor</th>
-        <th>Aksi</th>
-    </tr>
-</thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal</th>
+                            <th>Bangun</th>
+                            <th>Ibadah</th>
+                            <th>Quran</th>
+                            <th>Olahraga</th>
+                            <th>Belajar</th>
+                            <th>Makan</th>
+                            <th>Bantu Ortu</th>
+                            <th>Tidur</th>
+                            <th>Link</th>
+                            <th>Skor</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
                     <tbody id="historyTableBody">
                         <tr class="empty-row"><td colspan="13">Loading...</td></tr>
                     </tbody>
@@ -361,8 +372,7 @@
         }
     ];
 
-   
-    // ============ INIT ============
+    // ============ INIT BAGIAN 1 ============
     const user = getCurrentUser();
     if (!user) window.location.href = 'login.html';
 
@@ -375,9 +385,6 @@
         day: 'numeric', month: 'long', year: 'numeric'
     });
 
-    // Set today's date
-    document.getElementById('tanggalKegiatan').value = new Date().toISOString().split('T')[0];
-
     // ============ TARGET BULANAN ============
     const TARGET_PER_BULAN = 12;
     const BULAN_INDONESIA = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
@@ -387,6 +394,86 @@
         return BULAN_INDONESIA[monthIndex];
     }
 
+    // ============ VALIDASI TANGGAL (DEFINISIKAN SEBELUM DIPANGGIL) ============
+    function isValidTanggal(tanggal) {
+        if (!tanggal) return { valid: false, message: 'Tanggal tidak boleh kosong' };
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const selectedDate = new Date(tanggal);
+        selectedDate.setHours(0, 0, 0, 0);
+        
+        if (isNaN(selectedDate.getTime())) {
+            return { valid: false, message: 'Format tanggal tidak valid' };
+        }
+        
+        const diffTime = today.getTime() - selectedDate.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays > 7) {
+            return {
+                valid: false,
+                message: `⚠️ Tanggal ${formatTanggal(tanggal)} sudah lewat ${diffDays} hari yang lalu. Maksimal 7 hari ke belakang.`
+            };
+        }
+        
+        if (diffDays < 0) {
+            return {
+                valid: false,
+                message: '⚠️ Tidak boleh mengisi tanggal di masa depan!'
+            };
+        }
+        
+        return { valid: true, message: null };
+    }
+
+    function setDateLimit() {
+        const today = new Date();
+        const dateInput = document.getElementById('tanggalKegiatan');
+        
+        if (!dateInput) return;
+        
+        // Maksimal hari ini
+        dateInput.max = today.toISOString().split('T')[0];
+        
+        // Minimal 7 hari yang lalu
+        const minDate = new Date(today);
+        minDate.setDate(today.getDate() - 7);
+        dateInput.min = minDate.toISOString().split('T')[0];
+        
+        // Set default ke hari ini
+        dateInput.value = today.toISOString().split('T')[0];
+    }
+
+    // ============ VALIDASI TANGGAL REAL-TIME ============
+    document.addEventListener('DOMContentLoaded', function() {
+        const tanggalInput = document.getElementById('tanggalKegiatan');
+        if (tanggalInput) {
+            tanggalInput.addEventListener('change', function() {
+                const tanggal = this.value;
+                if (!tanggal) return;
+                
+                const existingWarning = document.querySelector('.tanggal-warning');
+                if (existingWarning) existingWarning.remove();
+                
+                const validasi = isValidTanggal(tanggal);
+                if (!validasi.valid) {
+                    const warning = document.createElement('small');
+                    warning.className = 'tanggal-warning';
+                    warning.textContent = validasi.message;
+                    
+                    const formGroup = this.closest('.form-group');
+                    if (formGroup) formGroup.appendChild(warning);
+                    this.classList.add('date-input-error');
+                } else {
+                    this.classList.remove('date-input-error');
+                }
+            });
+        }
+    });
+
+    // ============ TARGET BULANAN ============
     function hitungTargetBulanan(habits) {
         const userHabits = habits.filter(h => h.Nama === user.nama);
         const targetData = [];
@@ -589,135 +676,74 @@
     }
 
     // ============ CEK STATUS LINK SOSMED ============
-    function cekStatusLinkSosmed(habits) {
+    function updateLinkStatus(habits) {
         const userHabits = habits.filter(h => h.Nama === user.nama);
         const now = new Date();
         const bulanIni = now.getMonth();
         const tahunIni = now.getFullYear();
         
-        // Hitung link bulan ini
         const linkBulanIni = userHabits.filter(h => {
-            if (!h.Link_Sosmed || h.Link_Sosmed === '-' || h.Link_Sosmed === '') return false;
+            const link = h.Link_sosmed || h.link_sosmed || h.Link_Sosmed || h['Link_sosmed'] || '';
+            if (!link || link === '-' || link === '' || link === 'undefined') return false;
+            
             const tgl = new Date(h.Tanggal_Kegiatan);
+            if (isNaN(tgl.getTime())) return false;
+            
             return tgl.getMonth() === bulanIni && tgl.getFullYear() === tahunIni;
         });
         
-        // Hitung link semester ini (6 bulan terakhir)
         const startSemester = new Date(now.getFullYear(), Math.floor(now.getMonth() / 6) * 6, 1);
         const linkSemester = userHabits.filter(h => {
-            if (!h.Link_Sosmed || h.Link_Sosmed === '-' || h.Link_Sosmed === '') return false;
+            const link = h.Link_sosmed || h.link_sosmed || h.Link_Sosmed || h['Link_sosmed'] || '';
+            if (!link || link === '-' || link === '' || link === 'undefined') return false;
+            
             const tgl = new Date(h.Tanggal_Kegiatan);
+            if (isNaN(tgl.getTime())) return false;
+            
             return tgl >= startSemester;
         });
         
         const countBulanIni = linkBulanIni.length;
         const countSemester = linkSemester.length;
-        const sudahCukupSemester = countSemester >= TARGET_LINK_PER_SEMESTER;
+        const sudahCukupSemester = countSemester >= 2;
         
-        return {
-            countBulanIni: countBulanIni,
-            countSemester: countSemester,
-            sudahCukupSemester: sudahCukupSemester,
-            perluBulanIni: countBulanIni < TARGET_LINK_PER_BULAN,
-            totalData: userHabits.length
-        };
-    }
-
-    function updateLinkStatus(habits) {
-    const userHabits = habits.filter(h => h.Nama === user.nama);
-    const now = new Date();
-    const bulanIni = now.getMonth();
-    const tahunIni = now.getFullYear();
-    
-    console.log('📊 === UPDATE LINK STATUS ===');
-    console.log('Total habits user:', userHabits.length);
-    
-    // === CEK FIELD LINK DARI SPREADSHEET ===
-    // Perhatikan: di spreadsheet nama kolomnya "Link_sosmed" (huruf L besar, s kecil)
-    const linkBulanIni = userHabits.filter(h => {
-        // Coba berbagai kemungkinan nama field
-        const link = h.Link_sosmed || h.link_sosmed || h.Link_Sosmed || h['Link_sosmed'] || '';
+        const section = document.getElementById('linkSosmedSection');
+        const badge = document.getElementById('linkBadge');
+        const counter = document.getElementById('linkCounter');
+        const statusText = document.getElementById('linkStatusText');
+        const linkInput = document.getElementById('linkSosmed');
         
-        console.log('🔍 Cek link:', link, 'untuk tanggal:', h.Tanggal_Kegiatan);
+        counter.textContent = `📊 Sudah: ${countSemester} kali (semester) / ${countBulanIni} kali (bulan ini)`;
         
-        if (!link || link === '-' || link === '' || link === 'undefined') return false;
-        
-        const tgl = new Date(h.Tanggal_Kegiatan);
-        if (isNaN(tgl.getTime())) return false;
-        
-        const match = tgl.getMonth() === bulanIni && tgl.getFullYear() === tahunIni;
-        if (match) {
-            console.log('✅ Link ditemukan bulan ini:', link, 'tanggal:', h.Tanggal_Kegiatan);
+        if (sudahCukupSemester) {
+            section.style.opacity = '0.5';
+            section.style.pointerEvents = 'none';
+            badge.textContent = '✅ Selesai';
+            badge.className = 'badge-link completed';
+            statusText.textContent = '🎉 Selamat! Kamu sudah memenuhi target 2x di semester ini!';
+            statusText.style.color = '#10b981';
+            linkInput.disabled = true;
+            linkInput.placeholder = '✅ Target semester sudah terpenuhi';
+        } else if (countBulanIni >= 1) {
+            section.style.opacity = '0.6';
+            section.style.pointerEvents = 'none';
+            badge.textContent = '✅ Bulan ini selesai';
+            badge.className = 'badge-link done';
+            statusText.textContent = `✅ Kamu sudah upload ${countBulanIni} kali bulan ini. Target bulan ini terpenuhi!`;
+            statusText.style.color = '#10b981';
+            linkInput.disabled = true;
+            linkInput.placeholder = '✅ Target bulan ini sudah terpenuhi';
+        } else {
+            section.style.opacity = '1';
+            section.style.pointerEvents = 'auto';
+            badge.textContent = `⏳ ${countBulanIni}/1`;
+            badge.className = 'badge-link pending';
+            statusText.textContent = `📌 Kamu perlu upload link 1 kali lagi di bulan ini (total 2 kali per semester)`;
+            statusText.style.color = 'var(--text-muted)';
+            linkInput.disabled = false;
+            linkInput.placeholder = 'https://www.instagram.com/... / https://www.youtube.com/...';
         }
-        return match;
-    });
-    
-    // Hitung link semester (6 bulan terakhir)
-    const startSemester = new Date(now.getFullYear(), Math.floor(now.getMonth() / 6) * 6, 1);
-    const linkSemester = userHabits.filter(h => {
-        const link = h.Link_sosmed || h.link_sosmed || h.Link_Sosmed || h['Link_sosmed'] || '';
-        if (!link || link === '-' || link === '' || link === 'undefined') return false;
-        
-        const tgl = new Date(h.Tanggal_Kegiatan);
-        if (isNaN(tgl.getTime())) return false;
-        
-        return tgl >= startSemester;
-    });
-    
-    const countBulanIni = linkBulanIni.length;
-    const countSemester = linkSemester.length;
-    const sudahCukupSemester = countSemester >= TARGET_LINK_PER_SEMESTER;
-    
-    console.log('📊 Status Link:', {
-        countBulanIni,
-        countSemester,
-        sudahCukupSemester,
-        linkBulanIni: linkBulanIni.map(h => ({
-            tanggal: h.Tanggal_Kegiatan,
-            link: h.Link_sosmed || h.link_sosmed
-        }))
-    });
-    
-    // === UPDATE UI ===
-    const section = document.getElementById('linkSosmedSection');
-    const badge = document.getElementById('linkBadge');
-    const counter = document.getElementById('linkCounter');
-    const statusText = document.getElementById('linkStatusText');
-    const linkInput = document.getElementById('linkSosmed');
-    
-    // Update counter
-    counter.textContent = `📊 Sudah: ${countSemester} kali (semester) / ${countBulanIni} kali (bulan ini)`;
-    
-    if (sudahCukupSemester) {
-        section.style.opacity = '0.5';
-        section.style.pointerEvents = 'none';
-        badge.textContent = '✅ Selesai';
-        badge.className = 'badge-link completed';
-        statusText.textContent = '🎉 Selamat! Kamu sudah memenuhi target 2x di semester ini!';
-        statusText.style.color = '#10b981';
-        linkInput.disabled = true;
-        linkInput.placeholder = '✅ Target semester sudah terpenuhi';
-    } else if (countBulanIni >= TARGET_LINK_PER_BULAN) {
-        section.style.opacity = '0.6';
-        section.style.pointerEvents = 'none';
-        badge.textContent = '✅ Bulan ini selesai';
-        badge.className = 'badge-link done';
-        statusText.textContent = `✅ Kamu sudah upload ${countBulanIni} kali bulan ini. Target bulan ini terpenuhi!`;
-        statusText.style.color = '#10b981';
-        linkInput.disabled = true;
-        linkInput.placeholder = '✅ Target bulan ini sudah terpenuhi';
-    } else {
-        section.style.opacity = '1';
-        section.style.pointerEvents = 'auto';
-        badge.textContent = `⏳ ${countBulanIni}/${TARGET_LINK_PER_BULAN}`;
-        badge.className = 'badge-link pending';
-        const sisa = TARGET_LINK_PER_BULAN - countBulanIni;
-        statusText.textContent = `📌 Kamu perlu upload link ${sisa} kali lagi di bulan ini (total ${TARGET_LINK_PER_SEMESTER} kali per semester)`;
-        statusText.style.color = 'var(--text-muted)';
-        linkInput.disabled = false;
-        linkInput.placeholder = 'https://www.instagram.com/... / https://www.youtube.com/...';
     }
-}
 
     // ============ PAGINATION ============
     let currentPage = 1;
@@ -725,68 +751,65 @@
     let allUserHabits = [];
 
     function renderHistory(habits) {
-    const userHabits = habits.filter(h => h.Nama === user.nama);
-    const tbody = document.getElementById('historyTableBody');
-    
-    if (!userHabits || userHabits.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="13">📭 Belum ada riwayat pengisian</td></tr>`;
-        document.getElementById('paginationControls').innerHTML = '';
-        return;
-    }
-
-    const sorted = [...userHabits].sort((a, b) => {
-        return new Date(b.Tanggal_Kegiatan) - new Date(a.Tanggal_Kegiatan);
-    });
-
-    const totalPages = Math.ceil(sorted.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, sorted.length);
-    const currentData = sorted.slice(startIndex, endIndex);
-
-    let html = '';
-    currentData.forEach((h, idx) => {
-        const nomor = startIndex + idx + 1;
-        const skor = parseInt(h.TOTAL_SKOR) || 0;
-        const skorClass = getSkorClass(skor);
+        const userHabits = habits.filter(h => h.Nama === user.nama);
+        const tbody = document.getElementById('historyTableBody');
         
-        let quranText = '-';
-        if (h.Quran_Surat && h.Quran_Surat !== '-') {
-            quranText = h.Quran_Surat;
-            if (h.Quran_Ayat && h.Quran_Ayat !== '-') quranText += ` (${h.Quran_Ayat})`;
-            if (h.Quran_Terjemah && h.Quran_Terjemah !== '-') quranText += `: ${h.Quran_Terjemah}`;
+        if (!userHabits || userHabits.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="13">📭 Belum ada riwayat pengisian</td></tr>`;
+            document.getElementById('paginationControls').innerHTML = '';
+            return;
         }
-        
-        // Tampilkan Link dengan skor
-        const linkText = h.Link_sosmed && h.Link_sosmed !== '-' && h.Link_sosmed !== '' 
-            ? `<a href="${h.Link_sosmed}" target="_blank" style="color:var(--primary-light); text-decoration:underline; font-size:11px;">🔗 Link</a> <span style="font-size:11px;color:var(--text-muted);">(${h.Skor_Link || 0})</span>` 
-            : '-';
-        
-        html += `
-            <tr>
-                <td>${nomor}</td>
-                <td>${formatTanggal(h.Tanggal_Kegiatan)}</td>
-                <td>${formatTimeDisplay(h.Bangun_Pagi_Jam)} <span style="font-size:11px;color:var(--text-muted);">(${h.Bangun_Pagi_Skor || 0})</span></td>
-                <td>${h.Ibadah_List && h.Ibadah_List !== '-' ? (h.Ibadah_List.length > 15 ? h.Ibadah_List.substring(0,15)+'...' : h.Ibadah_List) : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Ibadah_Skor || 0})</span></td>
-                <td>${quranText} <span style="font-size:11px;color:var(--text-muted);">(${h.Quran_Skor || 0})</span></td>
-                <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Aktivitas : '-'} ${formatTimeDisplay(h.Olahraga_Waktu) !== '-' ? `(${formatTimeDisplay(h.Olahraga_Waktu)})` : ''} <span style="font-size:11px;color:var(--text-muted);">(${h.Olahraga_Skor || 0})</span></td>
-               <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Materi : '-'} ${formatTimeDisplay(h.Belajar_Waktu) !== '-' ? `(${formatTimeDisplay(h.Belajar_Waktu)})` : ''} <span style="font-size:11px;color:var(--text-muted);">(${h.Belajar_Skor || 0})</span></td>
-                <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? '✓' : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Makan_Skor || 0})</span></td>
-                <td>${h.Bantu_Ortu && h.Bantu_Ortu !== '-' ? '✓' : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Bantu_Ortu_Skor || 0})</span></td>
-                <td>${formatTimeDisplay(h.Tidur_Jam)} <span style="font-size:11px;color:var(--text-muted);">(${h.Tidur_Skor || 0})</span></td>
-                <td>${linkText}</td>
-                <td><span class="skor-badge ${skorClass}">${skor}</span></td>
-                <td>
-                    <button class="btn-delete-sm" onclick="deleteHabit('${h.ID || idx}', '${h.Tanggal_Kegiatan}')">🗑️</button>
-                </td>
-                    <button class="btn-delete-sm" onclick="deleteHabit('${h.ID || idx}', '${h.Tanggal_Kegiatan}')">🗑️</button>
-                </td>
-            </tr>
-        `;
-    });
 
-    tbody.innerHTML = html;
-    renderPagination(totalPages);
-}
+        const sorted = [...userHabits].sort((a, b) => {
+            return new Date(b.Tanggal_Kegiatan) - new Date(a.Tanggal_Kegiatan);
+        });
+
+        const totalPages = Math.ceil(sorted.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, sorted.length);
+        const currentData = sorted.slice(startIndex, endIndex);
+
+        let html = '';
+        currentData.forEach((h, idx) => {
+            const nomor = startIndex + idx + 1;
+            const skor = parseInt(h.TOTAL_SKOR) || 0;
+            const skorClass = getSkorClass(skor);
+            
+            let quranText = '-';
+            if (h.Quran_Surat && h.Quran_Surat !== '-') {
+                quranText = h.Quran_Surat;
+                if (h.Quran_Ayat && h.Quran_Ayat !== '-') quranText += ` (${h.Quran_Ayat})`;
+                if (h.Quran_Terjemah && h.Quran_Terjemah !== '-') quranText += `: ${h.Quran_Terjemah}`;
+            }
+            
+            const linkText = h.Link_sosmed && h.Link_sosmed !== '-' && h.Link_sosmed !== '' 
+                ? `<a href="${h.Link_sosmed}" target="_blank" style="color:var(--primary-light); text-decoration:underline; font-size:11px;">🔗 Link</a> <span style="font-size:11px;color:var(--text-muted);">(${h.Skor_Link || 0})</span>` 
+                : '-';
+            
+            html += `
+                <tr>
+                    <td>${nomor}</td>
+                    <td>${formatTanggal(h.Tanggal_Kegiatan)}</td>
+                    <td>${formatTimeDisplay(h.Bangun_Pagi_Jam)} <span style="font-size:11px;color:var(--text-muted);">(${h.Bangun_Pagi_Skor || 0})</span></td>
+                    <td>${h.Ibadah_List && h.Ibadah_List !== '-' ? (h.Ibadah_List.length > 15 ? h.Ibadah_List.substring(0,15)+'...' : h.Ibadah_List) : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Ibadah_Skor || 0})</span></td>
+                    <td>${quranText} <span style="font-size:11px;color:var(--text-muted);">(${h.Quran_Skor || 0})</span></td>
+                    <td>${h.Olahraga_Aktivitas && h.Olahraga_Aktivitas !== '-' ? h.Olahraga_Aktivitas : '-'} ${formatTimeDisplay(h.Olahraga_Waktu) !== '-' ? `(${formatTimeDisplay(h.Olahraga_Waktu)})` : ''} <span style="font-size:11px;color:var(--text-muted);">(${h.Olahraga_Skor || 0})</span></td>
+                    <td>${h.Belajar_Materi && h.Belajar_Materi !== '-' ? h.Belajar_Materi : '-'} ${formatTimeDisplay(h.Belajar_Waktu) !== '-' ? `(${formatTimeDisplay(h.Belajar_Waktu)})` : ''} <span style="font-size:11px;color:var(--text-muted);">(${h.Belajar_Skor || 0})</span></td>
+                    <td>${h.Makan_Pagi && h.Makan_Pagi !== '-' ? '✓' : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Makan_Skor || 0})</span></td>
+                    <td>${h.Bantu_Ortu && h.Bantu_Ortu !== '-' ? '✓' : '-'} <span style="font-size:11px;color:var(--text-muted);">(${h.Bantu_Ortu_Skor || 0})</span></td>
+                    <td>${formatTimeDisplay(h.Tidur_Jam)} <span style="font-size:11px;color:var(--text-muted);">(${h.Tidur_Skor || 0})</span></td>
+                    <td>${linkText}</td>
+                    <td><span class="skor-badge ${skorClass}">${skor}</span></td>
+                    <td>
+                        <button class="btn-delete-sm" onclick="deleteHabit('${h.ID || idx}', '${h.Tanggal_Kegiatan}')">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+        renderPagination(totalPages);
+    }
 
     function renderPagination(totalPages) {
         const container = document.getElementById('paginationControls');
@@ -829,48 +852,43 @@
         }
     }
 
-   // ============ LOAD DATA ============
-async function loadData() {
-    showLoading(true);
-    try {
-        // === FORCE REFRESH DARI SPREADSHEET ===
-        const result = await getHabitsFromSheet(true);
-        
-        if (result.success) {
-            allUserHabits = result.data || [];
-            console.log('📥 Data loaded:', allUserHabits.length, 'entries');
+    // ============ LOAD DATA ============
+    async function loadData() {
+        showLoading(true);
+        try {
+            const result = await getHabitsFromSheet(true);
             
-            // === DEBUG: TAMPILKAN DATA LINK USER ===
-            const userHabits = allUserHabits.filter(h => h.Nama === user.nama);
-            console.log('👤 User habits:', userHabits.length);
-            
-            // Tampilkan semua data link dari user
-            userHabits.forEach((h, idx) => {
-                const link = h.Link_sosmed || h.link_sosmed || h.Link_Sosmed || h['Link_sosmed'] || '';
-                console.log(`  ${idx+1}. ${h.Tanggal_Kegiatan} -> Link: "${link}" | Skor_Link: ${h.Skor_Link || h.skor_link || 0}`);
-            });
-            
-            // === UPDATE SEMUA KOMPONEN ===
-            currentPage = 1;
-            renderHistory(allUserHabits);
-            updateStats(allUserHabits);
-            renderTarget(allUserHabits);
-            
-            // === UPDATE LINK STATUS DENGAN DATA TERBARU ===
-            setTimeout(() => {
-                updateLinkStatus(allUserHabits);
-            }, 300);
-            
-        } else {
-            console.error('Load data error:', result);
-            showToast('❌ Gagal memuat data', 'error');
+            if (result.success) {
+                allUserHabits = result.data || [];
+                console.log('📥 Data loaded:', allUserHabits.length, 'entries');
+                
+                const userHabits = allUserHabits.filter(h => h.Nama === user.nama);
+                console.log('👤 User habits:', userHabits.length);
+                
+                userHabits.forEach((h, idx) => {
+                    const link = h.Link_sosmed || h.link_sosmed || h.Link_Sosmed || h['Link_sosmed'] || '';
+                    console.log(`  ${idx+1}. ${h.Tanggal_Kegiatan} -> Link: "${link}" | Skor_Link: ${h.Skor_Link || h.skor_link || 0}`);
+                });
+                
+                currentPage = 1;
+                renderHistory(allUserHabits);
+                updateStats(allUserHabits);
+                renderTarget(allUserHabits);
+                
+                setTimeout(() => {
+                    updateLinkStatus(allUserHabits);
+                }, 300);
+                
+            } else {
+                console.error('Load data error:', result);
+                showToast('❌ Gagal memuat data', 'error');
+            }
+        } catch (e) {
+            console.error('Load data error:', e);
+            showToast('❌ Error: ' + e.message, 'error');
         }
-    } catch (e) {
-        console.error('Load data error:', e);
-        showToast('❌ Error: ' + e.message, 'error');
+        showLoading(false);
     }
-    showLoading(false);
-}
 
     // ============ UPDATE STATS ============
     function updateStats(habits) {
@@ -914,211 +932,135 @@ async function loadData() {
         }
     }
 
-// ============ VALIDASI TANGGAL ============
-function isValidTanggal(tanggal) {
-    if (!tanggal) return false;
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const selectedDate = new Date(tanggal);
-    selectedDate.setHours(0, 0, 0, 0);
-    
-    // Hitung selisih hari
-    const diffTime = today.getTime() - selectedDate.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    // Tidak boleh lebih dari 7 hari yang lalu
-    if (diffDays > 7) {
-        return {
-            valid: false,
-            message: `⚠️ Tanggal ${formatTanggal(tanggal)} sudah lewat ${diffDays} hari yang lalu. Maksimal 7 hari ke belakang.`
-        };
-    }
-    
-    // Tidak boleh di masa depan
-    if (diffDays < 0) {
-        return {
-            valid: false,
-            message: '⚠️ Tidak boleh mengisi tanggal di masa depan!'
-        };
-    }
-    
-    return {
-        valid: true,
-        message: null
-    };
-}
-
-// ============ VALIDASI TANGGAL REAL-TIME ============
-document.getElementById('tanggalKegiatan').addEventListener('change', function() {
-    const tanggal = this.value;
-    if (!tanggal) return;
-    
-    // Hapus warning lama
-    const existingWarning = document.querySelector('.tanggal-warning');
-    if (existingWarning) existingWarning.remove();
-    
-    const validasi = isValidTanggal(tanggal);
-    if (!validasi.valid) {
-        const warning = document.createElement('small');
-        warning.className = 'tanggal-warning';
-        warning.style.cssText = 'color: #ef4444; display: block; margin-top: 5px; font-weight: 600;';
-        warning.textContent = validasi.message;
-        
-        const formGroup = this.closest('.form-group');
-        formGroup.appendChild(warning);
-        this.style.borderColor = '#ef4444';
-    } else {
-        this.style.borderColor = '';
-    }
-});
-
-// Panggil saat inisialisasi
-setDateLimit();
-    
     // ============ SUBMIT FORM ============
-document.getElementById('habitForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const tanggalKegiatan = document.getElementById('tanggalKegiatan').value;
-    if (!tanggalKegiatan) {
-        showToast('⚠️ Pilih tanggal kegiatan!', 'warning');
-        return;
-    }
-
-    // === VALIDASI TANGGAL (MAKSIMAL 7 HARI YANG LALU) ===
-    const validasiTanggal = isValidTanggal(tanggalKegiatan);
-    if (!validasiTanggal.valid) {
-        showToast(validasiTanggal.message, 'warning');
-        return;
-    }
-
-    const isDuplicate = await cekDuplikasiTanggal(tanggalKegiatan);
-    if (isDuplicate) {
-        showToast('⚠️ Tanggal ini sudah diisi! Pilih tanggal lain.', 'warning');
-        return;
-    }
-
-    const tanggalFormatted = formatTanggal(tanggalKegiatan);
-    const ibadahList = getCheckedIbadah();
-    const formData = getFormData();
-    
-    // Hitung skor kebiasaan
-    const skorKebiasaan = hitungSkor(formData);
-    
-    // === PERBAIKAN: Ambil link dari input dengan benar ===
-    const linkInput = document.getElementById('linkSosmed');
-    const linkSosmed = linkInput ? linkInput.value.trim() : '';
-    
-    let skorLink = 0;
-    let linkValid = false;
-    
-    // Cek apakah link diisi DAN valid
-    if (linkSosmed && linkSosmed !== '' && linkSosmed !== '-') {
-        // Validasi link
-        if (linkSosmed.startsWith('http://') || linkSosmed.startsWith('https://')) {
-            skorLink = LINK_SOSMED_NILAI; // 20
-            linkValid = true;
-        } else {
-            showToast('⚠️ Link harus diawali http:// atau https://', 'warning');
+    document.getElementById('habitForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const tanggalKegiatan = document.getElementById('tanggalKegiatan').value;
+        if (!tanggalKegiatan) {
+            showToast('⚠️ Pilih tanggal kegiatan!', 'warning');
             return;
         }
-    }
-    
-    // Total skor = skor kebiasaan + skor link (jika valid)
-    const totalSkor = skorKebiasaan.total + skorLink;
-    
-    // === PERBAIKAN: Pastikan data terkirim dengan benar ===
-    const data = {
-        ID: generateId(),
-        Timestamp: new Date().toISOString(),
-        Tanggal_Kegiatan: tanggalFormatted,
-        Nama: user.nama,
-        Kelas: user.kelas || '-',
-        Bangun_Pagi_Jam: document.getElementById('bangunPagi').value || '-',
-        Bangun_Pagi_Skor: skorKebiasaan.skorBangun,
-        Ibadah_List: ibadahList.join(', ') || '-',
-        Ibadah_Jumlah: ibadahList.length,
-        Ibadah_Skor: skorKebiasaan.skorIbadah,
-        Quran_Surat: document.getElementById('quranSurat').value.trim() || '-',
-        Quran_Ayat: document.getElementById('quranAyat').value.trim() || '-',
-        Quran_Terjemah: document.getElementById('quranTerjemah').value.trim() || '-',
-        Quran_Skor: skorKebiasaan.skorQuran,
-        Olahraga_Waktu: document.getElementById('olahragaWaktu').value.trim() || '-',
-        Olahraga_Aktivitas: document.getElementById('olahragaAktivitas').value.trim() || '-',
-        Olahraga_Skor: skorKebiasaan.skorOlahraga,
-        Belajar_Waktu: document.getElementById('belajarWaktu').value.trim() || '-',
-        Belajar_Materi: document.getElementById('belajarMateri').value.trim() || '-',
-        Belajar_Skor: skorKebiasaan.skorBelajar,
-        Makan_Pagi: document.getElementById('makanPagi').value.trim() || '-',
-        Makan_Siang: document.getElementById('makanSiang').value.trim() || '-',
-        Makan_Malam: document.getElementById('makanMalam').value.trim() || '-',
-        Makan_Skor: skorKebiasaan.skorMakan,
-        Bantu_Ortu: document.getElementById('bantuOrtu').value.trim() || '-',
-        Bantu_Ortu_Skor: skorKebiasaan.skorBantuOrtu,
-        Tidur_Jam: document.getElementById('tidurCepat').value || '-',
-        Tidur_Skor: skorKebiasaan.skorTidur,
-        Link_sosmed: linkValid ? linkSosmed : '',  // KIRIM LINK jika valid
-        Skor_Link: skorLink,                       // KIRIM SKOR LINK
-        TOTAL_SKOR: totalSkor
-    };
 
-    // DEBUG: Cek data sebelum submit
-    console.log('Data yang akan dikirim:', data);
-    console.log('Link_sosmed:', data.Link_sosmed);
-    console.log('Skor_Link:', data.Skor_Link);
-    console.log('TOTAL_SKOR:', data.TOTAL_SKOR);
-
-    showLoading(true);
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Menyimpan...';
-
-    try {
-        const result = await submitHabitToSheet(data);
-        showLoading(false);
-        btn.disabled = false;
-        btn.textContent = '💾 Simpan Kebiasaan';
-
-        if (result.success) {
-            const kategori = getKategori(totalSkor);
-            let msg = `✅ Berhasil! Skor: ${totalSkor} - ${kategori.icon} ${kategori.label}`;
-            if (skorLink > 0) {
-                msg += ` (+${skorLink} dari Link Sosmed)`;
-            }
-            showToast(msg, 'success');
-            
-            // Reset form
-            document.getElementById('habitForm').reset();
-            document.getElementById('tanggalKegiatan').value = new Date().toISOString().split('T')[0];
-            buildIbadahChecklist();
-            
-            // Reset link input
-            const linkInputReset = document.getElementById('linkSosmed');
-            if (linkInputReset) {
-                linkInputReset.value = '';
-                linkInputReset.disabled = false;
-            }
-            
-            document.getElementById('skorPreview').style.display = 'none';
-            
-            await loadData();
-        } else {
-            showToast('❌ Gagal menyimpan data!', 'error');
+        const validasiTanggal = isValidTanggal(tanggalKegiatan);
+        if (!validasiTanggal.valid) {
+            showToast(validasiTanggal.message, 'warning');
+            return;
         }
-    } catch (e) {
-        showLoading(false);
-        btn.disabled = false;
-        btn.textContent = '💾 Simpan Kebiasaan';
-        showToast('❌ Error: ' + e.message, 'error');
-    }
-});
+
+        const isDuplicate = await cekDuplikasiTanggal(tanggalKegiatan);
+        if (isDuplicate) {
+            showToast('⚠️ Tanggal ini sudah diisi! Pilih tanggal lain.', 'warning');
+            return;
+        }
+
+        const tanggalFormatted = formatTanggal(tanggalKegiatan);
+        const ibadahList = getCheckedIbadah();
+        const formData = getFormData();
+        
+        const skorKebiasaan = hitungSkor(formData);
+        
+        const linkInput = document.getElementById('linkSosmed');
+        const linkSosmed = linkInput ? linkInput.value.trim() : '';
+        
+        let skorLink = 0;
+        let linkValid = false;
+        
+        if (linkSosmed && linkSosmed !== '' && linkSosmed !== '-') {
+            if (linkSosmed.startsWith('http://') || linkSosmed.startsWith('https://')) {
+                skorLink = 20;
+                linkValid = true;
+            } else {
+                showToast('⚠️ Link harus diawali http:// atau https://', 'warning');
+                return;
+            }
+        }
+        
+        const totalSkor = skorKebiasaan.total + skorLink;
+        
+        const data = {
+            ID: generateId(),
+            Timestamp: new Date().toISOString(),
+            Tanggal_Kegiatan: tanggalFormatted,
+            Nama: user.nama,
+            Kelas: user.kelas || '-',
+            Bangun_Pagi_Jam: document.getElementById('bangunPagi').value || '-',
+            Bangun_Pagi_Skor: skorKebiasaan.skorBangun,
+            Ibadah_List: ibadahList.join(', ') || '-',
+            Ibadah_Jumlah: ibadahList.length,
+            Ibadah_Skor: skorKebiasaan.skorIbadah,
+            Quran_Surat: document.getElementById('quranSurat').value.trim() || '-',
+            Quran_Ayat: document.getElementById('quranAyat').value.trim() || '-',
+            Quran_Terjemah: document.getElementById('quranTerjemah').value.trim() || '-',
+            Quran_Skor: skorKebiasaan.skorQuran,
+            Olahraga_Waktu: document.getElementById('olahragaWaktu').value.trim() || '-',
+            Olahraga_Aktivitas: document.getElementById('olahragaAktivitas').value.trim() || '-',
+            Olahraga_Skor: skorKebiasaan.skorOlahraga,
+            Belajar_Waktu: document.getElementById('belajarWaktu').value.trim() || '-',
+            Belajar_Materi: document.getElementById('belajarMateri').value.trim() || '-',
+            Belajar_Skor: skorKebiasaan.skorBelajar,
+            Makan_Pagi: document.getElementById('makanPagi').value.trim() || '-',
+            Makan_Siang: document.getElementById('makanSiang').value.trim() || '-',
+            Makan_Malam: document.getElementById('makanMalam').value.trim() || '-',
+            Makan_Skor: skorKebiasaan.skorMakan,
+            Bantu_Ortu: document.getElementById('bantuOrtu').value.trim() || '-',
+            Bantu_Ortu_Skor: skorKebiasaan.skorBantuOrtu,
+            Tidur_Jam: document.getElementById('tidurCepat').value || '-',
+            Tidur_Skor: skorKebiasaan.skorTidur,
+            Link_sosmed: linkValid ? linkSosmed : '',
+            Skor_Link: skorLink,
+            TOTAL_SKOR: totalSkor
+        };
+
+        console.log('Data yang akan dikirim:', data);
+
+        showLoading(true);
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Menyimpan...';
+
+        try {
+            const result = await submitHabitToSheet(data);
+            showLoading(false);
+            btn.disabled = false;
+            btn.textContent = '💾 Simpan Kebiasaan';
+
+            if (result.success) {
+                const kategori = getKategori(totalSkor);
+                let msg = `✅ Berhasil! Skor: ${totalSkor} - ${kategori.icon} ${kategori.label}`;
+                if (skorLink > 0) {
+                    msg += ` (+${skorLink} dari Link Sosmed)`;
+                }
+                showToast(msg, 'success');
+                
+                document.getElementById('habitForm').reset();
+                document.getElementById('tanggalKegiatan').value = new Date().toISOString().split('T')[0];
+                buildIbadahChecklist();
+                
+                const linkInputReset = document.getElementById('linkSosmed');
+                if (linkInputReset) {
+                    linkInputReset.value = '';
+                    linkInputReset.disabled = false;
+                }
+                
+                document.getElementById('skorPreview').style.display = 'none';
+                
+                await loadData();
+            } else {
+                showToast('❌ Gagal menyimpan data!', 'error');
+            }
+        } catch (e) {
+            showLoading(false);
+            btn.disabled = false;
+            btn.textContent = '💾 Simpan Kebiasaan';
+            showToast('❌ Error: ' + e.message, 'error');
+        }
+    });
 
     // ============ REFRESH ============
     document.getElementById('refreshHistoryBtn').addEventListener('click', loadData);
 
-    // ============ INIT ============
+    // ============ INIT BAGIAN 2 ============
     setDateLimit();
     buildIbadahChecklist();
     loadData();
