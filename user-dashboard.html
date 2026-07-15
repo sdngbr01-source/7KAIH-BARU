@@ -600,38 +600,41 @@
         return new Date().getDay() === 5;
     }
 
-    function buildIbadahChecklist() {
-        const container = document.getElementById('ibadahChecklist');
-        let html = '';
-        let isFirst = true;
+   function buildIbadahChecklist() {
+    const container = document.getElementById('ibadahChecklist');
+    let html = '';
+    let isFirst = true;
+    
+    ibadahGroups.forEach((group) => {
+        let items = [...group.items];
         
-        ibadahGroups.forEach((group) => {
-            let items = [...group.items];
-            
-            if (group.label.includes('Wajib') && isFriday()) {
-                items.push('Sholat Jum\'at');
-            }
-            
-            if (!isFirst) {
-                html += `<div class="group-divider"></div>`;
-            }
-            
-            html += `<div class="group-label"><span class="icon">${group.label.split(' ')[0]}</span> ${group.label}</div>`;
-            
-            items.forEach(item => {
-                html += `
-                    <label class="checkbox-item">
-                        <input type="checkbox" class="ibadahCheck" value="${item}">
-                        <span>${item}</span>
-                    </label>
-                `;
-            });
-            
-            isFirst = false;
+        if (group.label.includes('Wajib') && isFriday()) {
+            items.push('Sholat Jum\'at');
+        }
+        
+        if (!isFirst) {
+            html += `<div class="group-divider"></div>`;
+        }
+        
+        html += `<div class="group-label"><span class="icon">${group.label.split(' ')[0]}</span> ${group.label}</div>`;
+        
+        // === PERBAIKAN: Tambahkan wrapper div dengan class "checkbox-items" ===
+        html += `<div class="checkbox-items">`;
+        items.forEach(item => {
+            html += `
+                <label class="checkbox-item">
+                    <input type="checkbox" class="ibadahCheck" value="${item}">
+                    <span>${item}</span>
+                </label>
+            `;
         });
+        html += `</div>`;
         
-        container.innerHTML = html;
-    }
+        isFirst = false;
+    });
+    
+    container.innerHTML = html;
+}
 
     function getCheckedIbadah() {
         return Array.from(document.querySelectorAll('.ibadahCheck:checked')).map(ch => ch.value);
