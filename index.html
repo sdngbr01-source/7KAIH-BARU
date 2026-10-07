@@ -384,6 +384,259 @@
         <a href="#glosarium" class="btn btn-secondary btn-hero">📖 Lihat Manfaat</a>
     </div>
     
+<!-- ============ LEADERBOARD SECTION ============ -->
+<section class="leaderboard-section" id="leaderboard">
+  <div class="leaderboard-header">
+    <h2>🏆 Peringkat Teratas</h2>
+    <p class="leaderboard-sub">5 siswa terbaik di setiap kelas berdasarkan Total Skor</p>
+  </div>
+
+  <div class="leaderboard-grid">
+    <div class="leaderboard-card">
+      <div class="card-header kelas-4a"><span class="kelas-icon">4️⃣</span><h3>Kelas 4A</h3></div>
+      <ol class="rank-list" id="rank-4A"><li class="loading">Memuat data…</li></ol>
+    </div>
+
+    <div class="leaderboard-card">
+      <div class="card-header kelas-4b"><span class="kelas-icon">4️⃣</span><h3>Kelas 4B</h3></div>
+      <ol class="rank-list" id="rank-4B"><li class="loading">Memuat data…</li></ol>
+    </div>
+
+    <div class="leaderboard-card">
+      <div class="card-header kelas-5a"><span class="kelas-icon">5️⃣</span><h3>Kelas 5A</h3></div>
+      <ol class="rank-list" id="rank-5A"><li class="loading">Memuat data…</li></ol>
+    </div>
+
+    <div class="leaderboard-card">
+      <div class="card-header kelas-5b"><span class="kelas-icon">5️⃣</span><h3>Kelas 5B</h3></div>
+      <ol class="rank-list" id="rank-5B"><li class="loading">Memuat data…</li></ol>
+    </div>
+
+    <div class="leaderboard-card">
+      <div class="card-header kelas-6a"><span class="kelas-icon">6️⃣</span><h3>Kelas 6A</h3></div>
+      <ol class="rank-list" id="rank-6A"><li class="loading">Memuat data…</li></ol>
+    </div>
+
+    <div class="leaderboard-card">
+      <div class="card-header kelas-6b"><span class="kelas-icon">6️⃣</span><h3>Kelas 6B</h3></div>
+      <ol class="rank-list" id="rank-6B"><li class="loading">Memuat data…</li></ol>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ====== LEADERBOARD STYLES ====== */
+.leaderboard-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px 40px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.leaderboard-header { text-align: center; margin-bottom: 36px; }
+
+.leaderboard-header h2 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0 0 8px;
+}
+
+.leaderboard-sub { color: #666; font-size: 1rem; margin: 0; }
+
+.leaderboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.leaderboard-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.leaderboard-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.14);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 22px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.card-header h3 { margin: 0; font-size: 1.15rem; letter-spacing: 0.3px; }
+.kelas-icon { font-size: 1.4rem; }
+
+/* Warna gradient per kelas */
+.kelas-4a { background: linear-gradient(135deg, #FF6B6B, #EE5A24); }
+.kelas-4b { background: linear-gradient(135deg, #FF9F43, #EE5A24); }
+.kelas-5a { background: linear-gradient(135deg, #4ECDC4, #0FA3A3); }
+.kelas-5b { background: linear-gradient(135deg, #26C6DA, #00838F); }
+.kelas-6a { background: linear-gradient(135deg, #6C5CE7, #4834D4); }
+.kelas-6b { background: linear-gradient(135deg, #A29BFE, #6C5CE7); }
+
+.rank-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  counter-reset: rank;
+}
+
+.rank-list li {
+  counter-increment: rank;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.rank-list li:last-child { border-bottom: none; }
+.rank-list li:hover { background: #fafafa; }
+
+.rank-list li::before {
+  content: counter(rank);
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 0.85rem;
+  background: #eef0f5;
+  color: #555;
+}
+
+.rank-list li:nth-child(1)::before { background: linear-gradient(135deg, #FFD700, #F0A500); color: #fff; }
+.rank-list li:nth-child(2)::before { background: linear-gradient(135deg, #C0C0C0, #9E9E9E); color: #fff; }
+.rank-list li:nth-child(3)::before { background: linear-gradient(135deg, #CD7F32, #A05A20); color: #fff; }
+
+.rank-name {
+  flex: 1;
+  font-weight: 600;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rank-kelas {
+  font-size: 0.78rem;
+  color: #888;
+  background: #f2f2f2;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.rank-skor { font-weight: 800; color: #0FA3A3; font-size: 1rem; flex-shrink: 0; }
+
+.rank-list li.loading,
+.rank-list li.empty {
+  justify-content: center;
+  color: #999;
+  font-style: italic;
+  font-size: 0.88rem;
+}
+
+.rank-list li.loading::before,
+.rank-list li.empty::before { display: none; }
+
+@media (max-width: 480px) {
+  .leaderboard-section { padding: 40px 12px 30px; }
+  .rank-list li { padding: 10px 14px; font-size: 0.88rem; }
+  .rank-skor { font-size: 0.9rem; }
+}
+</style>
+
+<script>
+(function () {
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbyOzROcm6eS9J-UAXeEqKCAjmFYoYc4j3Pe5IbZUphxGudwCI0jBHDaFa-FjWeDdDpiIw/exec';
+  const KELAS_LIST = ['4A', '4B', '5A', '5B', '6A', '6B'];
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function renderRank(elId, rows) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    if (!rows || !rows.length) {
+      el.innerHTML = '<li class="empty">Belum ada data</li>';
+      return;
+    }
+    el.innerHTML = rows.map(function (r) {
+      return '<li>' +
+        '<span class="rank-name">' + escapeHtml(r.nama) + '</span>' +
+        '<span class="rank-kelas">' + escapeHtml(r.kelas) + '</span>' +
+        '<span class="rank-skor">' + r.skor + '</span>' +
+      '</li>';
+    }).join('');
+  }
+
+  function showError(msg) {
+    KELAS_LIST.forEach(function (k) {
+      const el = document.getElementById('rank-' + k);
+      if (el) el.innerHTML = '<li class="empty">' + (msg || 'Gagal memuat') + '</li>';
+    });
+  }
+
+  function load() {
+    const cb = 'gasLB_' + Date.now();
+    const s = document.createElement('script');
+    const t = setTimeout(function () {
+      console.error('❌ Timeout. URL: ' + s.src);
+      showError('Timeout');
+      delete window[cb];
+      s.remove();
+    }, 15000);
+
+    window[cb] = function (json) {
+      clearTimeout(t);
+      console.log('✅ Leaderboard data:', json);
+      try {
+        if (!json || !json.success) throw new Error(json?.error || 'bad response');
+        KELAS_LIST.forEach(function (k) {
+          renderRank('rank-' + k, (json.data && json.data[k]) || []);
+        });
+      } catch (e) {
+        console.error('Leaderboard parse error:', e);
+        showError('Gagal memuat');
+      } finally {
+        delete window[cb];
+        s.remove();
+      }
+    };
+
+    s.src = GAS_URL + '?action=getLeaderboard&callback=' + cb;
+    s.onerror = function () {
+      clearTimeout(t);
+      console.error('❌ Script GAS gagal dimuat. URL: ' + s.src);
+      showError('Gagal memuat');
+      delete window[cb];
+      s.remove();
+    };
+    document.body.appendChild(s);
+  }
+
+  window.addEventListener('load', load);
+})();
+</script>
+
     <div class="features-hero">
         <div class="feat"><div class="icon">🌅</div><div class="label">Bangun Pagi</div></div>
         <div class="feat"><div class="icon">🕌</div><div class="label">Ibadah</div></div>
