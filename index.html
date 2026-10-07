@@ -388,7 +388,7 @@
 <section class="leaderboard-section" id="leaderboard">
   <div class="leaderboard-header">
     <h2>🏆 Peringkat Teratas</h2>
-    <p class="leaderboard-sub">5 siswa terbaik di setiap kelas berdasarkan Total Skor</p>
+    <p class="leaderboard-sub">5 siswa terbaik di setiap kelas · Total Skor & Jumlah Hari Aktif</p>
   </div>
 
   <div class="leaderboard-grid">
@@ -541,7 +541,17 @@
   font-weight: 600;
   flex-shrink: 0;
 }
-
+.rank-hari {
+  font-size: 0.75rem;
+  color: #0FA3A3;
+  background: #e6f7f7;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+    
 .rank-skor { font-weight: 800; color: #0FA3A3; font-size: 1rem; flex-shrink: 0; }
 
 .rank-list li.loading,
@@ -573,20 +583,21 @@
   }
 
   function renderRank(elId, rows) {
-    const el = document.getElementById(elId);
-    if (!el) return;
-    if (!rows || !rows.length) {
-      el.innerHTML = '<li class="empty">Belum ada data</li>';
-      return;
-    }
-    el.innerHTML = rows.map(function (r) {
-      return '<li>' +
-        '<span class="rank-name">' + escapeHtml(r.nama) + '</span>' +
-        '<span class="rank-kelas">' + escapeHtml(r.kelas) + '</span>' +
-        '<span class="rank-skor">' + r.skor + '</span>' +
-      '</li>';
-    }).join('');
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (!rows || !rows.length) {
+    el.innerHTML = '<li class="empty">Belum ada data</li>';
+    return;
   }
+  el.innerHTML = rows.map(function (r) {
+    return '<li>' +
+      '<span class="rank-name">' + escapeHtml(r.nama) + '</span>' +
+      '<span class="rank-kelas">' + escapeHtml(r.kelas) + '</span>' +
+      '<span class="rank-hari" title="Jumlah hari">📅 ' + (r.hari || 0) + '</span>' +
+      '<span class="rank-skor">' + r.skor + '</span>' +
+    '</li>';
+  }).join('');
+}
 
   function showError(msg) {
     KELAS_LIST.forEach(function (k) {
